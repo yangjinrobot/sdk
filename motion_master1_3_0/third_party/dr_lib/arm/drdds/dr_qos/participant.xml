@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dds xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles" >
+    <profiles>
+        <transport_descriptors>
+            <!-- TCP sample transport descriptor -->
+            <transport_descriptor>
+                <transport_id>ExampleTransportId1</transport_id>
+                <type>TCPv4</type>
+                <sendBufferSize>8192</sendBufferSize>
+                <receiveBufferSize>8192</receiveBufferSize>
+                <maxMessageSize>16384</maxMessageSize>
+                <maxInitialPeersRange>100</maxInitialPeersRange>
+                <netmask_filter>AUTO</netmask_filter>
+                <interfaces>
+                    <allowlist>
+                        <interface name="wlp59s0" netmask_filter="ON"/>
+                    </allowlist>
+                    <blocklist>
+                        <interface name="127.0.0.1"/>
+                        <interface name="docker0"/>
+                    </blocklist>
+                </interfaces>
+                <interfaceWhiteList>
+                    <address>192.168.1.41</address>
+                    <interface>lo</interface>
+                </interfaceWhiteList>
+                <wan_addr>80.80.55.44</wan_addr>
+                <keep_alive_frequency_ms>5000</keep_alive_frequency_ms>
+                <keep_alive_timeout_ms>25000</keep_alive_timeout_ms>
+                <max_logical_port>200</max_logical_port>
+                <logical_port_range>20</logical_port_range>
+                <logical_port_increment>2</logical_port_increment>
+                <listening_ports>
+                    <port>5100</port>
+                    <port>5200</port>
+                </listening_ports>
+                <tls>
+                    <password>Password</password>
+                    <private_key_file>Key_file.pem</private_key_file>
+                    <rsa_private_key_file>RSA_file.pem</rsa_private_key_file>
+                    <cert_chain_file>Chain.pem</cert_chain_file>
+                    <tmp_dh_file>DH.pem</tmp_dh_file>
+                    <verify_file>verify.pem</verify_file>
+                    <verify_mode>
+                        <verify>VERIFY_PEER</verify>
+                    </verify_mode>
+                    <options>
+                        <option>NO_TLSV1</option>
+                        <option>NO_TLSV1_1</option>
+                    </options>
+                    <verify_paths>
+                        <verify_path>Path1</verify_path>
+                        <verify_path>Path2</verify_path>
+                        <verify_path>Path3</verify_path>
+                    </verify_paths>
+                    <verify_depth>55</verify_depth>
+                    <default_verify_path>true</default_verify_path>
+                    <handshake_role>SERVER</handshake_role>
+                    <server_name>my_server.com</server_name>
+                </tls>
+                <calculate_crc>false</calculate_crc>
+                <check_crc>false</check_crc>
+                <enable_tcp_nodelay>false</enable_tcp_nodelay>
+                <default_reception_threads>
+                    <scheduling_policy>-1</scheduling_policy>
+                    <priority>0</priority>
+                    <affinity>0</affinity>
+                    <stack_size>-1</stack_size>
+                </default_reception_threads>
+                <reception_threads>
+                    <reception_thread port="12345">
+                        <scheduling_policy>-1</scheduling_policy>
+                        <priority>0</priority>
+                        <affinity>0</affinity>
+                        <stack_size>-1</stack_size>
+                    </reception_thread>
+                </reception_threads>
+            </transport_descriptor>
+            <!-- UDP sample transport descriptor. Several options are common with TCP -->
+            <transport_descriptor>
+                <transport_id>ExampleTransportId2</transport_id>
+                <type>UDPv6</type>
+                <TTL>250</TTL>
+                <non_blocking_send>false</non_blocking_send>
+                <output_port>5101</output_port>
+                <default_reception_threads>
+                    <scheduling_policy>-1</scheduling_policy>
+                    <priority>0</priority>
+                    <affinity>0</affinity>
+                    <stack_size>-1</stack_size>
+                </default_reception_threads>
+                <reception_threads>
+                    <reception_thread port="12345">
+                        <scheduling_policy>-1</scheduling_policy>
+                        <priority>0</priority>
+                        <affinity>0</affinity>
+                        <stack_size>-1</stack_size>
+                    </reception_thread>
+                </reception_threads>
+            </transport_descriptor>
+            <!-- SHM sample transport descriptor -->
+            <transport_descriptor>
+                <transport_id>SHM_SAMPLE_DESCRIPTOR</transport_id>
+                <type>SHM</type> <!-- REQUIRED -->
+                <maxMessageSize>524288</maxMessageSize> <!-- OPTIONAL uint32 valid of all transports-->
+                <segment_size>1048576</segment_size> <!-- OPTIONAL uint32 SHM only-->
+                <port_queue_capacity>1024</port_queue_capacity> <!-- OPTIONAL uint32 SHM only-->
+                <healthy_check_timeout_ms>250</healthy_check_timeout_ms> <!-- OPTIONAL uint32 SHM only-->
+                <rtps_dump_file>test_file.dump</rtps_dump_file> <!-- OPTIONAL string SHM only-->
+                <default_reception_threads> <!-- OPTIONAL -->
+                    <scheduling_policy>-1</scheduling_policy>
+                    <priority>0</priority>
+                    <affinity>0</affinity>
+                    <stack_size>-1</stack_size>
+                </default_reception_threads>
+                <reception_threads> <!-- OPTIONAL -->
+                    <reception_thread port="12345">
+                        <scheduling_policy>-1</scheduling_policy>
+                        <priority>0</priority>
+                        <affinity>0</affinity>
+                        <stack_size>-1</stack_size>
+                    </reception_thread>
+                </reception_threads>
+                <dump_thread>
+                    <scheduling_policy>-1</scheduling_policy>
+                    <priority>0</priority>
+                    <affinity>0</affinity>
+                    <stack_size>-1</stack_size>
+                </dump_thread>
+            </transport_descriptor>
+        </transport_descriptors>
+
+        <participant profile_name="participant_profile_example">
+            <domainId>4</domainId>
+            <rtps>
+                <name>Participant Name</name> <!-- String -->
+
+                <defaultUnicastLocatorList>
+                    <locator>
+                        <udpv4>
+                            <!-- Access as physical, like UDP -->
+                            <port>7400</port>
+                            <address>localhost</address>
+                        </udpv4>
+                    </locator>
+                    <locator>
+                        <tcpv4>
+                            <!-- Both physical and logical (port), like TCP -->
+                            <physical_port>5100</physical_port>
+                            <port>7400</port>
+                            <unique_lan_id>192.168.1.1.1.1.2.55</unique_lan_id>
+                            <wan_address>80.80.99.45</wan_address>
+                            <address>192.168.1.55</address>
+                        </tcpv4>
+                    </locator>
+                    <locator>
+                        <udpv6>
+                            <port>8844</port>
+                            <address>::1</address>
+                        </udpv6>
+                    </locator>
+                </defaultUnicastLocatorList>
+
+                <defaultMulticastLocatorList>
+                    <locator>
+                        <udpv4>
+                            <!-- Access as physical, like UDP -->
+                            <port>7400</port>
+                            <address>192.168.1.41</address>
+                        </udpv4>
+                    </locator>
+                    <locator>
+                        <tcpv4>
+                            <!-- Both physical and logical (port), like TCP -->
+                            <physical_port>5100</physical_port>
+                            <port>7400</port>
+                            <unique_lan_id>192.168.1.1.1.1.2.55</unique_lan_id>
+                            <wan_address>80.80.99.45</wan_address>
+                            <address>192.168.1.55</address>
+                        </tcpv4>
+                    </locator>
+                    <locator>
+                        <udpv6>
+                            <port>8844</port>
+                            <address>::1</address>
+                        </udpv6>
+                    </locator>
+                </defaultMulticastLocatorList>
+
+                <default_external_unicast_locators>
+                    <!-- EXTERNAL_LOCATOR_LIST -->
+                    <udpv4 externality="1" cost="0" mask="24">
+                        <address>100.100.100.10</address>
+                        <port>23456</port>
+                    </udpv4>
+                    <udpv6 externality="1" cost="1" mask="48">
+                        <address>::1</address>
+                        <port>1234</port>
+                    </udpv6>
+                </default_external_unicast_locators>
+
+                <ignore_non_matching_locators>true</ignore_non_matching_locators>
+                <sendSocketBufferSize>8192</sendSocketBufferSize>
+                <listenSocketBufferSize>8192</listenSocketBufferSize>
+                <netmask_filter>AUTO</netmask_filter>
+
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>NONE</discoveryProtocol>
+                        <discoveryServersList>
+                            <RemoteServer prefix="72.61.73.70.66.61.72.6d.74.65.73.74">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>192.168.10.57</address>
+                                            <port>56542</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                                <metatrafficMulticastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>192.168.10.58</address>
+                                            <port>24565</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficMulticastLocatorList>
+                            </RemoteServer>
+                            <RemoteServer prefix="72.61.73.70.66.61.72.6d.74.65.73.75">
+                                <metatrafficUnicastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>192.168.10.59</address>
+                                            <port>56543</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficUnicastLocatorList>
+                                <metatrafficMulticastLocatorList>
+                                    <locator>
+                                        <udpv4>
+                                            <address>192.168.10.60</address>
+                                            <port>34565</port>
+                                        </udpv4>
+                                    </locator>
+                                </metatrafficMulticastLocatorList>
+                            </RemoteServer>
+                        </discoveryServersList>
+                        <ignoreParticipantFlags>FILTER_DIFFERENT_PROCESS|FILTER_SAME_PROCESS</ignoreParticipantFlags>
+                        <EDP>SIMPLE</EDP>
+                        <simpleEDP>
+                            <PUBWRITER_SUBREADER>true</PUBWRITER_SUBREADER>
+                            <PUBREADER_SUBWRITER>true</PUBREADER_SUBWRITER>
+                        </simpleEDP>
+                        <leaseDuration>
+                            <sec>DURATION_INFINITY</sec>
+                        </leaseDuration>
+                        <leaseAnnouncement>
+                            <sec>1</sec>
+                            <nanosec>856000</nanosec>
+                        </leaseAnnouncement>
+                        <initialAnnouncements>
+                            <count>10</count>
+                            <period>
+                                <nanosec>50</nanosec>
+                            </period>
+                        </initialAnnouncements>
+                        <clientAnnouncementPeriod>
+                            <nanosec>250000000</nanosec>
+                        </clientAnnouncementPeriod>
+                        <static_edp_xml_config>filename1.xml</static_edp_xml_config>
+                        <static_edp_xml_config>filename2.xml</static_edp_xml_config>
+                        <static_edp_xml_config>filename3.xml</static_edp_xml_config>
+                    </discovery_config>
+
+                    <avoid_builtin_multicast>true</avoid_builtin_multicast>
+                    <use_WriterLivelinessProtocol>false</use_WriterLivelinessProtocol>
+
+                    <metatrafficUnicastLocatorList>
+                        <locator>
+                            <udpv4>
+                                <!-- Access as physical, like UDP -->
+                                <port>7400</port>
+                                <address>192.168.1.41</address>
+                            </udpv4>
+                        </locator>
+                        <locator>
+                            <tcpv4>
+                                <!-- Both physical and logical (port), like TCP -->
+                                <physical_port>5100</physical_port>
+                                <port>7400</port>
+                                <unique_lan_id>192.168.1.1.1.1.2.55</unique_lan_id>
+                                <wan_address>80.80.99.45</wan_address>
+                                <address>192.168.1.55</address>
+                            </tcpv4>
+                        </locator>
+                        <locator>
+                            <udpv6>
+                                <port>8844</port>
+                                <address>::1</address>
+                            </udpv6>
+                        </locator>
+                    </metatrafficUnicastLocatorList>
+
+                    <metatrafficMulticastLocatorList>
+                        <locator>
+                            <udpv4>
+                                <!-- Access as physical, like UDP -->
+                                <port>7400</port>
+                                <address>192.168.1.41</address>
+                            </udpv4>
+                        </locator>
+                        <locator>
+                            <tcpv4>
+                                <!-- Both physical and logical (port), like TCP -->
+                                <physical_port>5100</physical_port>
+                                <port>7400</port>
+                                <unique_lan_id>192.168.1.1.1.1.2.55</unique_lan_id>
+                                <wan_address>80.80.99.45</wan_address>
+                                <address>192.168.1.55</address>
+                            </tcpv4>
+                        </locator>
+                        <locator>
+                            <udpv6>
+                                <port>8844</port>
+                                <address>::1</address>
+                            </udpv6>
+                        </locator>
+                    </metatrafficMulticastLocatorList>
+
+                    <initialPeersList>
+                        <locator>
+                            <udpv4>
+                                <!-- Access as physical, like UDP -->
+                                <port>7400</port>
+                                <address>192.168.1.41</address>
+                            </udpv4>
+                        </locator>
+                        <locator>
+                            <tcpv4>
+                                <!-- Both physical and logical (port), like TCP -->
+                                <physical_port>5100</physical_port>
+                                <port>7400</port>
+                                <unique_lan_id>192.168.1.1.1.1.2.55</unique_lan_id>
+                                <wan_address>80.80.99.45</wan_address>
+                                <address>192.168.1.55</address>
+                            </tcpv4>
+                        </locator>
+                        <locator>
+                            <udpv6>
+                                <port>8844</port>
+                                <address>::1</address>
+                            </udpv6>
+                        </locator>
+                    </initialPeersList>
+
+                    <metatraffic_external_unicast_locators>
+                        <udpv4 externality="1" cost="0" mask="24">
+                            <address>100.100.100.10</address>
+                            <port>34567</port>
+                        </udpv4>
+                    </metatraffic_external_unicast_locators>
+
+                    <readerHistoryMemoryPolicy>PREALLOCATED_WITH_REALLOC</readerHistoryMemoryPolicy>
+                    <writerHistoryMemoryPolicy>PREALLOCATED</writerHistoryMemoryPolicy>
+                    <readerPayloadSize>512</readerPayloadSize>
+                    <writerPayloadSize>512</writerPayloadSize>
+                    <mutation_tries>55</mutation_tries>
+                    <typelookup_config>
+                        <use_client>true</use_client>
+                        <use_server>true</use_server>
+                    </typelookup_config>
+                </builtin>
+
+                <port>
+                    <portBase>7400</portBase>
+                    <domainIDGain>200</domainIDGain>
+                    <participantIDGain>10</participantIDGain>
+                    <offsetd0>0</offsetd0>
+                    <offsetd1>1</offsetd1>
+                    <offsetd2>2</offsetd2>
+                    <offsetd3>3</offsetd3>
+                </port>
+
+                <participantID>99</participantID>
+
+                <userTransports>
+                    <transport_id>ExampleTransportId1</transport_id>
+                    <transport_id>ExampleTransportId2</transport_id>
+                </userTransports>
+
+                <useBuiltinTransports>false</useBuiltinTransports>
+
+                <builtinTransports max_msg_size="50KB" sockets_size="50KB" non_blocking="false">DEFAULT</builtinTransports>
+            </rtps>
+        </participant>
+    </profiles>
+</dds>

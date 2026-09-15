@@ -1,0 +1,63 @@
+[data_stream]
+enable_online_plot = "false"
+enable_data_record = "false"
+enable_file_rotation = "true"
+record_freq = "5"
+ip = "10.21.41.208"
+port = "9870"
+max_file_size_mb = "256"
+max_file_count = "5"
+# 轮转 CSV（robot_data_*.csv）目录；清理旧文件仅扫描此目录
+base_directory = "../data"
+# enable_data_record 单文件时间戳 CSV 目录，与 base_directory 隔离
+record_directory = "../data/record"
+file_prefix = "robot_data"
+
+# ===== 关节指令三级保护配置 =====
+# L1（硬限位）：NaN/负值/远超物理极限 → 立即丢弃整帧，切换阻尼模式，上报 FATAL
+# L2（软限位）：超出安全运行范围 → Clamp + 计数，连续超限后切换阻尼模式，上报 ERROR
+# L3（理论边界）：接近正常范围边缘 → 仅记录日志
+[joint_protection]
+enabled = true                # 是否启用三级保护
+l2_threshold = 10             # L2 滑动窗口内最大允许超限次数，超过则触发阻尼模式
+l2_decay_rate = 1             # L2 计数器每帧正常时的衰减量
+damping_kd = 10.0             # 阻尼保护模式的 Kd 值（建议 5~10）
+margin_l1 = 1                 # L1 位置硬限位在软限位基础上外扩的余量（rad）
+l3_log_interval = 1000        # L3 日志记录间隔（每 N 帧记录一次，避免 I/O 瓶颈）
+enable_fault_report = false   # L1/L2 触发时是否通过 FaultClient 上报故障事件（false 时仍记录日志）
+enable_damping_mode = false   # L2 触发时是否切换到阻尼模式（false 时 L2 做 clamp 后仍正常下发；L1 始终触发阻尼保护）
+
+# ===== SafeController 仅上报模式 =====
+
+# report_only = true 时：故障检测/上报照常进行（reportFault、日志），
+# 但 usr_cmd_->safe_control_mode 强制写 0，下游状态机不会触发软急停（JointDamping）。
+# 仅用于诊断/调试，生产环境务必置 false。
+[safe_controller]
+report_only = false
+
+# ===== 姿态限制配置 =====
+[posture_limit]
+enable = true
+roll_threshold_deg = 80.0
+pitch_threshold_deg = 80.0
+hysteresis_ms = 100
+
+# ===== Ecan 硬件接口配置（只适用于pro版，std版本默认无脖子） =====
+# with_neck = true  : 携带 neck（头部）关节硬件，按真实数据进行更新与校验
+# with_neck = false : 不携带 neck 硬件，对 neck 关节下发假数据并跳过数据不更新告警
+[ecan_hardware]
+with_neck = false
+
+# ===== 脖子接管控制（neck_takeover_control）=====
+# enable=true 后，任何状态下 neckyaw/neckpitch 均由 UserCommand::neck_yaw_cmd/neck_pitch_cmd
+# 接管（∈[-1,1] → ±yaw_range_deg / ±pitch_range_deg）。仅对 CR1Pro=2轴生效。
+# enable=false 后，脖子默认平滑控制锁死到零位
+# mechanical_locked=true 优先级最高：neck 关节指令整行（kp/pos/kd/vel/tau）全部置零，
+# 适用于脖子被机械锁死、不允许下发任何驱动量的场景。
+[neck_takeover_control]
+enable            = false    # 接管全局开关
+mechanical_locked = true   # 脖子是否有机械限位锁死：true 则 neck 整体不进行控制（优先级高于 enable）
+yaw_range_deg     = 45.0    # neckyaw ±量程
+pitch_range_deg   = 20.0    # neckpitch ±量程
+max_step_deg      = 0.03    # 每个 1ms 周期最大步进，等效最大角速度 30°/s
+deadzone          = 0.05    # 指令死区，|cmd| < deadzone 记为 0
