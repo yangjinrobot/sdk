@@ -59,7 +59,7 @@ class KeyboardInterface : public UserCommandInterface {
               << "  Entry:     idle/calibration -> Z (zeropos) or X (suspended stand)\n"
               << "  Transitions: zeropos -> C/V/L/1; suspended stand -> C/V; RL -> Z/V/L/1\n"
               << "               ReStand -> Z/C/L; L -> C/V; shoot_down -> 2; shoot_up -> V\n"
-              << "  Velocity:  W/S/A/D/Q/E work only in RL and ReStand; R requests damping\n"
+              << "  Velocity:  W/S/A/D/Q/E work in RL, ReStand, and shoot-walk; R requests damping\n"
               << "\n";
 
     start_thread_flag_ = true;
@@ -198,7 +198,8 @@ class KeyboardInterface : public UserCommandInterface {
 
         const bool velocity_control_state =
             current_state == RobotMotionState::RLControlMode ||
-            current_state == RobotMotionState::ReStand;
+            current_state == RobotMotionState::ReStand ||
+            current_state == RobotMotionState::ZhanliShooting;
         if (velocity_control_state &&
             (key == 'w' || key == 's' || key == 'a' || key == 'd' || key == 'q' || key == 'e')) {
           const double last_ms = key_last_trigger_ms.count(key) ? key_last_trigger_ms[key] : -1e9;
@@ -215,7 +216,8 @@ class KeyboardInterface : public UserCommandInterface {
       }
 
       if (current_state == RobotMotionState::RLControlMode ||
-          current_state == RobotMotionState::ReStand) {
+          current_state == RobotMotionState::ReStand ||
+          current_state == RobotMotionState::ZhanliShooting) {
         ClipNumber(usr_cmd_->forward_vel_scale, -1.0f, 1.0f);
         ClipNumber(usr_cmd_->side_vel_scale, -1.0f, 1.0f);
         ClipNumber(usr_cmd_->turnning_vel_scale, -1.0f, 1.0f);

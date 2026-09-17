@@ -12,7 +12,6 @@ ZhanliShootingPolicyRunner::ZhanliShootingPolicyRunner(
             "policy_shoot_walk.onnx supports CR1STANDARD (21 DOF) only");
     }
 
-    // POLICY_JOINT_ORDER from shooting_0916 training. This is deliberately
     // distinct from CommonPolicyRunner's walking-policy default pose.
     dof_pos_default_ << -0.2f, -0.2f, 0.f, 0.f, 0.f, 0.f, 0.f,
         0.f, 0.f, 0.15f, -0.15f, 0.4f, 0.4f, 0.f, 0.f,
