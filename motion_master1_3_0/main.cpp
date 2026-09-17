@@ -59,9 +59,9 @@ int main(){
         rp.Start(1000);                              // 自动探测路径，1Hz 回写
     }
 
-    std::shared_ptr<StateMachineBase> fsm = std::make_shared<humanoid::HumanoidStateMachine>(RobotName::CR1STANDARD, RemoteCommandType::kKeyboard);
-    // std::shared_ptr<StateMachineBase> fsm =
-    //     std::make_shared<humanoid::HumanoidStateMachine>(hwi_name, remote_cmd_type);
+    // std::shared_ptr<StateMachineBase> fsm = std::make_shared<humanoid::HumanoidStateMachine>(RobotName::CR1STANDARD, RemoteCommandType::kKeyboard);
+    std::shared_ptr<StateMachineBase> fsm =
+        std::make_shared<humanoid::HumanoidStateMachine>(hwi_name, remote_cmd_type);
 
     fsm->Start();
     fsm->Run();

@@ -28,7 +28,7 @@ ls -lh *.deb
 将生成的 Deb 包上传至机器人：
 
 ```bash
-scp -O motion_master.v1.3.0+bff3fc.arm64.2609170941.deb user@10.21.33.103:~/
+scp -O motion_master.v1.3.0+cc48b0.arm64.2609171417.deb user@10.21.33.103:~/
 
 ```
 
@@ -37,7 +37,7 @@ scp -O motion_master.v1.3.0+bff3fc.arm64.2609170941.deb user@10.21.33.103:~/
 ```bash
 '
 ssh user@10.21.33.103
-sudo dpkg -i ~/motion_master.v1.3.0+bff3fc.arm64.2609170941.deb
+sudo dpkg -i ~/motion_master.v1.3.0+cc48b0.arm64.2609171417.deb
 ```
 
 ## 4. 启动机器人控制
