@@ -170,7 +170,6 @@ public:
         }
         if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::RLControlMode) && !(uc_ptr_->GetUserCommand()->safe_control_mode&(1 << kSafePostureNormal))) return StateName::kRLControl;
         if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::ReStand) && !(uc_ptr_->GetUserCommand()->safe_control_mode&(1 << kSafePostureNormal))) return StateName::kReStand;
-        if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::Ysc)) return StateName::kYsc;
         if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::ZeroPos)) return StateName::kZeroPos;
         return StateName::kSuspendedStand;
     }

@@ -123,9 +123,7 @@ public:
         }
         if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::RLControlMode)) return StateName::kRLControl;
         if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::SuspendedStand)) return StateName::kSuspendedStand;
-        if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::StandShooting)) return StateName::kStandShooting;
-        if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::Ysc)) return StateName::kYsc;
-        if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::Mofang)) return StateName::kMofang;
+        if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::ShootDown)) return StateName::kShootDown;
         if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::ReStand)) return StateName::kReStand;
 
         return StateName::kZeroPos;

@@ -23,7 +23,7 @@ expect {
 expect eof
 
 # 3. scp ONNX 模型到机器人
-spawn ssh -p $port $username@$ip "mkdir -p /opt/robot/share/motion_master/policy"
+spawn ssh -p $port $username@$ip "mkdir -p /opt/robot/share/motion_master/policy/mimic"
 expect {
   "密码：" { send "$passwd\r" }
   "pass"   { send "$passwd\r" }
@@ -31,7 +31,39 @@ expect {
 }
 expect eof
 
-spawn scp -P $port run_policy/cr1/policy/policy_CR1_8.onnx $username@$ip:/opt/robot/share/motion_master/policy/policy_CR1_8.onnx
+spawn scp -P $port run_policy/cr1/policy/policy_shoot_walk.onnx $username@$ip:/opt/robot/share/motion_master/policy/policy_shoot_walk.onnx
+expect {
+  "密码：" { send "$passwd\r" }
+  "pass"   { send "$passwd\r" }
+  "yes/no" { send "yes\r"; exp_continue }
+}
+expect eof
+
+spawn scp -P $port run_policy/cr1/policy/mimic/model_43000.onnx $username@$ip:/opt/robot/share/motion_master/policy/mimic/model_43000.onnx
+expect {
+  "密码：" { send "$passwd\r" }
+  "pass"   { send "$passwd\r" }
+  "yes/no" { send "yes\r"; exp_continue }
+}
+expect eof
+
+spawn scp -P $port run_policy/cr1/policy/mimic/model_28000.onnx $username@$ip:/opt/robot/share/motion_master/policy/mimic/model_28000.onnx
+expect {
+  "密码：" { send "$passwd\r" }
+  "pass"   { send "$passwd\r" }
+  "yes/no" { send "yes\r"; exp_continue }
+}
+expect eof
+
+spawn scp -P $port run_policy/cr1/policy/mimic/shoot_down.npz $username@$ip:/opt/robot/share/motion_master/policy/mimic/shoot_down.npz
+expect {
+  "密码：" { send "$passwd\r" }
+  "pass"   { send "$passwd\r" }
+  "yes/no" { send "yes\r"; exp_continue }
+}
+expect eof
+
+spawn scp -P $port run_policy/cr1/policy/mimic/shoot_up.npz $username@$ip:/opt/robot/share/motion_master/policy/mimic/shoot_up.npz
 expect {
   "密码：" { send "$passwd\r" }
   "pass"   { send "$passwd\r" }

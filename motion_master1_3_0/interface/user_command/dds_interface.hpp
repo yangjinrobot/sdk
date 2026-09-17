@@ -150,7 +150,6 @@ void HandlerVel(const drdds::msg::Steer* data)
                 case RobotMotionState::ZeroPos:              // 0x20001
                 case RobotMotionState::ZeroCalibration:      // 0x20004
                 case RobotMotionState::SuspendedStand:       // 0x20006
-                case RobotMotionState::Ysc:                  // 0x20009
                     return true;
                 default:
                     return false;

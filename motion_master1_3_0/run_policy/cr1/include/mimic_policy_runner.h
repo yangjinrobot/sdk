@@ -16,6 +16,10 @@ public:
     explicit MimicPolicyRunner(
         RobotName robot_name,
         const std::filesystem::path& policy_directory = DefaultPolicyDirectory());
+    MimicPolicyRunner(const std::string& policy_name, RobotName robot_name,
+                      const std::filesystem::path& model_path,
+                      const std::filesystem::path& reference_path,
+                      bool use_readme_deployment_parameters);
 
     void DisplayPolicyInfo() override;
     void OnEnter() override;

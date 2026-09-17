@@ -189,15 +189,23 @@ std::filesystem::path MimicPolicyRunner::DefaultPolicyDirectory() {
 
 MimicPolicyRunner::MimicPolicyRunner(RobotName robot_name,
                                      const std::filesystem::path& policy_directory)
-    : PolicyRunnerBase("mofang", robot_name) {
+    : MimicPolicyRunner("mofang", robot_name,
+                        policy_directory / "model_11000.onnx",
+                        policy_directory / "shooting_2.npz", false) {}
+
+MimicPolicyRunner::MimicPolicyRunner(const std::string& policy_name, RobotName robot_name,
+                                     const std::filesystem::path& model_path,
+                                     const std::filesystem::path& reference_path,
+                                     bool use_readme_deployment_parameters)
+    : PolicyRunnerBase(policy_name, robot_name) {
     if (robot_name != RobotName::CR1STANDARD)
         throw std::runtime_error("Mofang policy requires the 21-DoF CR1STANDARD robot");
     session_options_.SetIntraOpNumThreads(1);
     session_options_.SetGraphOptimizationLevel(ORT_ENABLE_ALL);
-    const auto model_path = std::filesystem::canonical(policy_directory / "model_11000.onnx");
-    session_ = Ort::Session(env_, model_path.c_str(), session_options_);
+    const auto canonical_model_path = std::filesystem::canonical(model_path);
+    session_ = Ort::Session(env_, canonical_model_path.c_str(), session_options_);
     std::cout << "loaded " << policy_name_ << " ONNX model from: "
-              << model_path << std::endl;
+              << canonical_model_path << std::endl;
     ValidateTensor(true, "obs", {1, kObservationSize});
     ValidateTensor(true, "time_step", {1, 1});
     ValidateTensor(false, "actions", {1, kJointCount});
@@ -253,7 +261,7 @@ MimicPolicyRunner::MimicPolicyRunner(RobotName robot_name,
          50.0f,  50.0f,  80.0f,  80.0f,  50.0f,  50.0f,
         100.0f, 100.0f,  50.0f,  50.0f,  70.0f,  70.0f,
          50.0f,  50.0f,  30.0f,  30.0f;
-    kp_ =kp_ * 0.8;
+    if (!use_readme_deployment_parameters) kp_ = kp_ * 0.8;
     kd_ = VecXf::Zero(kJointCount);
     kd_ <<
         3.0f, 3.0f, 3.0f, 3.0f, 3.0f,
@@ -261,11 +269,18 @@ MimicPolicyRunner::MimicPolicyRunner(RobotName robot_name,
         3.0f, 3.0f, 5.0f, 5.0f, 2.0f, 2.0f,
         5.0f, 5.0f, 1.0f, 1.0f;
 
-    action_scale_ = MetadataVector("action_scale");
+    if (use_readme_deployment_parameters) {
+        action_scale_ = VecXf(kJointCount);
+        action_scale_ << 0.908f, 0.908f, 0.343f, 0.908f, 0.908f, 0.685f, 0.685f,
+            0.428f, 0.428f, 0.685f, 0.685f, 0.908f, 0.908f, 0.685f, 0.685f,
+            0.489f, 0.489f, 0.685f, 0.685f, 0.417f, 0.417f;
+    } else {
+        action_scale_ = MetadataVector("action_scale");
+    }
     if ((kp_.array() <= 0).any() || (kd_.array() < 0).any() ||
         (action_scale_.array() <= 0).any())
         throw std::runtime_error("Invalid Mofang gains or action scale");
-    LoadReference(std::filesystem::canonical(policy_directory / "shooting_2.npz"));
+    LoadReference(std::filesystem::canonical(reference_path));
     decimation_ = 20;  // 1 kHz state-machine loop, 50 Hz policy/reference.
     OnEnter();
 }

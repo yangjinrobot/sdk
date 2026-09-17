@@ -210,8 +210,6 @@ public:
             }
         }
         if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::SuspendedStand)) return StateName::kSuspendedStand;
-        if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::StandPolicy)) return StateName::kStandPolicy;
-        if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::Ysc)) return StateName::kYsc;
         if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::ZeroPos)) return StateName::kZeroPos;
         if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::ZeroCalibration)) return StateName::kZeroCalibration;
         return StateName::kIdle;

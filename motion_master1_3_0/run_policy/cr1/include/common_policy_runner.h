@@ -64,7 +64,9 @@ public:
     Eigen::MatrixXf observation_input_;
 
 public:
-    CommonPolicyRunner(const std::string& policy_name, RobotName robot_name, const std::string& onnx_path);
+    CommonPolicyRunner(const std::string& policy_name, RobotName robot_name,
+                       const std::string& onnx_path,
+                       GraphOptimizationLevel graph_optimization_level = ORT_ENABLE_ALL);
     ~CommonPolicyRunner();
 
     void DisplayPolicyInfo() override;

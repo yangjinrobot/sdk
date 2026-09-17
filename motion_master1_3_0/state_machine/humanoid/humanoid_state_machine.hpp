@@ -19,10 +19,9 @@
 #include "humanoid/rl_control_state.hpp"
 #include "humanoid/restand_state.hpp"
 #include "humanoid/suspended_standup_state.hpp"
-#include "humanoid/stand_policy_state.hpp"
-#include "humanoid/stand_shooting_state.hpp"
-#include "humanoid/ysc_state.hpp"
-#include "humanoid/mofang_state.hpp"
+#include "humanoid/zhanli_shooting_state.hpp"
+#include "humanoid/shoot_down_state.hpp"
+#include "humanoid/shoot_up_state.hpp"
 #include "humanoid/zero_calibration_state.hpp"
 
 #include "skydroid_gamepad_interface.hpp"
@@ -46,10 +45,9 @@ private:
     std::shared_ptr<StateBase> zeropos_controller_;
     std::shared_ptr<StateBase> joint_damping_controller_;
     std::shared_ptr<StateBase> suspended_standup_controller_;
-    std::shared_ptr<StateBase> stand_policy_controller_;
-    std::shared_ptr<StateBase> stand_shooting_controller_;
-    std::shared_ptr<StateBase> ysc_controller_;
-    std::shared_ptr<StateBase> mofang_controller_;
+    std::shared_ptr<StateBase> zhanli_shooting_controller_;
+    std::shared_ptr<StateBase> shoot_down_controller_;
+    std::shared_ptr<StateBase> shoot_up_controller_;
     std::shared_ptr<StateBase> rl_controller_;
     std::shared_ptr<StateBase> restand_controller_;
     std::shared_ptr<StateBase> zero_calibration_controller_;
@@ -146,10 +144,9 @@ public:
         joint_damping_controller_ = std::make_shared<JointDampingState>(robot_name_, "joint_damping", data_ptr);
         suspended_standup_controller_ = std::make_shared<SuspendedStandUpState>(robot_name_, "suspended_standup", data_ptr);
         if (robot_name_ == RobotName::CR1STANDARD) {
-            stand_policy_controller_ = std::make_shared<StandPolicyState>(robot_name_, "stand_policy", data_ptr);
-            stand_shooting_controller_ = std::make_shared<StandShootingState>(robot_name_, "stand_shooting", data_ptr);
-            ysc_controller_ = std::make_shared<YscState>(robot_name_, "ysc", data_ptr);
-            mofang_controller_ = std::make_shared<MofangState>(robot_name_, "mofang", data_ptr);
+            zhanli_shooting_controller_ = std::make_shared<ZhanliShootingState>(robot_name_, "zhanli_shooting", data_ptr);
+            shoot_down_controller_ = std::make_shared<ShootDownState>(robot_name_, "shoot_down", data_ptr);
+            shoot_up_controller_ = std::make_shared<ShootUpState>(robot_name_, "shoot_up", data_ptr);
         }
         rl_controller_ = std::make_shared<RLControlState>(robot_name_, "rl_control", data_ptr);
         if (robot_name_ == RobotName::CR1STANDARD) {
@@ -199,17 +196,14 @@ public:
             case StateName::kSuspendedStand:{
                 return suspended_standup_controller_;
             }
-            case StateName::kStandPolicy:{
-                return stand_policy_controller_ ? stand_policy_controller_ : joint_damping_controller_;
+            case StateName::kZhanliShooting:{
+                return zhanli_shooting_controller_ ? zhanli_shooting_controller_ : joint_damping_controller_;
             }
-            case StateName::kStandShooting:{
-                return stand_shooting_controller_ ? stand_shooting_controller_ : joint_damping_controller_;
+            case StateName::kShootDown:{
+                return shoot_down_controller_ ? shoot_down_controller_ : joint_damping_controller_;
             }
-            case StateName::kYsc:{
-                return ysc_controller_ ? ysc_controller_ : joint_damping_controller_;
-            }
-            case StateName::kMofang:{
-                return mofang_controller_ ? mofang_controller_ : joint_damping_controller_;
+            case StateName::kShootUp:{
+                return shoot_up_controller_ ? shoot_up_controller_ : joint_damping_controller_;
             }
             case StateName::kJointDamping:{
                 return joint_damping_controller_;

@@ -380,8 +380,8 @@ namespace humanoid {
             if (user_command.target_mode == (RobotMotionState::WaitingForStand))
                 return StateName::kIdle;
             if(user_command.target_mode == (RobotMotionState::SuspendedStand)) return StateName::kSuspendedStand;
-            if(user_command.target_mode == (RobotMotionState::Ysc)) return StateName::kYsc;
-            if(user_command.target_mode == (RobotMotionState::Mofang)) return StateName::kMofang;
+            if(user_command.target_mode == (RobotMotionState::ZhanliShooting)) return StateName::kZhanliShooting;
+            if(user_command.target_mode == (RobotMotionState::ShootDown)) return StateName::kShootDown;
             if(user_command.target_mode == (RobotMotionState::ZeroPos)) return StateName::kZeroPos;
             if(user_command.target_mode == (RobotMotionState::RLControlMode)) return StateName::kRLControl;
             if(user_command.target_mode == (RobotMotionState::ReStand)) return StateName::kReStand;

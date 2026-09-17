@@ -53,12 +53,13 @@ class KeyboardInterface : public UserCommandInterface {
               << "╚════════════════════════════════════════════════╝\n"
               << "  Movement:  W/S (forward/back)  A/D (left/right), 0.1 per press\n"
               << "             Q (CCW)  E (CW), speed is retained until changed\n"
-              << "Mode:      Z (zeropos)  X (suspended stand)  M (ground stand)  P (stand shooting)  I (ysc)\n"
-              << "           O (mofang, from zeropos/RL)\n"
-              << "           C (RL control)  V (restand RL)  R (joint damping)\n"
-              << "Flow:      Z/X -> C (RL) or V (restand)  |  V from RL/mofang switches to restand\n"
-              << "           M/P/I -> C (policy -> RL); P: 1 (raise hand), 2 (lower hand)\n"
-              << "           Z from RL returns to zeropos\n"
+              << "  Modes:     Z (zeropos)  X (suspended stand)  L (shoot-walk policy)\n"
+              << "             1 (shoot down; only from Z/RL)  2 (shoot up; only from shoot down)\n"
+              << "             C (RL control)  V (ReStand)  R (joint damping)\n"
+              << "  Entry:     idle/calibration -> Z (zeropos) or X (suspended stand)\n"
+              << "  Transitions: zeropos -> C/V/L/1; suspended stand -> C/V; RL -> Z/V/L/1\n"
+              << "               ReStand -> Z/C/L; L -> C/V; shoot_down -> 2; shoot_up -> V\n"
+              << "  Velocity:  W/S/A/D/Q/E work only in RL and ReStand; R requests damping\n"
               << "\n";
 
     start_thread_flag_ = true;
@@ -121,32 +122,34 @@ class KeyboardInterface : public UserCommandInterface {
           usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::JointDamping);
         }
 
-        // Ground stand-up policy; controller mappings remain unchanged.
-        if (key == 'm') {
-          usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::StandPolicy);
-        }
-
-        // YSC policy (policy_CR1_8.onnx).  This is intentionally global like
-        // M so it can be selected directly from a keyboard-controlled session.
-        if (key == 'i') {
-          usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::Ysc);
-        }
-
         if (current_state == RobotMotionState::RLControlMode && key == 'z') {
           usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::ZeroPos);
         }
 
         if ((current_state == RobotMotionState::ZeroPos ||
-             current_state == RobotMotionState::RLControlMode) && key == 'o') {
-          usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::Mofang);
-        }
-
-        if ((current_state == RobotMotionState::ZeroPos ||
              current_state == RobotMotionState::SuspendedStand ||
              current_state == RobotMotionState::RLControlMode ||
-             current_state == RobotMotionState::Mofang) && key == 'v') {
+             current_state == RobotMotionState::ZhanliShooting ||
+             current_state == RobotMotionState::ShootUp) && key == 'v') {
           usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::ReStand);
         }
+
+        // z/c/v are the supported safe entry states for the dedicated
+        // zhanli-shooting policy.
+        if ((current_state == RobotMotionState::ZeroPos ||
+             current_state == RobotMotionState::RLControlMode ||
+             current_state == RobotMotionState::ReStand) && key == 'l') {
+          usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::ZhanliShooting);
+        }
+
+        // shoot_down may begin only from Z/C.
+        if (current_state == RobotMotionState::ZeroPos ||
+            current_state == RobotMotionState::RLControlMode) {
+          if (key == '1') usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::ShootDown);
+        }
+        // shoot_up may begin only from the shoot_down state.
+        if (current_state == RobotMotionState::ShootDown && key == '2')
+          usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::ShootUp);
 
         switch (current_state) {
           case RobotMotionState::WaitingForStand:
@@ -176,26 +179,8 @@ class KeyboardInterface : public UserCommandInterface {
             if (key == 'z') {
               usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::ZeroPos);
             }
-            if (key == 'p') {
-              usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::StandShooting);
-              usr_cmd_->target_action = 2;
-            }
             break;
-          case RobotMotionState::StandPolicy:
-            if (key == 'c') {
-              usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::RLControlMode);
-            }
-            break;
-          case RobotMotionState::StandShooting:
-            if (key == 'c') {
-              usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::RLControlMode);
-            } else if (key == '1') {
-              usr_cmd_->target_action = 1;
-            } else if (key == '2') {
-              usr_cmd_->target_action = 2;
-            }
-            break;
-          case RobotMotionState::Mofang:
+          case RobotMotionState::ZhanliShooting:
             if (key == 'c') {
               usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::RLControlMode);
             }
@@ -213,7 +198,7 @@ class KeyboardInterface : public UserCommandInterface {
 
         const bool velocity_control_state =
             current_state == RobotMotionState::RLControlMode ||
-            current_state == RobotMotionState::ReStand || current_state == RobotMotionState::Ysc;
+            current_state == RobotMotionState::ReStand;
         if (velocity_control_state &&
             (key == 'w' || key == 's' || key == 'a' || key == 'd' || key == 'q' || key == 'e')) {
           const double last_ms = key_last_trigger_ms.count(key) ? key_last_trigger_ms[key] : -1e9;
@@ -230,7 +215,7 @@ class KeyboardInterface : public UserCommandInterface {
       }
 
       if (current_state == RobotMotionState::RLControlMode ||
-          current_state == RobotMotionState::ReStand || current_state == RobotMotionState::Ysc) {
+          current_state == RobotMotionState::ReStand) {
         ClipNumber(usr_cmd_->forward_vel_scale, -1.0f, 1.0f);
         ClipNumber(usr_cmd_->side_vel_scale, -1.0f, 1.0f);
         ClipNumber(usr_cmd_->turnning_vel_scale, -1.0f, 1.0f);

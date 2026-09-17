@@ -14,8 +14,10 @@
 #include <onnxruntime_c_api.h>
 #include <fstream>
 
-CommonPolicyRunner::CommonPolicyRunner(const std::string &policy_name, RobotName robot_name, const std::string &onnx_path) : PolicyRunnerBase(
-        policy_name, robot_name) {
+CommonPolicyRunner::CommonPolicyRunner(const std::string &policy_name, RobotName robot_name,
+                                       const std::string &onnx_path,
+                                       GraphOptimizationLevel graph_optimization_level)
+    : PolicyRunnerBase(policy_name, robot_name) {
     onnx_path_ = onnx_path;
     VecXf kp_temp;
     kp_temp = VecXf::Zero(21);
@@ -139,7 +141,7 @@ CommonPolicyRunner::CommonPolicyRunner(const std::string &policy_name, RobotName
     // observation_input_ = readCSV("../data/observations.csv", 1000, obs_dim_).cast<float>();
     // std::cout<<observation_input_<<std::endl;
     session_options_.SetIntraOpNumThreads(1);
-    session_options_.SetGraphOptimizationLevel(ORT_ENABLE_ALL);
+    session_options_.SetGraphOptimizationLevel(graph_optimization_level);
 
     //初始化设置ONNXRUNTIME 的环境
     env_ = Ort::Env(ORT_LOGGING_LEVEL_ERROR, policy_name_.data());
