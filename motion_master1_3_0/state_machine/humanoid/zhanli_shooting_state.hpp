@@ -12,7 +12,12 @@ public:
                          std::shared_ptr<ControllerData> data_ptr)
         : StateBase(robot_name, state_name, data_ptr),
           policy_("zhanli_shooting", robot_name,
-                  "/opt/robot/share/motion_master/policy/policy_shoot_walk.onnx") {}
+                  "/opt/robot/share/motion_master/policy/0918.onnx") {
+        // 站立射击策略复用了步态策略的 UserCommand 速度输入，
+        // 必须显式设置各方向最大速度，否则 cmd_vel 会因 max_cmd_vel_ 默认
+        // 为 0 而被全部置零，导致手柄/App 速度指令无效。
+        policy_.SetCmdMaxVel(Vec3f(1.0f, 0.5f, 1.0f));
+    }
 
     void OnEnter() override {
         policy_.OnEnter();

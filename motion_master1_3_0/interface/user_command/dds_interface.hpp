@@ -77,37 +77,29 @@ public:
             std::this_thread::sleep_for(std::chrono::microseconds(1000));
         }
     }
-void HandlerVel(const drdds::msg::Steer* data)
-    {
-        float forward_vel_scale = 0;
-        float side_vel_scale = 0;
-        float turnning_vel_scale = 0;
 
-        // std::cout << "vel: " << data->data().x() << " " << data->data().y() << " " << data->data().yaw() << std::endl;
-        if(msfb_->GetCurrentState() == StateName::kRLControl)
-        {
-            switch(msfb_->GetCurrentGait()){
-                case RobotGaitType::HumanWALK:
-
-                    forward_vel_scale = RetLimitNumber(data->data().x(), -1.0, 1.0);
-                    side_vel_scale = RetLimitNumber((data->data().y() / 0.75), -1.0, 1.0);
-                    turnning_vel_scale = RetLimitNumber((data->data().yaw() / 2.25), -1.0, 1.0);
-
-                    usr_cmd_->forward_vel_scale = forward_vel_scale;
-                    usr_cmd_->side_vel_scale = side_vel_scale;
-                    usr_cmd_->turnning_vel_scale = turnning_vel_scale;
-                    break;
-                default:
-                    //不响应
-                    break;
-            }
+    // 仅在允许速度控制的运动状态中响应 /REAL_STEER 和 /STEER。
+    // RL 状态仍要求当前步态为 HumanWALK；ReStand / ZhanliShooting 状态直接响应。
+    bool IsVelocityControlActive() const {
+        const uint32_t state = msfb_->GetCurrentState();
+        if (state == RobotMotionState::RLControlMode) {
+            return msfb_->GetCurrentGait() == RobotGaitType::HumanWALK;
         }
-        else
-        {
+        return state == RobotMotionState::ReStand ||
+               state == RobotMotionState::ZhanliShooting;
+    }
+
+    void HandlerVel(const drdds::msg::Steer* data) {
+        if (!IsVelocityControlActive()) {
             usr_cmd_->forward_vel_scale = 0;
             usr_cmd_->side_vel_scale = 0;
             usr_cmd_->turnning_vel_scale = 0;
+            return;
         }
+
+        usr_cmd_->forward_vel_scale = RetLimitNumber(data->data().x(), -1.0, 1.0);
+        usr_cmd_->side_vel_scale = RetLimitNumber((data->data().y() / 0.75), -1.0, 1.0);
+        usr_cmd_->turnning_vel_scale = RetLimitNumber((data->data().yaw() / 2.25), -1.0, 1.0);
     }
     virtual void Start(){
         monitor_thread_ = std::thread(std::bind(&DdsInterface::MonitorSteer, this));
@@ -150,7 +142,11 @@ void HandlerVel(const drdds::msg::Steer* data)
                 case RobotMotionState::ZeroPos:              // 0x20001
                 case RobotMotionState::ZeroCalibration:      // 0x20004
                 case RobotMotionState::SuspendedStand:       // 0x20006
-                    return true;
+                case RobotMotionState::ReStand:              // 0x2000B
+                case RobotMotionState::ZhanliShooting:       // 0x2000C
+                case RobotMotionState::ShootDown:            // 0x2000D
+                case RobotMotionState::ShootUp:              // 0x2000E
+                    return robot_name_ == RobotName::CR1STANDARD;
                 default:
                     return false;
             }
@@ -252,34 +248,19 @@ void HandlerVel(const drdds::msg::Steer* data)
                   << data->data().roll() << " " << data->data().pitch() << " " << data->data().yaw() << std::endl;
         }
         
-        if(msfb_->GetCurrentState() == StateName::kRLControl)
-        {
-            switch(msfb_->GetCurrentGait()){
-                case RobotGaitType::HumanWALK:
-                    usr_cmd_->forward_vel_scale = data->data().x();
-                    usr_cmd_->side_vel_scale = data->data().y();
-                    usr_cmd_->turnning_vel_scale = data->data().yaw();
-                    break;
-                default:
-                    usr_cmd_->forward_vel_scale = 0;
-                    usr_cmd_->side_vel_scale = 0;
-                    usr_cmd_->turnning_vel_scale = 0;
-                    usr_cmd_->targetPitch = 0;
-                    usr_cmd_->targetRoll = 0;
-                    usr_cmd_->targetHeight = 0;
-                    break;
-            }
-        }
-        else
-        {
+        if (!IsVelocityControlActive()) {
             usr_cmd_->forward_vel_scale = 0;
             usr_cmd_->side_vel_scale = 0;
             usr_cmd_->turnning_vel_scale = 0;
             usr_cmd_->targetPitch = 0;
             usr_cmd_->targetRoll = 0;
             usr_cmd_->targetHeight = 0;
+            return;
         }
 
+        usr_cmd_->forward_vel_scale = data->data().x();
+        usr_cmd_->side_vel_scale = data->data().y();
+        usr_cmd_->turnning_vel_scale = data->data().yaw();
     }
 
     // 脖子接管指令源：独立 /NECK_STEER 话题，避免被状态/步态分支清零。

@@ -612,7 +612,7 @@ graph TD
 | `HumanWALK`（步态） | `0x21000` | 走路 |
 | `Action` 范围 | `0x3000 ~ 0x3004` | 动作指令 |
 
-> DDS 接口内置**证书权限过滤**：非法/越界的状态、步态、动作会被拒绝并记录告警日志。当前固定按最严格策略（robot_type="0"）执行：仅允许进入 `WaitingForStand / JointDamping / RLControlMode / ZeroPos / ZeroCalibration / SuspendedStand` 及 `HumanWALK` 步态，动作指令全部禁止。
+> DDS 接口内置**证书权限过滤**：非法/越界的状态、步态、动作会被拒绝并记录告警日志。当前固定按最严格策略（robot_type="0"）执行：允许进入 `WaitingForStand / JointDamping / RLControlMode / ZeroPos / ZeroCalibration / SuspendedStand / ReStand / ZhanliShooting / ShootDown / ShootUp`（后四项仅 `CR1STANDARD`）及 `HumanWALK` 步态，动作指令全部禁止。`/STEER`、`/REAL_STEER` 速度指令仅在 RL（`HumanWALK`）、`ReStand`、`ZhanliShooting` 状态生效。
 
 ### 9.3 DDS 话题清单
 

@@ -28,7 +28,7 @@ CommonPolicyRunner::CommonPolicyRunner(const std::string &policy_name, RobotName
             200.0,            // waist_z_joint
             300.0, 300.0,    // left_hip_x_joint, right_hip_x_joint
             100.0, 100.0,    // left_shoulder_y_joint, right_shoulder_y_joint
-            200.0, 200.0,    // left_hip_z_joint, right_hip_z_joint
+            300.0, 300.0,    // left_hip_z_joint, right_hip_z_joint
             100.0, 100.0,    // left_shoulder_x_joint, right_shoulder_x_joint
             300.0, 300.0,    // left_knee_joint, right_knee_joint
             100.0, 100.0,    // left_shoulder_z_joint, right_shoulder_z_joint
@@ -41,7 +41,7 @@ CommonPolicyRunner::CommonPolicyRunner(const std::string &policy_name, RobotName
             10,               // waist_z_joint
             10, 10,           // left_hip_x_joint, right_hip_x_joint
             5, 5,             // left_shoulder_y_joint, right_shoulder_y_joint
-            5, 5,           // left_hip_z_joint, right_hip_z_joint
+            10, 10,           // left_hip_z_joint, right_hip_z_joint
             5, 5,             // left_shoulder_x_joint, right_shoulder_x_joint
             10, 10,           // left_knee_joint, right_knee_joint
             5, 5,             // left_shoulder_z_joint, right_shoulder_z_joint
@@ -121,7 +121,7 @@ CommonPolicyRunner::CommonPolicyRunner(const std::string &policy_name, RobotName
     dof_pos_default_ << -0.2, -0.2, 0.0, 0.0, 0.0,
             0.0, 0.0, 0.0, 0.0, 0.15, -0.15,
             0.4, 0.4, 0.0, 0.0, -0.2, -0.2,
-            1.2, -0.2, 0.0, 0.0;
+            1.2, 1.2, 0.0, 0.0;
 
     decimation_ = 20;
     action_scale_ = 0.25;
