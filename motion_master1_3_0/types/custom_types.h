@@ -29,6 +29,7 @@ namespace types{
         ZhanliShooting  = 0x2000C,    //站立射击 RL 策略（policy_shoot_walk.onnx）
         ShootDown       = 0x2000D,    //默认站姿 -> 射击下蹲（model_33000.onnx）
         ShootUp         = 0x2000E,    //射击下蹲 -> 默认站姿（model_28000.onnx）
+        AmpGunWalking   = 0x2000F,    //AMP 持枪行走（policy_0911_zjie.onnx，21DOF）
     };
 
     enum RobotGaitType{
@@ -45,6 +46,7 @@ namespace types{
         kZhanliShooting = RobotMotionState::ZhanliShooting,
         kShootDown      = RobotMotionState::ShootDown,
         kShootUp        = RobotMotionState::ShootUp,
+        kAmpGunWalking  = RobotMotionState::AmpGunWalking,
         kRLControl    = RobotMotionState::RLControlMode,
         kZeroPos      = RobotMotionState::ZeroPos,
         kZeroCalibration = RobotMotionState::ZeroCalibration,

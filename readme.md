@@ -28,7 +28,7 @@ ls -lh *.deb
 将生成的 Deb 包上传至机器人：
 
 ```bash
-scp -O motion_master.v1.3.0+5557be.arm64.2609161643.deb user@10.21.33.103:~/
+scp -O motion_master.v1.3.0+f9829a.arm64.2609181036.deb user@10.21.33.103:~/
 
 ```
 
@@ -37,7 +37,7 @@ scp -O motion_master.v1.3.0+5557be.arm64.2609161643.deb user@10.21.33.103:~/
 ```bash
 '
 ssh user@10.21.33.103
-sudo dpkg -i ~/motion_master.v1.3.0+5557be.arm64.2609161643.deb
+sudo dpkg -i ~/motion_master.v1.3.0+f9829a.arm64.2609181036.deb
 ```
 
 ## 4. 启动机器人控制
@@ -52,7 +52,7 @@ sudo systemctl start imusense.service
 
 rm -f motion_master.v1.3.0+*.arm64.*.deb
 
-## 5. 键盘状态切换
+## 5. 键盘状态切换  
 
 | 按键 | 功能 |
 | --- | --- |
@@ -68,13 +68,13 @@ rm -f motion_master.v1.3.0+*.arm64.*.deb
 | `A` / `D` | 左移 / 右移；每次按键增加 / 减少 `0.1` 归一化速度 |
 | `Q` / `E` | 逆时针 / 顺时针转向；每次按键增加 / 减少 `0.1` 归一化速度 |
 
-射击步行流程：在零位、普通 RL 或 ReStand 中按 `L` 进入 `zhanli_shooting`（`policy_shoot_walk.onnx`）。该状态可按 `C` 切入普通 RL、按 `V` 切入 ReStand、按 `R` 进入关节阻尼。
+射击步行流程：在零位、普通 RL 或 ReStand 中按 `L` 进入 `zhanli_shooting`（`policy_shoot_walk.onnx`）。该状态可使用 `W/S/A/D/Q/E` 控制速度；按 `C` 切入普通 RL、按 `V` 切入 ReStand、按 `R` 进入关节阻尼。
 
 下蹲/起立射击流程：在零位或普通 RL 中按 `1` 进入 `shoot_down`。该状态以 50 Hz 使用 `shoot_down.npz` 参考轨迹及 `model_43000.onnx` 动作输出，结束后保持末帧；`shoot_down` 只能按 `2` 切入 `shoot_up`，或按 `R` 进入阻尼。`shoot_up` 使用 `shoot_up.npz` 与 `model_28000.onnx`，结束后同样保持末帧；键盘可按 `V` 进入 ReStand 或按 `R` 进入阻尼。
 
 ReStand 流程：在零位、悬架起立、普通 RL、`zhanli_shooting` 或 `shoot_up` 中按 `V`，切入使用 `restand.onnx` 的独立 ReStand 状态。ReStand 中可以继续使用 `W/S/A/D/Q/E` 控制速度；按 `C` 切回普通 RL，按 `Z` 返回零位，按 `L` 切入射击步行策略，按 `R` 进入阻尼。
 
-普通 RL 和 ReStand 的速度上限均为前进 `vx=+1.0 m/s`、后退 `vx=-0.5 m/s`、横移 `vy=±0.5 m/s`、转向 `wz=±1.0 rad/s`。后退的 `0.5` 缩放仅在步态策略层处理；各方向速度会保持，直到反向按键抵消、退出当前 RL 状态或进入阻尼。
+普通 RL（`policy_0911.onnx`）、ReStand 和射击步行状态均支持速度控制，速度上限为前进 `vx=+1.0 m/s`、后退 `vx=-0.5 m/s`、横移 `vy=±0.5 m/s`、转向 `wz=±1.0 rad/s`。后退的 `0.5` 缩放仅在步态策略层处理；各方向速度会保持，直到反向按键抵消、退出当前速度控制状态或进入阻尼。
 
 ## 6. GitHub：提交并推送本地更新
 

@@ -39,6 +39,14 @@ expect {
 }
 expect eof
 
+spawn scp -P $port run_policy/cr1/policy/policy_0911.onnx $username@$ip:/opt/robot/share/motion_master/policy/policy_0911.onnx
+expect {
+  "密码：" { send "$passwd\r" }
+  "pass"   { send "$passwd\r" }
+  "yes/no" { send "yes\r"; exp_continue }
+}
+expect eof
+
 spawn scp -P $port run_policy/cr1/policy/mimic/model_43000.onnx $username@$ip:/opt/robot/share/motion_master/policy/mimic/model_43000.onnx
 expect {
   "密码：" { send "$passwd\r" }

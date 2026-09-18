@@ -5,7 +5,6 @@
 
 // WAQ runner for policy_shoot_walk.onnx. Its [5 history, current] 468-D input
 // and 21-D output follow sim2sim_dr02_21dof_waq(4).py.
-// shooting_0916 shares the common WAQ deployment protocol; only its
 // training default pose and PD gains differ from the common policy.
 class ZhanliShootingPolicyRunner final : public CommonPolicyRunner {
 public:

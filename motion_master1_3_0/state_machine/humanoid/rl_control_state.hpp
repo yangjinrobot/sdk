@@ -377,6 +377,11 @@ namespace humanoid {
                 
                 return StateName::kJointDamping;
             }
+            // ReStand shares this implementation; only ordinary RL may enter AMP.
+            if (own_state_name_ == StateName::kRLControl &&
+                robot_name_ == RobotName::CR1STANDARD &&
+                user_command.target_mode == RobotMotionState::AmpGunWalking)
+                return StateName::kAmpGunWalking;
             if (user_command.target_mode == (RobotMotionState::WaitingForStand))
                 return StateName::kIdle;
             if(user_command.target_mode == (RobotMotionState::SuspendedStand)) return StateName::kSuspendedStand;

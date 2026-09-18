@@ -597,6 +597,7 @@ graph TD
 | **ZeroCalibration** | 打限位校准零位 |
 | **SuspendedStand** | 悬架预站立 → 起立，可切入 RL |
 | **RL** | RL 策略控制（ONNX 模型推理） |
+| **AmpGunWalking** | AMP 持枪行走，仅 CR1STANDARD（21DOF），从普通 RL 进入 |
 | **JointDamping** | 软急停，关节阻尼（Kd 阻尼保护） |
 
 ### 9.2 状态 / 步态 / 动作 ID（DDS 指令值）
@@ -609,10 +610,15 @@ graph TD
 | `ZeroPos` | `0x20001` | 回零位 |
 | `ZeroCalibration` | `0x20004` | 打限位校准零位 |
 | `SuspendedStand` | `0x20006` | 悬架站立完成 |
+| `AmpGunWalking` | `0x2000F` | AMP 持枪行走，仅 CR1STANDARD，可从普通 RL 切入 |
 | `HumanWALK`（步态） | `0x21000` | 走路 |
 | `Action` 范围 | `0x3000 ~ 0x3004` | 动作指令 |
 
-> DDS 接口内置**证书权限过滤**：非法/越界的状态、步态、动作会被拒绝并记录告警日志。当前固定按最严格策略（robot_type="0"）执行：仅允许进入 `WaitingForStand / JointDamping / RLControlMode / ZeroPos / ZeroCalibration / SuspendedStand` 及 `HumanWALK` 步态，动作指令全部禁止。
+> DDS 接口内置**证书权限过滤**：非法/越界的状态、步态、动作会被拒绝并记录告警日志。当前固定按最严格策略（robot_type="0"）执行：允许进入 `WaitingForStand / JointDamping / RLControlMode / ZeroPos / ZeroCalibration / SuspendedStand / ReStand / ZhanliShooting / ShootDown / ShootUp / AmpGunWalking`（仅 `CR1STANDARD`）及 `HumanWALK` 步态，动作指令全部禁止。`/STEER`、`/REAL_STEER` 速度指令仅在 RL（`HumanWALK`）、`ReStand`、`ZhanliShooting`、`AmpGunWalking` 状态生效。
+
+AMP 持枪行走：键盘模式下在普通 RL 状态按 `B` 进入，使用 `W/S/A/D/Q/E` 调节速度；`C` 返回普通 RL，`Z` 回零，`R` 进入阻尼。DDS 模式下向 `/MOTION_STATE` 发送 `0x2000F` 请求进入，入口同样仅限普通 RL。推理失败时转入阻尼状态。
+
+策略使用 `run_policy/cr1/policy/policy_0911_zjie.onnx`（输入 `[batch,432]`，输出 `[batch,21]`），模型已随现有打包规则安装至 `/opt/robot/share/motion_master/policy/`。可通过环境变量 `AMP_GUN_WALKING_POLICY_PATH` 指定模型；未设置时优先使用本源码目录中的模型，否则使用安装路径。进入状态时保留源实现的 0.5 秒指令混合过渡。
 
 ### 9.3 DDS 话题清单
 

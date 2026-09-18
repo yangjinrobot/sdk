@@ -17,6 +17,7 @@
 #include "humanoid/zeropos_state.hpp"
 #include "humanoid/joint_damping_state.hpp"
 #include "humanoid/rl_control_state.hpp"
+#include "humanoid/amp_gun_walking_state.hpp"
 #include "humanoid/restand_state.hpp"
 #include "humanoid/suspended_standup_state.hpp"
 #include "humanoid/zhanli_shooting_state.hpp"
@@ -49,6 +50,7 @@ private:
     std::shared_ptr<StateBase> shoot_down_controller_;
     std::shared_ptr<StateBase> shoot_up_controller_;
     std::shared_ptr<StateBase> rl_controller_;
+    std::shared_ptr<StateBase> amp_gun_walking_controller_;
     std::shared_ptr<StateBase> restand_controller_;
     std::shared_ptr<StateBase> zero_calibration_controller_;
 
@@ -151,6 +153,7 @@ public:
         rl_controller_ = std::make_shared<RLControlState>(robot_name_, "rl_control", data_ptr);
         if (robot_name_ == RobotName::CR1STANDARD) {
             restand_controller_ = std::make_shared<ReStandState>(robot_name_, "restand", data_ptr);
+            amp_gun_walking_controller_ = std::make_shared<AmpGunWalkingState>(robot_name_, "amp_gun_walking", data_ptr);
         }
         zero_calibration_controller_ = std::make_shared<ZeroCalibrationState>(robot_name_, "zero_calibration_state", data_ptr);
 
@@ -210,6 +213,9 @@ public:
             }
             case StateName::kRLControl:{
                 return rl_controller_;
+            }
+            case StateName::kAmpGunWalking:{
+                return amp_gun_walking_controller_ ? amp_gun_walking_controller_ : joint_damping_controller_;
             }
             case StateName::kReStand:{
                 return restand_controller_ ? restand_controller_ : joint_damping_controller_;
