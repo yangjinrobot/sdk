@@ -28,7 +28,7 @@ CommonPolicyRunner::CommonPolicyRunner(const std::string &policy_name, RobotName
             200.0,            // waist_z_joint
             300.0, 300.0,    // left_hip_x_joint, right_hip_x_joint
             100.0, 100.0,    // left_shoulder_y_joint, right_shoulder_y_joint
-            300.0, 300.0,    // left_hip_z_joint, right_hip_z_joint
+            200.0, 200.0,    // left_hip_z_joint, right_hip_z_joint
             100.0, 100.0,    // left_shoulder_x_joint, right_shoulder_x_joint
             300.0, 300.0,    // left_knee_joint, right_knee_joint
             100.0, 100.0,    // left_shoulder_z_joint, right_shoulder_z_joint
@@ -41,7 +41,7 @@ CommonPolicyRunner::CommonPolicyRunner(const std::string &policy_name, RobotName
             10,               // waist_z_joint
             10, 10,           // left_hip_x_joint, right_hip_x_joint
             5, 5,             // left_shoulder_y_joint, right_shoulder_y_joint
-            10, 10,           // left_hip_z_joint, right_hip_z_joint
+            5, 5,           // left_hip_z_joint, right_hip_z_joint
             5, 5,             // left_shoulder_x_joint, right_shoulder_x_joint
             10, 10,           // left_knee_joint, right_knee_joint
             5, 5,             // left_shoulder_z_joint, right_shoulder_z_joint
@@ -353,7 +353,7 @@ RobotAction CommonPolicyRunner::GetRobotAction(const RobotBasicState &ro, const 
     }
 
     ++run_cnt_;
-    // 手臂平滑过渡：切换到本策略的前100步，手臂从当前位置逐步移向默认位姿
+    // 手臂平滑过渡：切换到本策略的前100步，手臂从当前位置逐步移向默认位姿。
     if (run_cnt_ < 100 && !skip_arm_transition_) {
         for (int i = 0; i < 8; ++i) {
             float delta = dof_pos_default_(policy2arm_idx[i]) - obs_joint_pos_(policy2arm_idx[i]);

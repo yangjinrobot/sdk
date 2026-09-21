@@ -28,7 +28,7 @@ ls -lh *.deb
 将生成的 Deb 包上传至机器人：
 
 ```bash
-scp -O motion_master.v1.3.0+f9829a.arm64.2609181036.deb user@10.21.33.103:~/
+scp -O motion_master.v1.3.0+unknown.arm64.2609181727.deb user@10.21.33.103:~/
 
 ```
 
@@ -37,7 +37,7 @@ scp -O motion_master.v1.3.0+f9829a.arm64.2609181036.deb user@10.21.33.103:~/
 ```bash
 '
 ssh user@10.21.33.103
-sudo dpkg -i ~/motion_master.v1.3.0+f9829a.arm64.2609181036.deb
+sudo dpkg -i ~/motion_master.v1.3.0+unknown.arm64.2609181727.deb
 ```
 
 ## 4. 启动机器人控制
@@ -107,13 +107,22 @@ git commit -m "Update keyboard control documentation"
 若 `git pull --rebase` 出现冲突，先处理标记为冲突的文件，再执行 `git add <文件名>` 和 `git rebase --continue`；完成后再运行 `git push origin main`。如果只想取消这次变基，可运行 `git rebase --abort`。
 
 
+手柄控制模式 以下是我的在手柄app界面定义的控制按钮
+悬架起立:zeropos
+开始运动: 默认进入RL模式
+鲁棒行走: restand
+站立射击: zhanli_shooting
+蹲姿射击：shoot_down
+恢复站姿: shoot_up
+amp持枪: amp_gun_walk
 
 
-L zhanli shooting amp
-1 蹲下设计 2 站起来
 
-C：RL 控制
-V：restand 用来从mimic控制恢复到初始姿态 经历过大干扰
-L：站立shooting _wlak
-C(1)：跪姿射击，C(2)：跪姿起来
-R:阻尼
+| `Z` | 从待机、零位校准、悬架起立、普通 RL 或 ReStand 进入/返回零位 |
+| `X` | 从待机或零位校准进入悬架起立；在悬架起立状态保持该状态 |
+| `L` | 仅从零位、普通 RL 或 ReStand 进入射击步行策略 `zhanli_shooting`（`policy_shoot_walk.onnx`，仅 CR1STANDARD） |
+| `1` | 仅从零位或普通 RL 进入 `shoot_down`（`model_43000.onnx` + `shoot_down.npz`） |
+| `2` | 仅从 `shoot_down` 进入 `shoot_up`（`model_28000.onnx` + `shoot_up.npz`） |
+| `V` | 从零位、悬架起立、普通 RL、`zhanli_shooting` 或 `shoot_up` 进入 ReStand（仅 CR1STANDARD） |
+| `C` | 从零位、悬架起立、ReStand 或 `zhanli_shooting` 进入普通 RL 控制 |
+| `R` | 在运动状态中请求进入关节阻尼 |

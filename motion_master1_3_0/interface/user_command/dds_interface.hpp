@@ -17,7 +17,6 @@ protected:
     std::unique_ptr<ChannelSteer> vel_data_sub_;
     std::unique_ptr<ChannelSteer> neck_steer_data_sub_;
 
-
     std::thread monitor_thread_;
     bool monitor_flag_ = true;
     DrLogger logger_DDS_cmd;
@@ -79,13 +78,14 @@ public:
     }
 
     // 仅在允许速度控制的运动状态中响应 /REAL_STEER 和 /STEER。
-    // RL 状态仍要求当前步态为 HumanWALK；ReStand / ZhanliShooting 状态直接响应。
+    // RL 状态仍要求当前步态为 HumanWALK；ReStand / ZhanliShooting / AmpGunWalking 状态直接响应。
     bool IsVelocityControlActive() const {
         const uint32_t state = msfb_->GetCurrentState();
         if (state == RobotMotionState::RLControlMode) {
             return msfb_->GetCurrentGait() == RobotGaitType::HumanWALK;
         }
         return state == RobotMotionState::ReStand ||
+               state == RobotMotionState::AmpGunWalking ||
                state == RobotMotionState::ZhanliShooting;
     }
 
@@ -146,6 +146,7 @@ public:
                 case RobotMotionState::ZhanliShooting:       // 0x2000C
                 case RobotMotionState::ShootDown:            // 0x2000D
                 case RobotMotionState::ShootUp:              // 0x2000E
+                case RobotMotionState::AmpGunWalking:        // 0x2000F
                     return robot_name_ == RobotName::CR1STANDARD;
                 default:
                     return false;

@@ -56,10 +56,12 @@ class KeyboardInterface : public UserCommandInterface {
               << "  Modes:     Z (zeropos)  X (suspended stand)  L (shoot-walk policy)\n"
               << "             1 (shoot down; only from Z/RL)  2 (shoot up; only from shoot down)\n"
               << "             C (RL control)  V (ReStand)  R (joint damping)\n"
+              << "             B (AMP gun walking; only from C/RL, CR1STANDARD)\n"
               << "  Entry:     idle/calibration -> Z (zeropos) or X (suspended stand)\n"
-              << "  Transitions: zeropos -> C/V/L/1; suspended stand -> C/V; RL -> Z/V/L/1\n"
+              << "  Transitions: zeropos -> C/V/L/1; suspended stand -> C/V; RL -> Z/V/L/1/B\n"
               << "               ReStand -> Z/C/L; L -> C/V; shoot_down -> 2; shoot_up -> V\n"
-              << "  Velocity:  W/S/A/D/Q/E work in RL, ReStand, and shoot-walk; R requests damping\n"
+              << "               AMP gun walking -> C/Z; R requests damping\n"
+              << "  Velocity:  W/S/A/D/Q/E work in RL, ReStand, shoot-walk, and AMP gun walking\n"
               << "\n";
 
     start_thread_flag_ = true;
@@ -122,8 +124,14 @@ class KeyboardInterface : public UserCommandInterface {
           usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::JointDamping);
         }
 
-        if (current_state == RobotMotionState::RLControlMode && key == 'z') {
+        if ((current_state == RobotMotionState::RLControlMode ||
+             current_state == RobotMotionState::AmpGunWalking) && key == 'z') {
           usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::ZeroPos);
+        }
+
+        if (robot_name_ == RobotName::CR1STANDARD &&
+            current_state == RobotMotionState::RLControlMode && key == 'b') {
+          usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::AmpGunWalking);
         }
 
         if ((current_state == RobotMotionState::ZeroPos ||
@@ -181,6 +189,7 @@ class KeyboardInterface : public UserCommandInterface {
             }
             break;
           case RobotMotionState::ZhanliShooting:
+          case RobotMotionState::AmpGunWalking:
             if (key == 'c') {
               usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::RLControlMode);
             }
@@ -198,6 +207,7 @@ class KeyboardInterface : public UserCommandInterface {
 
         const bool velocity_control_state =
             current_state == RobotMotionState::RLControlMode ||
+            current_state == RobotMotionState::AmpGunWalking ||
             current_state == RobotMotionState::ReStand ||
             current_state == RobotMotionState::ZhanliShooting;
         if (velocity_control_state &&
@@ -216,6 +226,7 @@ class KeyboardInterface : public UserCommandInterface {
       }
 
       if (current_state == RobotMotionState::RLControlMode ||
+          current_state == RobotMotionState::AmpGunWalking ||
           current_state == RobotMotionState::ReStand ||
           current_state == RobotMotionState::ZhanliShooting) {
         ClipNumber(usr_cmd_->forward_vel_scale, -1.0f, 1.0f);

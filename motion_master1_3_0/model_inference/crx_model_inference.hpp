@@ -17,7 +17,7 @@
 
 class CRXModelInference : public ModelInferenceBase {
 public:
-    static constexpr const char* kPolicyOnnxPath = "/opt/robot/share/motion_master/policy/policy_0911.onnx";
+    static constexpr const char* kPolicyOnnxPath = "/opt/robot/share/motion_master/policy/RL_0920.onnx";
 
     std::shared_ptr<PolicyRunnerBase> inner_ptr_;
     std::shared_ptr<CommonPolicyRunner> common_policy_;

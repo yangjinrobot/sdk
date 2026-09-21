@@ -2,6 +2,7 @@
 #include "shoot_reference_loader.hpp"
 
 #include <array>
+#include <iostream>
 #include <stdexcept>
 
 namespace {
@@ -33,7 +34,9 @@ ShootDownPolicyRunner::ShootDownPolicyRunner(RobotName robot_name)
     SetDeploymentParameters(default_q_, kp_, kd_, action_scale_);
     session_options_.SetIntraOpNumThreads(1);
     session_options_.SetGraphOptimizationLevel(ORT_ENABLE_ALL);
-    session_ = Ort::Session(env_, "/opt/robot/share/motion_master/policy/mimic/model_43000.onnx", session_options_);
+    session_ = Ort::Session(env_, "/opt/robot/share/motion_master/policy/mimic/guizisheji.onnx", session_options_);
+    std::cout << "loaded " << policy_name_ << " ONNX model from: "
+              << "/opt/robot/share/motion_master/policy/mimic/guizisheji.onnx" << std::endl;
     LoadReference();
     if (FrameCount() != kFrameCount) throw std::runtime_error("shoot_down.npz must contain 267 frames");
     decimation_ = 20;

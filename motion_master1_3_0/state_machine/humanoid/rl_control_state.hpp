@@ -34,6 +34,7 @@ namespace humanoid {
         std::atomic<bool> start_flag_{true};
 
         MatXf joint_cmd;
+
         bool heading_mode_ = false;
         bool is_first_enter_ = true;
         float yaw_target_ = 0.0f;
@@ -239,7 +240,6 @@ namespace humanoid {
         }
 
         virtual void OnEnter() {
-            
                 state_run_cnt_.store(-1, std::memory_order_relaxed);
                 {
                     std::lock_guard<std::mutex> lock(rbs_mutex_);
@@ -377,6 +377,11 @@ namespace humanoid {
                 
                 return StateName::kJointDamping;
             }
+            // ReStand shares this implementation; only ordinary RL may enter AMP.
+            if (own_state_name_ == StateName::kRLControl &&
+                robot_name_ == RobotName::CR1STANDARD &&
+                user_command.target_mode == RobotMotionState::AmpGunWalking)
+                return StateName::kAmpGunWalking;
             if (user_command.target_mode == (RobotMotionState::WaitingForStand))
                 return StateName::kIdle;
             if(user_command.target_mode == (RobotMotionState::SuspendedStand)) return StateName::kSuspendedStand;

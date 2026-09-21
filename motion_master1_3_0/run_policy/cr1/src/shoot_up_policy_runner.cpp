@@ -2,6 +2,7 @@
 #include "shoot_reference_loader.hpp"
 
 #include <array>
+#include <iostream>
 #include <stdexcept>
 namespace {
 constexpr int kJointCount = 21;
@@ -26,7 +27,9 @@ ShootUpPolicyRunner::ShootUpPolicyRunner(RobotName robot_name)
     SetDeploymentParameters(default_q_, kp_, kd_, action_scale_);
     session_options_.SetIntraOpNumThreads(1);
     session_options_.SetGraphOptimizationLevel(ORT_ENABLE_ALL);
-    session_ = Ort::Session(env_, "/opt/robot/share/motion_master/policy/mimic/model_28000.onnx", session_options_);
+    session_ = Ort::Session(env_, "/opt/robot/share/motion_master/policy/mimic/guizizhanqi.onnx", session_options_);
+    std::cout << "loaded " << policy_name_ << " ONNX model from: "
+              << "/opt/robot/share/motion_master/policy/mimic/guizizhanqi.onnx" << std::endl;
     LoadReference();
     if (FrameCount() != kFrameCount) throw std::runtime_error("shoot_up.npz must contain 350 frames");
     decimation_ = 20;
