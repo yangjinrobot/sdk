@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"  ?>
+<!-- This is an example of a QoS configuration file, where the value of the "profile_name" tag cannot be modified. -->
+<dds xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+    <profiles>
+        <participant profile_name="participant_profile" is_default_profile="true">
+            <domainId>123</domainId>
+            <rtps>
+            </rtps>
+        </participant>
+    <data_writer profile_name="DDSBatteryInfo" is_default_profile="true">
+        <qos>
+            <reliability>
+                <kind>RELIABLE</kind>
+            </reliability>
+            <liveliness>
+                <kind>AUTOMATIC</kind>
+                <lease_duration>
+                    <sec>0</sec>
+                    <nanosec>100000000</nanosec> <!-- 100 milliseconds -->
+                </lease_duration>
+                <announcement_period>
+                    <sec>0</sec>
+                    <nanosec>50000000</nanosec> <!-- 50 milliseconds -->
+                </announcement_period>
+            </liveliness>
+            <durability>
+                <kind>TRANSIENT_LOCAL</kind>
+            </durability>
+            <deadline>
+                <period>
+                    <sec>1</sec>
+                    <nanosec>0</nanosec>
+                </period>
+            </deadline>
+        </qos>
+    </data_writer>
+
+    <data_reader profile_name="DDSBatteryInfo" is_default_profile="true">
+        <qos>
+            <durability>
+                <kind>TRANSIENT_LOCAL</kind>
+            </durability>
+            <reliability>
+                <kind>RELIABLE</kind>
+            </reliability>
+            <liveliness>
+                <kind>AUTOMATIC</kind>
+                <lease_duration>
+                    <sec>0</sec>
+                    <nanosec>100000000</nanosec> <!-- 100 milliseconds -->
+                </lease_duration>
+                <announcement_period>
+                    <sec>0</sec>
+                    <nanosec>50000000</nanosec> <!-- 50 milliseconds -->
+                </announcement_period>
+            </liveliness>
+        </qos>
+    </data_reader>
+    <topic profile_name="DDSBatteryInfo" is_default_profile="true">
+    </topic>
+    </profiles>
+    <library_settings>
+        <intraprocess_delivery>FULL</intraprocess_delivery>
+    </library_settings>
+</dds>

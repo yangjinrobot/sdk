@@ -1,0 +1,58 @@
+<data_writer profile_name="sensor_msgs::msg::dds_::PointCloud2_">
+    <qos>
+        <reliability>
+            <kind>RELIABLE</kind>
+        </reliability>
+        <deadline>
+            <period>
+                <sec>0</sec>
+                <nanosec>50000000</nanosec>
+            </period>
+        </deadline>
+    </qos>
+</data_writer>
+<data_reader profile_name="sensor_msgs::msg::dds_::PointCloud2_">
+    <qos>
+        <reliability>
+            <kind>RELIABLE</kind>
+        </reliability>
+        <deadline>
+            <period>
+                <sec>0</sec>
+                <nanosec>50000000</nanosec>
+            </period>
+        </deadline>
+    </qos>
+</data_reader>
+<data_writer profile_name="drdds::msg::dds_::ExeHealth_" />
+<data_reader profile_name="drdds::msg::dds_::ExeHealth_" />
+<data_writer profile_name="drdds::msg::dds_::Gait_" />
+<data_reader profile_name="drdds::msg::dds_::Gait_" />
+<data_writer profile_name="drdds::msg::dds_::ImuData_" />
+<data_reader profile_name="drdds::msg::dds_::ImuData_" />
+<data_writer profile_name="drdds::msg::dds_::MotionAction_" />
+<data_reader profile_name="drdds::msg::dds_::MotionAction_" />
+<data_writer profile_name="drdds::msg::dds_::MotionBase_" />
+<data_reader profile_name="drdds::msg::dds_::MotionBase_" />
+<data_writer profile_name="drdds::msg::dds_::MotionParamSet_" />
+<data_reader profile_name="drdds::msg::dds_::MotionParamSet_" />
+<data_writer profile_name="drdds::msg::dds_::MotionStatus_" />
+<data_reader profile_name="drdds::msg::dds_::MotionStatus_" />
+<data_writer profile_name="drdds::msg::dds_::MotionTo_" />
+<data_reader profile_name="drdds::msg::dds_::MotionTo_" />
+<data_writer profile_name="drdds::msg::dds_::NavCmd_" />
+<data_reader profile_name="drdds::msg::dds_::NavCmd_" />
+<data_writer profile_name="drdds::msg::dds_::MotionPose_" />
+<data_reader profile_name="drdds::msg::dds_::MotionPose_" />
+<data_writer profile_name="nav_msgs::msg::dds_::Odometry_" />
+<data_reader profile_name="nav_msgs::msg::dds_::Odometry_" />
+<data_writer profile_name="geometry_msgs::msg::dds_::PoseWithCovarianceStamped_" />
+<data_reader profile_name="geometry_msgs::msg::dds_::PoseWithCovarianceStamped_" />
+<data_writer profile_name="drdds::msg::dds_::CancelNavTask_" />
+<data_reader profile_name="drdds::msg::dds_::CancelNavTask_" />
+<data_writer profile_name="drdds::msg::dds_::PlannerStatus_" />
+<data_reader profile_name="drdds::msg::dds_::PlannerStatus_" />
+<data_writer profile_name="drdds::msg::dds_::AppStatus_" />
+<data_reader profile_name="drdds::msg::dds_::AppStatus_" />
+<data_writer profile_name="drdds::msg::dds_::JointsData_" />
+<data_reader profile_name="drdds::msg::dds_::JointsData_" />
