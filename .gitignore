@@ -1,15 +1,63 @@
-# ROS / colcon 编译产物
-build/
-install/
+# ROS 2 / colcon generated output
+**/build/
+**/install/
+**/log/
 
-# CMake 缓存与构建目录
-CMakeFiles/
-CMakeCache.txt
-cmake-build-*/
-*.cmake.user
+# Python caches, virtual environments, and test output
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
 
-# 常见临时文件
-*.pyc
-__pycache__/
+# Secrets and machine-local environment files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa*
+id_ed25519*
+credentials.json
+secrets.*
+
+# Training output, experiment tracking, and checkpoints
+runs/
+wandb/
+checkpoints/
+*.ckpt
+*.pt
+*.pth
+events.out.tfevents.*
+
+# Large runtime assets and bundled binaries
+*.so
+*.so.*
+*.a
+*.apk
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+
+# MuJoCo mesh assets are local runtime dependencies; see README.md
+dr2_pro_sdk/simulation/**/meshes/
+
+# Local tools and editor/OS metadata
+/cockpit-tools/
 .vscode/
 .idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

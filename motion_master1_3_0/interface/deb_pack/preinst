@@ -1,5 +1,0 @@
-#!/bin/bash
-
-systemctl stop motion_master.service
-# systemctl restart motion_master.service
-exit 0
