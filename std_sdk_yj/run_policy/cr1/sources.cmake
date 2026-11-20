@@ -1,0 +1,7 @@
+set(CR1_POLICY_SOURCES
+    "${CMAKE_CURRENT_LIST_DIR}/src/rl_stand_policy_runner.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/amp_walk_policy_runner.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/run_policy_runner.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/sit2stand_mimic_policy_runner.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/stand2sit_mimic_policy_runner.cpp"
+)
