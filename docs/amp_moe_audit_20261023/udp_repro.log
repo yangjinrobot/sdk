@@ -1,0 +1,2 @@
+UDP: 127.0.0.1:43487 <-> 127.0.0.1:49151
+AUDIT {"one_packet_age_s":2.12281,"shoulder_yaw_goal_rad":2,"elbow_goal_rad":0,"wrist_yaw_goal_rad":0.6,"velocity_before_reversal":-1.5,"velocity_after_reversal":1.5,"finite_difference_acceleration_rad_s2":150}

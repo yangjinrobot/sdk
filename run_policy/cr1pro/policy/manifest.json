@@ -1,0 +1,145 @@
+{
+  "source": "/home/zjie/5_cnh/dr2_sdk_amp_cnh/dr2_pro_sdk/state_machine",
+  "models": [
+    {
+      "path": "amp_policy/amp_1018.onnx",
+      "sha256": "3cb3444b4069c9fc90caff66d0e2c28942e840fa8e66c871cde82675a0b2c633",
+      "bytes": 5043468
+    },
+    {
+      "path": "amp_policy/policy_0611_1_amp_box.onnx",
+      "sha256": "11aef5e49424556af7c7c2a497730566b3bc09e18402c4e28a5376884c616ebe",
+      "bytes": 1719644
+    },
+    {
+      "path": "amp_policy/policy_arm.onnx",
+      "sha256": "bfd3bba0ca1fa697f3ae0ca5e62c72010709ca2f30712706b7999a5400ff7ad9",
+      "bytes": 1658204
+    },
+    {
+      "path": "rl_policy/model_0610_rl_moveboxes.onnx",
+      "sha256": "d10d18545667117aefa7a3d085ef9a9bc854adcec2fc2e4b982d557b2f114ce4",
+      "bytes": 1712881
+    },
+    {
+      "path": "rl_policy/model_0615_waist1.onnx",
+      "sha256": "cde04ca7b6beade8f338cf75001c647197004a44384fda59b504eeb022dfad33",
+      "bytes": 1712881
+    },
+    {
+      "path": "rl_policy/model_0617_slowsquat.onnx",
+      "sha256": "dca232e82de214be2887d7217ea5d8a83a6d6740e8fdf660dbcb05f7ba88b540",
+      "bytes": 1725169
+    },
+    {
+      "path": "rl_policy/model_0617_standup.onnx",
+      "sha256": "8574e22196d89b7c32fb4e1c9def9d53d7c4a15d8d0fc56adff0a41daffcb4e0",
+      "bytes": 1725169
+    },
+    {
+      "path": "amp_moe_policy/moe_policy_1022.onnx",
+      "sha256": "4aa1c8c60c4920c4f353c59cfc994b35fdef1448a8671210122bf5b594570c9f",
+      "bytes": 5765914
+    },
+    {
+      "path": "amp_policy/policy_1022_walking.onnx",
+      "sha256": "80984e9c1ce61b12a2b95fbfaa383905ad251d53015174cedf8b1a29bf196716",
+      "bytes": 1197668
+    },
+    {
+      "path": "amp_policy/walktorun/policy_1030.onnx",
+      "sha256": "367b15131285e750d80792d99416ac7ccdb347ee918ac05cec24cbd2811d35b0",
+      "bytes": 1658204,
+      "training_configs": [
+        "amp_policy/walktorun/agent(15).yaml",
+        "amp_policy/walktorun/env(15).yaml"
+      ]
+    },
+    {
+      "path": "amp_policy/policy_1022_75k.onnx",
+      "sha256": "aff1c822c96a80ee4eef541c7225263a8a1873a8aa695baa2fb19da73c982ed4",
+      "bytes": 1719644
+    },
+    {
+      "path": "mimic_policy/model_stand2sit_1020.onnx",
+      "sha256": "216a6007afc4e5e0f3f66353712378f4d2f1da1cbc98fbe235dba0047f0fd082",
+      "bytes": 1411824
+    },
+    {
+      "path": "mimic_policy/sit2stand.onnx",
+      "sha256": "80292e792c28cfc6914504f0efe98cc3c6acf93e9cb4b0061cb8dd844b4524c0",
+      "bytes": 1347915
+    },
+    {
+      "path": "amp_moe_policy/moe_policy_1026.onnx",
+      "sha256": "6a0dada806be542737a971c39a7aec161e7f50eca263e542e8988e0c22d35c96",
+      "bytes": 5765914
+    },
+    {
+      "path": "mimic_policy/knee2stand/model_knee2stand_1027.onnx",
+      "sha256": "5d396d3679308044fa9a7e410ff408b6deeb4a8502b6d3b80e6f1dbe7b3fca81",
+      "bytes": 1289732
+    },
+    {
+      "path": "mimic_policy/stand2knee/model_stand2knee_1027.onnx",
+      "sha256": "9400144d430bb6b5a529c7b1d6e3949d20c17ecfaa2f26d79e50c1eadee35725",
+      "bytes": 1357892
+    },
+    {
+      "path": "mimic_policy/stand2knee/model_stand2knee_1028.onnx",
+      "sha256": "68aebd1ab813fcc4699208713eec20da1a447c700d1b695ec502dd87356b74d7",
+      "bytes": 1357879,
+      "training_configs": [
+        "mimic_policy/stand2knee/agent(13).yaml",
+        "mimic_policy/stand2knee/env(13).yaml"
+      ]
+    },
+    {
+      "path": "mimic_policy/knee2stand/model_knee2stand_1028.onnx",
+      "sha256": "e7cb28e88229fef262231673e44dde249b447577c6825c88b14edb5c9a019a09",
+      "bytes": 1289719,
+      "training_configs": [
+        "mimic_policy/knee2stand/agent(14).yaml",
+        "mimic_policy/knee2stand/env(14).yaml"
+      ]
+    },
+    {
+      "path": "mimic_policy/policy_disco8_10k.onnx",
+      "sha256": "759f6151d83cdd08b3874562569fe542bff4284435232ba966b512c78831bcac",
+      "bytes": 1511712
+    },
+    {
+      "path": "mimic_policy/policy_simpson2_20k.onnx",
+      "sha256": "751b756860c3ef863963564d6dbb16cc3bc23879386c4f26ca436f228d7c0a08",
+      "bytes": 1383065
+    },
+    {
+      "path": "recovery_policy/tangxia/model_11000.onnx",
+      "sha256": "e854ab4b4dee542228b17d2fd19154ff144c042d6e65d2a2804d6d7af0916893",
+      "bytes": 1214337,
+      "training_configs": [
+        "recovery_policy/tangxia/agent.yaml",
+        "recovery_policy/tangxia/env.yaml"
+      ]
+    },
+    {
+      "path": "recovery_policy/tangxia/model_11000_action.onnx",
+      "sha256": "735ff402ef1c8432eba6b243fc32b18c8e044541339d834e0038ed51101d61c0",
+      "bytes": 988213
+    },
+    {
+      "path": "recovery_policy/zhanli/model_8000.onnx",
+      "sha256": "8ad63f13b0fd066710c60ad1b94af831a37a59b67e5928d3b321b0a2d2b3e735",
+      "bytes": 1294017,
+      "training_configs": [
+        "recovery_policy/zhanli/agent.yaml",
+        "recovery_policy/zhanli/env.yaml"
+      ]
+    },
+    {
+      "path": "recovery_policy/zhanli/model_8000_action.onnx",
+      "sha256": "f0357d9c6bb4c281daf4bb6a9bb473aa48f14daf4eba5f323dc78d863482ff8f",
+      "bytes": 988213
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+Start testing: Oct 23 11:39 CST
+----------------------------------------------------------
+5/7 Testing: amp_moe_15dof
+5/7 Test: amp_moe_15dof
+Command: "/tmp/mm_moe_deploy_audit_build/tests/test_amp_moe_15dof"
+Directory: /tmp/mm_moe_deploy_audit_build/tests
+"amp_moe_15dof" start time: Oct 23 11:39 CST
+Output:
+----------------------------------------------------------
+loaded policy: /home/zj/3_ANHUI/pro/motion_master_sdk/motion_master1_3_0/run_policy/cr1pro/policy/rl_policy/model_0610_rl_moveboxes.onnx
+
+[PolicyRunner] ╔══════════════════════════════════╗
+[PolicyRunner] ║   RLStandPolicyRunner OnEnter    ║
+[PolicyRunner] ║   RL Stand Control RL站立控制    ║
+[PolicyRunner] ╚══════════════════════════════════╝
+
+
+[PolicyRunner] ──── 状态概览 ────
+  手臂控制模式: ONNX (策略)
+  速度指令: fwd=0 side=0 turn=0
+  手臂插补: 进行中
+  运行时间: 4s
+────────────────────────────────
+
+
+[PolicyRunner] ──── 状态概览 ────
+  手臂控制模式: ONNX (策略)
+  速度指令: fwd=0 side=0 turn=0
+  手臂插补: 进行中
+  运行时间: 7.99999s
+────────────────────────────────
+
+
+[PolicyRunner] ──── 状态概览 ────
+  手臂控制模式: ONNX (策略)
+  速度指令: fwd=0 side=0 turn=0
+  手臂插补: 空闲
+  运行时间: 12.0001s
+────────────────────────────────
+
+
+[PolicyRunner] ──── 状态概览 ────
+  手臂控制模式: ONNX (策略)
+  速度指令: fwd=0 side=0 turn=0
+  手臂插补: 进行中
+  运行时间: 16.0002s
+────────────────────────────────
+
+
+[PolicyRunner] ╔══════════════════════════════════╗
+[PolicyRunner] ║   RLStandPolicyRunner OnExit     ║
+[PolicyRunner] ║   退出 RL Stand Control 模式      ║
+[PolicyRunner] ╚══════════════════════════════════╝
+
+RLStandPolicyRunner stand-arms destroyed
+MoE 15 DOF: 480 ONNX reference comparisons and 900 RL Stand arm comparisons passed
+<end of output>
+Test time =   0.76 sec
+----------------------------------------------------------
+Test Passed.
+"amp_moe_15dof" end time: Oct 23 11:39 CST
+"amp_moe_15dof" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 23 11:39 CST
