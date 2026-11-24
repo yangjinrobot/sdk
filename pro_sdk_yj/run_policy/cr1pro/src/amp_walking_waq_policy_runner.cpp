@@ -11,8 +11,13 @@ RobotAction AmpWalkingWAQPolicyRunner::ComputeRobotAction(const RobotBasicState&
     frame.segment<3>(0) = state.base_omega;
     frame.segment<3>(3) = state.base_rot_mat.transpose() * Vec3f(0, 0, -1);
     // Match the SDK velocity API while respecting asymmetric deployment limits.
-    frame.segment<3>(6) = cmd_vel_input_.cwiseProduct(max_cmd_vel_)
-        .cwiseMax(min_cmd_vel_).cwiseMin(max_cmd_vel_);
+    Vec3f velocity = cmd_vel_input_.cwiseProduct(max_cmd_vel_);
+    for (int i = 0; i < 3; ++i) {
+        const float lower = std::min(0.0f, min_cmd_vel_(i));
+        const float upper = std::max(0.0f, max_cmd_vel_(i));
+        velocity(i) = std::clamp(velocity(i), lower, upper);
+    }
+    frame.segment<3>(6) = ApplyCommandDeadband(velocity);
     for (int i = 0; i < kActions; ++i) {
         const int joint = kJoints[i];
         frame(9 + i) = state.joint_pos(joint) - dof_pos_default_(joint);

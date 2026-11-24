@@ -10,7 +10,8 @@ RobotAction AmpMoe15DofPolicyRunner::ComputeRobotAction(const RobotBasicState& s
     VecXf frame(kFrame);
     frame.segment<3>(0) = state.base_omega;
     frame.segment<3>(3) = state.base_rot_mat.transpose() * Vec3f(0, 0, -1);
-    frame.segment<3>(6) = cmd_vel_input_.cwiseProduct(max_cmd_vel_);
+    frame.segment<3>(6) =
+        ApplyCommandDeadband(cmd_vel_input_.cwiseProduct(max_cmd_vel_));
     for (int i = 0; i < 29; ++i) {
         const int joint = kObservationJoints[i];
         frame(9 + i) = state.joint_pos(joint) - dof_pos_default_(joint);

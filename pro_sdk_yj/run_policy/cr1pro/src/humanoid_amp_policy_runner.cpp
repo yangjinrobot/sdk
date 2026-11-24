@@ -411,7 +411,7 @@ RobotAction HumanoidAmpPolicyRunner::ComputeRobotAction(const RobotBasicState &r
         }
     }
     cmd_vel_input_ += vel_delta;
-    Vec3f cmd_vel = cmd_vel_input_.cwiseProduct(max_cmd_vel_);
+    Vec3f cmd_vel = ApplyCommandDeadband(cmd_vel_input_.cwiseProduct(max_cmd_vel_));
 
     // 每秒打印一次手柄速度
     static auto last_print_time = std::chrono::steady_clock::now();

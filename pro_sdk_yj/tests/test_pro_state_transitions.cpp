@@ -402,20 +402,29 @@ static void CheckSquatPreparationToSit2Stand() {
     squat.OnEnter();
     squat.Run();
     Require(data->ri_ptr->GetJointCommand()(0, 0) == 0, "Preparation did not ramp up from idle");
-    data->ri_ptr->time = 11;
-    squat.Run();
-    Require(!data->motion_state_store->handset_ready, "Squat reported ready before reaching the target");
     VecXf target(31);
     target << 0, 0, 0,
         -.296706, .122173, -.122173, .558505, -.226893, -.052360, .191986,
         -.383972, -.261799, .069813, .575959, .139626, -.017453, -.226893,
         -1.431170, 0, 0, 1.884956, -.349066, 0,
         -1.431170, 0, 0, 1.884956, -.349066, 0, 0, 0;
-    Require(data->ri_ptr->GetJointCommand().col(1).isApprox(target, 1e-6),
-            "Squat target joints differ from the requested angles");
-    data->ri_ptr->q = target;
+    const VecXf start = data->ri_ptr->q;
+    data->ri_ptr->time = 11.5;
     squat.Run();
-    data->ri_ptr->time = 11.2;
+    Require(data->ri_ptr->GetJointCommand().col(1).isApprox((start + target) * .5f, 1e-6),
+            "Squat was not halfway to the target after 1.5 seconds");
+    data->ri_ptr->q = target;
+    data->ri_ptr->time = 12.9;
+    squat.Run();
+    Require(!data->motion_state_store->handset_ready, "Squat reported ready before the trajectory finished");
+    data->ri_ptr->time = 13.0;
+    squat.Run();
+    Require(data->ri_ptr->GetJointCommand().col(1).isApprox(target, 1e-6),
+            "Squat target was not reached after 3 seconds");
+    data->ri_ptr->time = 13.1;
+    squat.Run();
+    Require(!data->motion_state_store->handset_ready, "Squat reported ready before the measured settle time");
+    data->ri_ptr->time = 13.2;
     squat.Run();
     Require(Next(squat) == kSquatPreparation && data->motion_state_store->handset_ready,
             "Ready squat did not hold while waiting for a separate start");
@@ -424,7 +433,7 @@ static void CheckSquatPreparationToSit2Stand() {
     Require(!data->motion_state_store->handset_ready, "Squat readiness survived loss of posture");
     data->ri_ptr->q = target;
     squat.Run();
-    data->ri_ptr->time = 11.4;
+    data->ri_ptr->time = 13.4;
     squat.Run();
     data->uc_ptr->Set(RLControlMimic13Mode);
     Require(Next(squat) == kRLMimic13Control, "Ready squat did not accept Sit2Stand");

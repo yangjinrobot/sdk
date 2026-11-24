@@ -65,7 +65,10 @@ static void CheckPolicy() {
             const Vec3f gravity = state.base_rot_mat.transpose() * Vec3f(0,0,-1);
             for (int i = 0; i < 3; ++i) {
                 frame[i] = state.base_omega(i); frame[3+i] = gravity(i);
-                frame[6+i] = std::clamp(filtered(i) * limits(i), minimum(i), limits(i));
+                const float velocity =
+                    std::clamp(filtered(i) * limits(i),
+                               std::min(0.f, minimum(i)), std::max(0.f, limits(i)));
+                frame[6+i] = std::abs(velocity) < .1f ? 0.f : velocity;
             }
             for (int i = 0; i < 29; ++i) {
                 frame[9+i] = state.joint_pos(joints[i]) - defaults[i];

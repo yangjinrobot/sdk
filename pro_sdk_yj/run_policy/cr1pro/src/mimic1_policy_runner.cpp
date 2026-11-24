@@ -84,6 +84,7 @@ Mimic1PolicyRunner::Mimic1PolicyRunner(const std::string &policy_name, RobotName
             5.0, 5.0,
             5.0, 5.0,
             5.0, 5.0;
+    kd_ = kd_* 1.25;
     std::vector<std::string> robot_order;
     if (robot_name == RobotName::CR1PRO) {
         robot_order = {

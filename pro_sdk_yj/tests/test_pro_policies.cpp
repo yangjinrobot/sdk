@@ -87,8 +87,50 @@ static void CheckRunner(const char* name, int steps = 24) {
     const auto valid = State(31);
     runner.GetRobotAction(valid, command);
     Require(runner.IsReady(), "a new state entry did not clear a transient inference fault");
+    UserCommand low{};
+    low.forward_vel_scale = .05f;
+    low.side_vel_scale = -.04f;
+    low.turnning_vel_scale = .03f;
+    runner.OnEnter();
+    const MatXf low_action = runner.GetRobotAction(valid, low).ConvertToMat();
+    runner.OnEnter();
+    const MatXf zero_action = runner.GetRobotAction(valid, UserCommand{}).ConvertToMat();
+    Require(low_action.isApprox(zero_action, 1e-6f),
+            std::string(name) + " sub-threshold command changed policy action");
     runner.OnExit();
-    std::cout << name << ": model warm-up, 29/31 mapping and failure damping passed\n";
+    std::cout << name
+              << ": model warm-up, velocity deadband, 29/31 mapping and failure damping passed\n";
+}
+
+class PolicyDeadbandTestRunner final : public PolicyRunnerBase {
+public:
+    PolicyDeadbandTestRunner() : PolicyRunnerBase("deadband-test", RobotName::CR1PRO) {}
+
+    static float Deadband(float velocity) { return ApplyCommandDeadband(velocity); }
+    static Vec3f Deadband(const Vec3f& velocity) { return ApplyCommandDeadband(velocity); }
+
+    void DisplayPolicyInfo() override {}
+    void OnEnter() override {}
+    void OnExit() override {}
+
+protected:
+    RobotAction ComputeRobotAction(const RobotBasicState&, const UserCommand&) override {
+        return RobotAction{};
+    }
+};
+
+static void CheckCommandDeadband() {
+    Require(PolicyDeadbandTestRunner::Deadband(.0999f) == 0.f &&
+            PolicyDeadbandTestRunner::Deadband(-.0999f) == 0.f &&
+            PolicyDeadbandTestRunner::Deadband(0.f) == 0.f,
+            "sub-threshold velocity was not zeroed");
+    Require(PolicyDeadbandTestRunner::Deadband(.1f) == .1f &&
+            PolicyDeadbandTestRunner::Deadband(-.1f) == -.1f &&
+            PolicyDeadbandTestRunner::Deadband(.11f) == .11f,
+            "velocity at or above the threshold was changed");
+    Require(PolicyDeadbandTestRunner::Deadband(Vec3f(.0999f, -.0999f, .1f))
+                .isApprox(Vec3f(0.f, 0.f, .1f)),
+            "vector velocity deadband was not applied per axis");
 }
 
 template <typename Runner>
@@ -145,6 +187,7 @@ static void CheckTensorValidation() {
 int main() {
     try {
         Require(RLStandPolicyRunner::GetUdpNode() == nullptr, "test must start without UDP");
+        CheckCommandDeadband();
         CheckRunner<AmpPolicyRunner>("Imported AMP", 450);
         CheckRunner<Mimic12PolicyRunner>("Mimic12", 450);
         CheckRunner<Mimic13PolicyRunner>("Mimic13", 380);

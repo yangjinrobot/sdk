@@ -51,8 +51,8 @@ enum RobotMotionState : uint32_t {
     // RLStandPlease2Mode = 0x11017,
     RLControlMimic12Mode = 0x11016,//12
     RLControlMimic13Mode = 0x11017,//13
-    RLControlMimic1Mode = 0x11018,  // 14 Dance: only reachable from AmpWalkingControl.
-    RLControlMimic2Mode = 0x11019,  // 15 Dance: only reachable from AmpWalkingControl.
+    RLControlMimic2Mode = 0x11018,  // 14 box_fight(low kp): only reachable from AmpWalkingControl.
+    RLControlMimic1Mode = 0x11019,  // 15 box fight(high kp): only reachable from AmpWalkingControl.
     TangxiaMode = 0x1101a,          // 16 Lie down: only reachable from RLControlMode.
     ZhanliMode = 0x1101b,           // 17 Stand up: only reachable from TangxiaMode.
 

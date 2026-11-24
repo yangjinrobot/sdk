@@ -305,7 +305,7 @@ RobotAction AmpPolicyRunner::ComputeRobotAction(const RobotBasicState &ro, const
         if (fabs(vel_delta(i)) > vel_delta_const_(i)) vel_delta(i) = Sign(vel_delta(i)) * vel_delta_const_(i);
     }
     cmd_vel_input_ += vel_delta;
-    Vec3f cmd_vel = cmd_vel_input_.cwiseProduct(max_cmd_vel_);
+    Vec3f cmd_vel = ApplyCommandDeadband(cmd_vel_input_.cwiseProduct(max_cmd_vel_));
 
     //******qxj_amp */
     if(run_cnt_ == 0){

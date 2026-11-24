@@ -9,7 +9,7 @@ namespace humanoid_pro {
 class SquatPreparationState : public StateBase {
 private:
     static constexpr int kBodyJoints = 29;
-    static constexpr double kPreparationSeconds = 1.0;
+    static constexpr double kPreparationSeconds = 3.0;
     static constexpr double kSettleSeconds = 0.15;
     static constexpr float kPositionTolerance = 0.15f;
     static constexpr float kVelocityTolerance = 0.3f;

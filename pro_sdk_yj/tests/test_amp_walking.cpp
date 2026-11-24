@@ -75,8 +75,10 @@ static void CheckRollout(Ort::Session& session, bool legacy_limits) {
             for (int i = 0; i < 3; ++i)
                 filtered(i) += std::clamp(std::clamp(requested(i), -1.f, 1.f) - filtered(i),
                                           -increments(i), increments(i));
-            const Vec3f velocity(std::clamp(filtered(0) * 1.2f, -.5f, 1.2f),
-                                 filtered(1) * .6f, filtered(2));
+            Vec3f velocity(std::clamp(filtered(0) * 1.2f, -.5f, 1.2f),
+                           filtered(1) * .6f, filtered(2));
+            for (int i = 0; i < 3; ++i)
+                if (std::abs(velocity(i)) < .1f) velocity(i) = 0.f;
             const Vec3f gravity = state.base_rot_mat.transpose() * Vec3f(0, 0, -1);
             std::array<float, 612> observation{};
             std::copy(history.begin(), history.end(), observation.begin());

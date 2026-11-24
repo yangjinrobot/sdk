@@ -154,7 +154,7 @@ void Mimic2PolicyRunner::LoadModel() {
     if (onnx_path_.empty()) {
         const char* configured = std::getenv("DR2_MIMIC2_MODEL_PATH");
         onnx_path_ = configured && *configured ? std::string(configured)
-            : pro_policy::ResolveModelPath("mimic_policy/policy_simpson2_20k.onnx");
+            : pro_policy::ResolveModelPath("mimic_policy/box_fight.onnx");
     }
     session_ = Ort::Session(env_, onnx_path_.c_str(), session_options_);
     pro_policy::ValidateCopiedModel(session_, obs_total_dim_, true);
@@ -348,8 +348,8 @@ RobotAction Mimic2PolicyRunner::ComputeRobotAction(const RobotBasicState &ro, co
     }
 
     ++run_cnt_;
-    if(run_cnt_>390){
-        run_cnt_ = 390;//simpson
+    if(run_cnt_>1150){
+        run_cnt_ = 1150;//simpson
     }
     return ra;
 }

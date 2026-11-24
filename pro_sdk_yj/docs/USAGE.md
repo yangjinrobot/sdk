@@ -15,7 +15,7 @@ Idle在 `safe_control_mode != 0` 时保持Idle；所有运动状态在安全故�
 | 值 | 状态 | 主要控制行为 | 合法后继（不含保持自身） |
 |---:|---|---|---|
 | `0x0` | Idle | WholeBody下每周期发送零命令；UpperBody下保持进入时姿态 | 0x20002、0x20006、0x7、0x20010（仅WholeBody） |
-| `0x20010` | SquatPreparation | 1秒插值到29轴蹲姿，实测到位后保持 | 0x2、0x11017 |
+| `0x20010` | SquatPreparation | 3 秒插值到 29 轴蹲姿，实测到位后保持 | 0x2、0x11017 |
 | `0x2` | JointDamping | 仅阻尼，保持10秒 | 0x0（10秒后） |
 | `0x20002` | ZeroPos | 源回零姿态与三次插值 | 0x2、0x1100b、0x4、0x20006、0x7、0x11013 |
 | `0x1100b` | RLStandControlMode | 15动作RL站立及手臂预设／UDP | 0x2、0x11、0x1100c、0x1100d、0x1100e、0x11013 |

@@ -470,9 +470,10 @@ RobotAction RLStandPolicyRunner::ComputeRobotAction(const RobotBasicState& ro, c
         }
     }
     cmd_vel_input_ += vel_delta;
-    const Vec3f cmd_vel = cmd_vel_input_.cwiseProduct(max_cmd_vel_);
+    const Vec3f cmd_vel =
+        ApplyCommandDeadband(cmd_vel_input_.cwiseProduct(max_cmd_vel_));
 
-    if (cmd_vel_input_.head<2>().norm() > 0.1f) {
+    if (cmd_vel.head<2>().norm() > 0.1f) {
         phase_count_ = run_cnt_ * decimation_;
     } else {
         phase_count_ = 0;

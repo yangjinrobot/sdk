@@ -27,7 +27,7 @@ AmpWalkingPolicyRunner::AmpWalkingPolicyRunner(const std::string& policy_name, R
     kd_ << 10, 10,      // left/right hip pitch
             5,          // waist yaw
            10, 10,      // left/right hip roll
-            5,          // waist roll
+           10,          // waist roll   old is 5
             5,  5,      // left/right hip yaw
            10,          // waist pitch
            10, 10,      // left/right knee pitch
@@ -229,7 +229,12 @@ RobotAction AmpWalkingPolicyRunner::ComputeRobotAction(const RobotBasicState &ro
     }
     cmd_vel_input_ += vel_delta;
     Vec3f cmd_vel = cmd_vel_input_.cwiseProduct(max_cmd_vel_);
-    cmd_vel = cmd_vel.cwiseMax(min_cmd_vel_).cwiseMin(max_cmd_vel_);
+    for (int i = 0; i < 3; ++i) {
+        const float lower = std::min(0.0f, min_cmd_vel_(i));
+        const float upper = std::max(0.0f, max_cmd_vel_(i));
+        cmd_vel(i) = std::clamp(cmd_vel(i), lower, upper);
+    }
+    cmd_vel = ApplyCommandDeadband(cmd_vel);
 
     // ========== 步态计算 ==========
     const float step_dt = static_cast<float>(decimation_) * signal_dt_;   // 策略推理时间步长 (0.02s)

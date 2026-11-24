@@ -6,6 +6,7 @@
 #include "policy_paths.hpp"
 #include "policy_validation.hpp"
 #include <atomic>
+#include <cmath>
 #include <mutex>
 
 using namespace types;
@@ -39,6 +40,18 @@ protected:
     static RobotAction DampingAction();
     void ResetInferenceFault();
     void SetInferenceFault(const std::string& error);
+
+    // Commands below 0.1 are held at zero in policy observations. Keep the
+    // filter state unchanged so a later valid command can still ramp normally.
+    static float ApplyCommandDeadband(float velocity) {
+        return std::abs(velocity) < 0.1f ? 0.0f : velocity;
+    }
+
+    static Vec3f ApplyCommandDeadband(const Vec3f& velocity) {
+        return Vec3f(ApplyCommandDeadband(velocity.x()),
+                     ApplyCommandDeadband(velocity.y()),
+                     ApplyCommandDeadband(velocity.z()));
+    }
 
 private:
     std::atomic<bool> inference_fault_{false};
