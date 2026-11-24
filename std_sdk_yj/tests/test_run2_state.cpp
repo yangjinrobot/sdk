@@ -22,7 +22,8 @@ int main(int argc, char** argv) {
                             uint32_t(RobotMotionState::Run),
                             uint32_t(RobotMotionState::Run3),
                             uint32_t(RobotMotionState::Run4),
-                            uint32_t(RobotMotionState::Sit2StandMimic)}) {
+                            uint32_t(RobotMotionState::Sit2StandMimic),
+                            uint32_t(RobotMotionState::ZhanLi)}) {
         StateBase::msfb_.UpdateCurrentState(source);
         robot.command = MatXf::Constant(21, 5, 2.f);
         user = UserCommand{};
@@ -46,6 +47,7 @@ int main(int argc, char** argv) {
                  {RobotMotionState::Run3, StateName::kRun3},
                  {RobotMotionState::Run4, StateName::kRun4},
                  {RobotMotionState::Restand, StateName::kRestand},
+                 {RobotMotionState::DunXia, StateName::kDunXia},
                  {RobotMotionState::Stand2SitMimic, StateName::kStand2SitMimic},
                  {RobotMotionState::ZeroPos, StateName::kZeroPos}}) {
             user.target_mode = route.first;

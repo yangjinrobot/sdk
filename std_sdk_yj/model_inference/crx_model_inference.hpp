@@ -17,7 +17,8 @@
 
 class CRXModelInference : public ModelInferenceBase {
 public:
-    // RLControlMode 使用 1118/nirenwalk.onnx：78 * (5 帧历史 + 当前帧) = 468。
+    // Legacy base-state default. CR1 Standard overrides RLControlMode with
+    // ChiqiangWalkPolicyRunner + std_amp_2.onnx.
     static constexpr const char* kPolicyOnnxPath =
         "/opt/robot/share/motion_master/policy/amp/1118/nirenwalk.onnx";
 

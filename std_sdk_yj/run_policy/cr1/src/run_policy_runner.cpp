@@ -281,7 +281,7 @@ RobotAction RunPolicyRunner::GetRobotAction(const RobotBasicState& ro,
     }
 
     UpdateCommandVelocity(user_cmd_vel);
-    Vec3f cmd_vel = cmd_vel_input_.cwiseProduct(max_cmd_vel_);
+    const Vec3f cmd_vel = cmd_vel_input_.cwiseProduct(max_cmd_vel_).unaryExpr(&ApplyCommandDeadband);
     // Log the actual command vector fed to the policy, after all limiting and
     // scaling. Rate-limit stdout so inference is not disturbed by 50 Hz I/O.
     if (run_cnt_ % 50 == 0) {

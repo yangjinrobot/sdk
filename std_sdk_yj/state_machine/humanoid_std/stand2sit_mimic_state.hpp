@@ -14,7 +14,7 @@ class Stand2SitMimicState : public StateBase {
     std::shared_ptr<Stand2SitMimicPolicyRunner> policy_;
     RobotBasicState robot_{};
     MatXf command_;
-    JointEntryTransition entry_transition_;
+    ArmEntryTransition arm_entry_transition_;
     int ticks_ = 0;
     bool failed_ = false;
 
@@ -35,15 +35,14 @@ class Stand2SitMimicState : public StateBase {
         std::cerr << "[STAND2SIT_MIMIC] " << error.what() << "; entering damping\n";
     }
 
-    void PrepareRLEntryTransition(uint32_t source) {
-        entry_transition_.Cancel();
-        if (source != RobotMotionState::RLControlMode) return;
+    void PrepareEntryTransition() {
+        arm_entry_transition_.Cancel();
         const MatXf previous = ri_ptr_->GetJointCommand();
         if (previous.rows() != cp_ptr_->dof_num_ || previous.cols() != 5 || !previous.allFinite()) {
-            std::cerr << "[STAND2SIT_MIMIC] unavailable previous command; skipping full-body entry blend\n";
+            std::cerr << "[STAND2SIT_MIMIC] unavailable previous command; skipping arm entry blend\n";
             return;
         }
-        entry_transition_.Reset(previous, ri_ptr_->GetInterfaceTimeStamp());
+        arm_entry_transition_.Reset(previous.block(1, 0, 8, 5), ri_ptr_->GetInterfaceTimeStamp());
     }
 
 public:
@@ -57,7 +56,6 @@ public:
     }
 
     void OnEnter() override {
-        const uint32_t source = msfb_.GetCurrentState();
         msfb_.UpdateCurrentState(RobotMotionState::Stand2SitMimic);
         ticks_ = 0;
         failed_ = false;
@@ -68,13 +66,14 @@ public:
         try {
             ReadObservation();
             policy_->AlignHeading(robot_.base_rot_mat);
-            PrepareRLEntryTransition(source);
+            PrepareEntryTransition();
             std::cout << "[STAND2SIT_MIMIC] Playing " << policy_->FrameCount()
                       << " embedded ONNX frames from frame 0; hold final frame; Y rises after completion, Z zeropos, R damping\n";
         } catch (const std::exception& error) { Fail(error); }
     }
 
     void OnExit() override {
+        arm_entry_transition_.Cancel();
         policy_->OnExit();
         msfb_.UpdateCurrentGait(0);
     }
@@ -93,7 +92,7 @@ public:
             }
             ticks_ = (ticks_ + 1) % policy_->decimation_;
             MatXf output = command_;
-            entry_transition_.Apply(output, 0, ri_ptr_->GetInterfaceTimeStamp());
+            arm_entry_transition_.Apply(output, 1, ri_ptr_->GetInterfaceTimeStamp());
             ri_ptr_->SetJointCommand(output);
         } catch (const std::exception& error) { Fail(error); }
     }

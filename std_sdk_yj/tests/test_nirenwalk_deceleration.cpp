@@ -1,5 +1,5 @@
 // Offline runner integration: compile as test_nirenwalk_policy.cpp; pass a
-// 73-D run ONNX model (for example policy/amp/1028_run/policy_run_2.onnx) as argv[1].
+// 73-D run ONNX model (for example policy/1028_run/policy_run_1.onnx) as argv[1].
 #include "run_policy_runner.h"
 #include <cassert>
 #include <iostream>
@@ -73,26 +73,31 @@ int main(int argc, char** argv) {
     command.turnning_vel_scale = -1.f;
     for (int tick = 0; tick < 200; ++tick) {
         policy.GetRobotAction(state, command);
-        const double next = policy.current_observation_(6);
+        const float shaped_vx = policy.cmd_vel_input_(0) * policy.max_cmd_vel_(0);
+        const double next = shaped_vx;
+        assert(policy.current_observation_(6) == (std::abs(shaped_vx) < .1f ? 0.f : shaped_vx));
         const double acceleration = (next - velocity) / dt;
         assert(std::abs(acceleration) <= 1.0001);
         assert(std::abs(acceleration - previous_acceleration) <= 3. * dt + .001);
         assert(next <= velocity + 1e-6 && next >= -1e-6);
         if (tick == 0) {
             assert(next > 1.998 && next < 2.);
-            assert(std::abs(policy.current_observation_(7) - .012f) < 1e-6);
-            assert(std::abs(policy.current_observation_(8) + .04f) < 1e-6);
+            assert(policy.current_observation_(7) == 0.f);
+            assert(policy.current_observation_(8) == 0.f);
         }
         velocity = next;
         previous_acceleration = acceleration;
     }
     assert(std::abs(velocity) < 1e-7);
+    assert(std::abs(policy.current_observation_(7) - .6f) < 1e-6);
+    assert(std::abs(policy.current_observation_(8) + 1.f) < 1e-6);
     // Low-speed ramp and re-entry retain legacy behavior.
     policy.OnExit(); policy.OnEnter();
     command = UserCommand{};
     command.forward_vel_scale = .4f;
     policy.GetRobotAction(state, command);
-    assert(std::abs(policy.current_observation_(6) - .04f) < 1e-6);
+    assert(std::abs(policy.cmd_vel_input_(0) * policy.max_cmd_vel_(0) - .04f) < 1e-6);
+    assert(policy.current_observation_(6) == 0.f);
     for (int tick = 0; tick < 30; ++tick) policy.GetRobotAction(state, command);
     command.forward_vel_scale = 0.f;
     policy.GetRobotAction(state, command);

@@ -84,7 +84,7 @@ public:
         if (state == RobotMotionState::RLControlMode) {
             return msfb_->GetCurrentGait() == RobotGaitType::HumanWALK;
         }
-        if (state == RobotMotionState::Run) return true;
+        if (state == RobotMotionState::Run || state == RobotMotionState::MjRun) return true;
         if (state == RobotMotionState::Restand) return true;
         return false;
     }
@@ -139,10 +139,13 @@ public:
                 case RobotMotionState::WaitingForStand:      // 0x0
                 case RobotMotionState::JointDamping:         // 0x2
                 case RobotMotionState::RLControlMode:        // 0x11
-                case RobotMotionState::Run:                  // 0x1100D
+                case RobotMotionState::Run:                  // 0x1100C
+                case RobotMotionState::MjRun:
                 case RobotMotionState::Restand:              // 0x1100B
-                case RobotMotionState::Stand2SitMimic:       // 0x1100E
-                case RobotMotionState::Sit2StandMimic:       // 0x1100F
+                case RobotMotionState::Stand2SitMimic:       // 0x1100D
+                case RobotMotionState::Sit2StandMimic:       // 0x1100E
+                case RobotMotionState::DunXia:               // 0x1100F
+                case RobotMotionState::ZhanLi:               // 0x11010
                 case RobotMotionCommand::StandElbowMinus04: // motion 7
                 case RobotMotionCommand::StandElbowPlus12:  // motion 8
                 case RobotMotionState::ZeroPos:              // 0x20001
@@ -231,7 +234,22 @@ public:
         if (IsStandElbowCommand(state) &&
             !CanAcceptStandElbowCommand(msfb_->GetCurrentState(), usr_cmd_->target_mode,
                                        usr_cmd_->safe_control_mode)) return;
+        const auto current = msfb_->GetCurrentState();
+        if (state == RobotMotionState::MjRun && !CanRequestMjRun(current, *usr_cmd_)) {
+            logger_DDS_cmd.warn("MjRun rejected: current=0x%x target=0x%x safe=%u",
+                                current, usr_cmd_->target_mode, usr_cmd_->safe_control_mode);
+            std::cout << "[DDS] mjrun rejected: current=0x" << std::hex << current
+                      << " target=0x" << usr_cmd_->target_mode << std::dec
+                      << " safe=" << usr_cmd_->safe_control_mode << std::endl;
+            return;
+        }
+        if (current == RobotMotionState::MjRun && state != RobotMotionState::JointDamping &&
+            (!IsMjRunExitMotionState(state) || usr_cmd_->safe_control_mode != 0 ||
+             usr_cmd_->target_mode == RobotMotionState::JointDamping)) return;
         usr_cmd_->target_mode = state;
+        if (state == RobotMotionState::MjRun) {
+            logger_DDS_cmd.info("MjRun request accepted from 0x%x", current);
+        }
         std::cout << "target_mode: " << int(usr_cmd_->target_mode) << std::endl;
         logger_DDS_cmd.info("target_mode: %u", usr_cmd_->target_mode);
     }

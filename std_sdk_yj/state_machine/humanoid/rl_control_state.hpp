@@ -433,7 +433,11 @@ namespace humanoid {
             if(robot_name_ == RobotName::CR1STANDARD &&
                user_command.target_mode == RobotMotionState::Run) return StateName::kRun;
             if(robot_name_ == RobotName::CR1STANDARD &&
+               user_command.target_mode == RobotMotionState::MjRun) return StateName::kMjRun;
+            if(robot_name_ == RobotName::CR1STANDARD &&
                user_command.target_mode == RobotMotionState::Restand) return StateName::kRestand;
+            if(robot_name_ == RobotName::CR1STANDARD &&
+               user_command.target_mode == RobotMotionState::DunXia) return StateName::kDunXia;
             if(robot_name_ == RobotName::CR1STANDARD &&
                user_command.target_mode == RobotMotionState::Stand2SitMimic) return StateName::kStand2SitMimic;
             if(user_command.target_mode == (RobotMotionState::RLControlMode)) return StateName::kRLControl;

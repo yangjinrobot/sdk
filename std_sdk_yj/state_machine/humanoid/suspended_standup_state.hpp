@@ -112,11 +112,11 @@ public:
         goal_joint_pos_next_(cp_ptr_->arm_dof_num_+cp_ptr_->waist_dof_num_+3) = 1.2;
 
         if (cp_ptr_->dof_num_ == 21) {
-            // Match the gait policy's default CR1STANDARD hardware pose.
+            // Keep the CR1 Standard elbow target aligned with ZeroPos.
             goal_joint_pos_ <<
                     0.0,
-                    0.0,  0.15, 0.0, 1.2,
-                    0.0, -0.15, 0.0, 1.2,
+                    0.0,  0.15, 0.0, -0.2,
+                    0.0, -0.15, 0.0, -0.2,
                    -0.2, 0.0,  0.0, 0.4, -0.2, 0.0,
                    -0.2, 0.0,  0.0, 0.4, -0.2, 0.0;
             goal_joint_pos_next_ = goal_joint_pos_;

@@ -11,7 +11,7 @@ class RestandState final : public StateBase {
     int ticks_ = 0;
     bool failed_ = false;
     double entry_time_ = 0;
-    RLStandPolicyRunner::ArmPosture arm_posture_ = RLStandPolicyRunner::ArmPosture::Raised;
+    RLStandPolicyRunner::ArmPosture arm_posture_ = RLStandPolicyRunner::ArmPosture::Lowered;
     Vec2f elbow_entry_ = Vec2f::Zero();
     double elbow_entry_time_ = 0;
     bool elbow_transition_active_ = false;
@@ -32,7 +32,11 @@ public:
     }
 
     void OnEnter() override {
-        arm_posture_ = RLStandPolicyRunner::ArmPosture::Raised;
+        const uint32_t source = msfb_.GetCurrentState();
+        const bool lowered = source != RobotMotionState::Run &&
+                             source != RobotMotionState::Sit2StandMimic;
+        arm_posture_ = lowered ? RLStandPolicyRunner::ArmPosture::Lowered
+                               : RLStandPolicyRunner::ArmPosture::Raised;
         policy_.SetArmPosture(arm_posture_);
         elbow_transition_active_ = false;
         policy_.OnEnter();
@@ -119,6 +123,8 @@ public:
             case RobotMotionState::ZeroPos: return StateName::kZeroPos;
             case RobotMotionState::RLControlMode: return StateName::kRLControl;
             case RobotMotionState::Run: return StateName::kRun;
+            case RobotMotionState::MjRun: return StateName::kMjRun;
+            case RobotMotionState::DunXia: return StateName::kDunXia;
             case RobotMotionState::Stand2SitMimic: return StateName::kStand2SitMimic;
             case RobotMotionState::SuspendedStand: return StateName::kSuspendedStand;
             case RobotMotionState::WaitingForStand: return StateName::kIdle;

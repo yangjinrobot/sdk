@@ -130,7 +130,7 @@ public:
         zeropos_controller_ = std::make_shared<ZeroPosState>(robot_name_, "zeropos_state", data_ptr);
         joint_damping_controller_ = std::make_shared<JointDampingState>(robot_name_, "joint_damping", data_ptr);
         suspended_standup_controller_ = std::make_shared<SuspendedStandUpState>(robot_name_, "suspended_standup", data_ptr);
-        rl_controller_ = std::make_shared<RLControlState>(robot_name_, "rl_control", data_ptr);
+        rl_controller_ = CreateRLController(data_ptr);
         CreateAdditionalControllers(data_ptr);
         zero_calibration_controller_ = std::make_shared<ZeroCalibrationState>(robot_name_, "zero_calibration_state", data_ptr);
 
@@ -181,6 +181,8 @@ public:
             case StateName::kZeroCalibration:
                 return zero_calibration_controller_;
             case StateName::kRun:
+            case StateName::kDunXia:
+            case StateName::kZhanLi:
             case StateName::kRestand:
             case StateName::kStand2SitMimic:
             case StateName::kSit2StandMimic:
@@ -201,6 +203,11 @@ public:
     }
 
 protected:
+    virtual std::shared_ptr<StateBase> CreateRLController(
+        const std::shared_ptr<ControllerData>& data_ptr) {
+        return std::make_shared<RLControlState>(robot_name_, "rl_control", data_ptr);
+    }
+
     virtual void CreateAdditionalControllers(const std::shared_ptr<ControllerData>&) {}
 };
 }  // namespace humanoid

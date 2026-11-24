@@ -13,9 +13,11 @@ inline uint32_t GamepadMotionTarget(types::RobotName robot, uint32_t state,
     if ((state == RobotMotionState::RLControlMode ||
          state == RobotMotionState::Run) && sit)
         return RobotMotionState::Stand2Sit;
+    if (state == RobotMotionState::DunXia && stand)
+        return RobotMotionState::ZhanLi;
     if (state == RobotMotionState::Stand2Sit && stand)
         return RobotMotionState::Sit2Stand;
-    if (state == RobotMotionState::Restand ||
+    if (state == RobotMotionState::ZhanLi || state == RobotMotionState::Restand ||
         state == RobotMotionState::Sit2Stand || state == RobotMotionState::RLControlMode ||
         state == RobotMotionState::Run) {
         if (rl) return RobotMotionState::RLControlMode;

@@ -75,6 +75,7 @@ public:
             case RobotMotionState::Run2: return StateName::kRun2;
             case RobotMotionState::Run4: return StateName::kRun4;
             case RobotMotionState::Restand: return StateName::kRestand;
+            case RobotMotionState::DunXia: return StateName::kDunXia;
             case RobotMotionState::Stand2SitMimic: return StateName::kStand2SitMimic;
             case RobotMotionState::ZeroPos: return StateName::kZeroPos;
             default: return StateName::kRun3;

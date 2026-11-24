@@ -2,6 +2,7 @@
 
 #include "state_base.h"
 #include "sit2stand_mimic_policy_runner.hpp"
+#include "arm_entry_transition.hpp"
 #include <chrono>
 
 namespace humanoid_std {
@@ -13,6 +14,7 @@ class Sit2StandMimicState : public StateBase {
     std::shared_ptr<Sit2StandMimicPolicyRunner> policy_;
     RobotBasicState robot_{};
     MatXf command_;
+    ArmEntryTransition arm_entry_transition_;
     int ticks_ = 0;
     bool failed_ = false;
     bool from_squat_preparation_ = false;
@@ -33,6 +35,16 @@ class Sit2StandMimicState : public StateBase {
     void Fail(const std::exception& error) {
         failed_ = true;
         std::cerr << "[SIT2STAND_MIMIC] " << error.what() << "; entering damping\n";
+    }
+
+    void PrepareEntryTransition() {
+        arm_entry_transition_.Cancel();
+        const MatXf previous = ri_ptr_->GetJointCommand();
+        if (previous.rows() != cp_ptr_->dof_num_ || previous.cols() != 5 || !previous.allFinite()) {
+            std::cerr << "[SIT2STAND_MIMIC] unavailable previous command; skipping arm entry blend\n";
+            return;
+        }
+        arm_entry_transition_.Reset(previous.block(1, 0, 8, 5), ri_ptr_->GetInterfaceTimeStamp());
     }
 
 public:
@@ -58,6 +70,7 @@ public:
         try {
             ReadObservation();
             policy_->AlignHeading(robot_.base_rot_mat);
+            PrepareEntryTransition();
             std::cout << "[SIT2STAND_MIMIC] Playing " << policy_->FrameCount()
                       << " embedded ONNX frames from frame 0; transitions allowed after "
                       << (from_squat_preparation_ ? policy_->FrameCount() : kSwitchAfterFrames)
@@ -66,6 +79,7 @@ public:
     }
 
     void OnExit() override {
+        arm_entry_transition_.Cancel();
         policy_->OnExit();
         msfb_.SetHandsetReady(false);
         msfb_.UpdateCurrentGait(0);
@@ -84,7 +98,9 @@ public:
 #endif
             }
             ticks_ = (ticks_ + 1) % policy_->decimation_;
-            ri_ptr_->SetJointCommand(command_);
+            MatXf output = command_;
+            arm_entry_transition_.Apply(output, 1, ri_ptr_->GetInterfaceTimeStamp());
+            ri_ptr_->SetJointCommand(output);
             if (policy_->IsMotionFinished() && ticks_ == 0) msfb_.SetHandsetReady(true);
         } catch (const std::exception& error) { Fail(error); }
     }

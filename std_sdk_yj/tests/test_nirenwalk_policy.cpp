@@ -1,3 +1,4 @@
+// Build with the same include/library flags as test_chiqiangwalk_policy.cpp.
 // Sources: this file and run_policy/cr1/src/run_policy_runner.cpp.
 // argv[1]: policy/amp_dt/amp_dt.onnx.
 #include "run_policy_runner.h"

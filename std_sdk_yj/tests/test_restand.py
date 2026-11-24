@@ -41,8 +41,10 @@ def reference():
             dq = rng.normal(0, .3, 21)
             rpy = rng.normal(0, .03, 3)
             omega = rng.normal(0, .05, 3)
-            command = [0., .8, -.7, 0., 1.5][step // 40]
+            command = [.18, .8, -.7, -.2, 1.5][step // 40]
             vx = np.clip(command, -1, 1) * .5
+            if abs(vx) < .1:
+                vx = 0.
             roll, pitch, _ = rpy
             gravity = [np.sin(pitch), -np.sin(roll)*np.cos(pitch), -np.cos(roll)*np.cos(pitch)]
             phase = 2*np.pi*phase_time/cfg['cycle_time']
@@ -85,7 +87,7 @@ def main():
         mismatch = Path(tmp) / 'mismatch'
         mismatch.mkdir()
         wrong_model = mismatch / 'RL_stand.onnx'
-        wrong_model.symlink_to(ROOT / 'run_policy/cr1/policy/amp/1118/nirenwalk.onnx')
+        wrong_model.symlink_to(ROOT.parent / 'policy/std_amp.onnx')
         rejected = subprocess.run([str(binary), str(wrong_model)], text=True, capture_output=True)
         assert rejected.returncode != 0 and 'expected float [batch,330]' in rejected.stderr
         print('PASS: ONNX-only deployment and incompatible model shape rejection')

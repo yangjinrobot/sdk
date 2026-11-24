@@ -1,3 +1,5 @@
+#include "humanoid/suspended_standup_state.hpp"
+#include "humanoid/zeropos_state.hpp"
 #include "humanoid_std/restand_state.hpp"
 #include "json.hpp" // 测试进程通过 stdin 传递参考数据；策略本身不依赖 JSON。
 #include <limits>
@@ -69,6 +71,7 @@ int main(int argc, char** argv) {
         Check(user.forward_vel_scale == 0, "entry retained velocity command");
         Check(StateBase::msfb_.GetCurrentState() == RobotMotionState::Restand, "missing state feedback");
         RLStandPolicyRunner stationary(RobotName::CR1STANDARD, argv[1]);
+        stationary.SetArmPosture(RLStandPolicyRunner::ArmPosture::Lowered);
         RobotBasicState feedback;
         feedback.joint_pos = robot.q;
         feedback.joint_vel = robot.dq;
@@ -111,39 +114,45 @@ int main(int argc, char** argv) {
             }
             previous = robot.command;
         }
+        user.target_mode = NormalizeMotionStateCommand(0x11018);
+        Check(state.GetNextStateName() == StateName::kMjRun, "restand did not accept mjrun");
         state.OnExit();
         robot.command = first;
         state.OnEnter();
         state.Run();
         Check(robot.command.isApprox(first, 1e-6f), "re-entry retained policy history");
         state.OnExit();
-        // Return to RL to catch a stale target across consecutive entries.
-        for (uint32_t source : {uint32_t(RobotMotionState::RLControlMode),
+        // RL/ZhanLi default to +1.2; Run/Sit2Stand default to -0.4.
+        for (uint32_t source : {uint32_t(RobotMotionState::ZeroPos),
+                                uint32_t(RobotMotionState::SuspendedStand),
+                                uint32_t(RobotMotionState::RLControlMode),
                                 uint32_t(RobotMotionState::Sit2StandMimic),
                                 uint32_t(RobotMotionState::Run),
-                                uint32_t(RobotMotionState::RLControlMode)}) {
-            const float elbow = -.4f;
+                                uint32_t(RobotMotionState::ZhanLi)}) {
+            const bool raised = source == RobotMotionState::Sit2StandMimic ||
+                                source == RobotMotionState::Run;
+            const float elbow = raised ? -.4f : 1.2f;
             StateBase::msfb_.UpdateCurrentState(source);
             const MatXf entry = robot.command.block(1, 0, 8, 5);
             user.target_mode = RobotMotionState::Restand;
             robot.time = 0;
             stationary.OnEnter();
+            stationary.SetArmPosture(raised ? RLStandPolicyRunner::ArmPosture::Raised
+                                            : RLStandPolicyRunner::ArmPosture::Lowered);
             state.OnEnter();
             Check(StateBase::msfb_.GetLastState() == source, "source feedback lost");
             for (int tick = 0; tick <= 1200; ++tick) {
                 robot.time = tick * .001;
                 state.Run();
-                if (tick % 20 == 0) {
+                if (tick % 20 == 0)
                     stationary_command = stationary.GetRobotAction(feedback, UserCommand{}).ConvertToMat();
-                    stationary_command(4, 1) = stationary_command(8, 1) = elbow;
-                }
                 const float s = std::min(1.f, tick / 1000.f), w = s*s*(3-2*s);
                 MatXf expected = stationary_command;
                 expected.block(1, 0, 8, 5) = (1-w)*entry + w*stationary_command.block(1, 0, 8, 5);
-                Check(robot.command.isApprox(expected, 1e-6f), "source posture or smooth transition mismatch");
+                Check(robot.command.isApprox(expected, 1e-6f), "restand posture or smooth transition mismatch");
                 if (tick >= 1000)
                     Check(robot.command(4, 1) == elbow && robot.command(8, 1) == elbow,
-                          "stand failed to hold source-selected elbow posture");
+                          "stand failed to hold the default elbow posture");
             }
             state.OnExit();
         }
@@ -153,6 +162,7 @@ int main(int argc, char** argv) {
         StateBase::msfb_.UpdateCurrentState(RobotMotionState::RLControlMode);
         user.target_mode = RobotMotionState::Restand;
         robot.time = 0;
+        stationary.SetArmPosture(RLStandPolicyRunner::ArmPosture::Lowered);
         state.OnEnter();
         stationary.OnEnter();
         int pose_tick = 0;
@@ -194,6 +204,26 @@ int main(int argc, char** argv) {
             user.target_mode = pair.first;
             Check(state.GetNextStateName() == pair.second, "exit route missing");
         }
+        humanoid::ZeroPosState zero(RobotName::CR1STANDARD, "zero", data);
+        humanoid::SuspendedStandUpState suspended(RobotName::CR1STANDARD, "suspended", data);
+        for (StateBase* preparation : {static_cast<StateBase*>(&zero), static_cast<StateBase*>(&suspended)}) {
+            robot.time = 0;
+            preparation->OnEnter();
+            preparation->Run();
+            Check(robot.command(4, 1) == robot.q(4) && robot.command(8, 1) == robot.q(8),
+                  "preparation did not start from the measured elbows");
+            robot.time = data->cp_ptr->stand_duration_ + 1;
+            preparation->Run();
+            Check(robot.command(4, 1) == -.2f && robot.command(8, 1) == -.2f,
+                  "preparation did not reach -0.2 rad on both elbows");
+            user.target_mode = RobotMotionState::RLControlMode;
+            Check(preparation->GetNextStateName() == kRLControl, "preparation cannot enter RL");
+            user.target_mode = RobotMotionState::Restand;
+            Check(preparation->GetNextStateName() == kRestand, "preparation cannot enter Restand");
+            user.target_mode = RobotMotionState::JointDamping;
+            Check(preparation->GetNextStateName() == kJointDamping, "preparation cannot enter damping");
+            preparation->OnExit();
+        }
         for (int mode : {0, 1, 2}) {
             user.safe_control_mode = 0;
             user.target_mode = RobotMotionState::Restand;
@@ -210,7 +240,7 @@ int main(int argc, char** argv) {
         catch (const std::exception&) { rejected = true; }
         Check(rejected, "Pro robot accepted STD actor");
         std::cout << "PASS: Python/C++ ONNX agreement (max history error=" << max_error
-                  << "), joint mapping, timing, arm blending, reset, exits, fault priority\n";
+                  << "), joint mapping, timing, preparation posture, arm blending, reset, exits, fault priority\n";
     } catch (const std::exception& error) {
         std::cerr << "FAIL: " << error.what() << '\n';
         return 1;

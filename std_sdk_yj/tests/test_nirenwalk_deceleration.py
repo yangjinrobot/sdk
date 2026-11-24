@@ -21,7 +21,7 @@ def main():
             '-lonnxruntime', '-pthread', '-o', str(binary),
         ], check=True)
         subprocess.run([str(binary),
-                        str(ROOT / 'run_policy/cr1/policy/amp/1028_run/policy_run_2.onnx')],
+                        str(ROOT.parent / 'policy/1028_run/policy_run_1.onnx')],
                        check=True)
 
 

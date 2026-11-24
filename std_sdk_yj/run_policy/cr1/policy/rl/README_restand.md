@@ -6,7 +6,8 @@ DDS `/MOTION_STATE` 的 `data.state = 0x2000C` 选择独立的 `restand` 状态�
 
 模型为本目录的 `RL_stand.onnx`，随现有 CMake policy 目录安装到
 `/opt/robot/share/motion_master/policy/rl/`。PD、默认姿态及观测参数直接写在
-`run_policy/cr1/src/rl_stand_policy_runner.cpp` 的构造函数中。修改参数后需重新编译部署。
+`run_policy/cr1/src/rl_stand_policy_runner.cpp` 的构造函数中，写法参考
+`chiqiangwalk_policy_runner.h`。修改参数后需重新编译部署，无需 JSON 配置文件。
 调试时可用 `RESTAND_POLICY_PATH` 指定模型文件。
 
 - 1 kHz 控制，每 20 个周期推理一次（50 Hz）。

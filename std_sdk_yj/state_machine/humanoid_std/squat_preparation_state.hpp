@@ -128,7 +128,7 @@ public:
 
 private:
     static constexpr int kJoints = 21;
-    static constexpr double kPreparationSeconds = 1.0;
+    static constexpr double kPreparationSeconds = 3.0;
     static constexpr double kSettleSeconds = .15;
     static constexpr float kPositionTolerance = .15f;
     static constexpr float kVelocityTolerance = .3f;

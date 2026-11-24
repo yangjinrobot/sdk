@@ -1,5 +1,12 @@
-// Offline check against independently extracted ONNX constants.
-#if defined(TEST_SIT2STAND_MIMIC)
+// Offline deployment contract: receives independent reference data as JSON
+// (NPZ for gun mimic, raw ONNX constants for stand2sit).
+#if defined(TEST_DUNXIA)
+#include "dunxia_policy_runner.hpp"
+using TestedMimicRunner = DunXiaPolicyRunner;
+#elif defined(TEST_ZHANLI)
+#include "zhanli_policy_runner.hpp"
+using TestedMimicRunner = ZhanLiPolicyRunner;
+#elif defined(TEST_SIT2STAND_MIMIC)
 #include "sit2stand_mimic_policy_runner.hpp"
 using TestedMimicRunner = Sit2StandMimicPolicyRunner;
 #else
@@ -33,7 +40,7 @@ static VecXf Vector(const nlohmann::json& j) {
 
 int main(int argc, char** argv) {
     try {
-        Check(argc == 2, "usage: test_sit_stand_policy POLICY_DIRECTORY");
+        Check(argc == 2, "usage: test_gun_mimic POLICY_DIRECTORY");
         nlohmann::json motion;
         std::cin >> motion;
         TestedMimicRunner runner(RobotName::CR1STANDARD, argv[1]);
@@ -74,6 +81,14 @@ int main(int argc, char** argv) {
                   363, 363, 137, 363, 137, 137, 363, 363, 137, 363, 137, 137;
 #if defined(TEST_STAND2SIT_MIMIC) || defined(TEST_SIT2STAND_MIMIC) || defined(TEST_CRAWL_MIMIC)
         Check(runner.EffortLimits().isApprox(effort), "Training effort limits differ");
+#endif
+#if defined(TEST_DUNXIA) || defined(TEST_ZHANLI)
+        // Independently extracted from YAML by Python, not ONNX random PD metadata.
+        defaults = Vector(motion["training"]["default_joint_pos"]);
+        kp = Vector(motion["training"]["joint_stiffness"]);
+        kd = Vector(motion["training"]["joint_damping"]);
+        effort = Vector(motion["training"]["effort_limit"]);
+        Check(runner.EffortLimits().isApprox(effort), "Squat training effort limits differ");
 #endif
         VecXf scale = .25f * effort.cwiseQuotient(kp);
         Check(runner.JointKp().isApprox(kp) && runner.JointKd().isApprox(kd), "B3 PD gains differ");

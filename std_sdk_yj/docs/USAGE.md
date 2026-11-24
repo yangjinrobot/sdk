@@ -77,6 +77,9 @@ sudo apt-get install -y build-essential cmake git
 
 # 交叉编译工具（x86 → arm，仅在开发机交叉编译时需要）
 sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+
+# 自动推送脚本依赖（使用 SEND_REMOTE / sftp_to_remote.sh 时需要）
+sudo apt-get install -y expect
 ```
 
 > 说明：本项目所有第三方库均内置在 `third_party/` 目录下（含 x86 与 arm 两套），**无需单独安装** drdds、eigen、onnxruntime、toml、yaml-cpp 等依赖。
@@ -135,7 +138,9 @@ cr1_deploy/
 ├── third_party/                 # 第三方库（dr_lib / eigen / gamepad / onnxruntime / toml / yaml）
 └── scripts/
     ├── run.sh                   # 运动主机运行入口
-    ├── sftp_to_remote.sh        # 使用 SSH 发送编译产物
+    ├── sftp_to_remote.sh        # 自动推送二进制/模型/配置到机器人
+    ├── scp_server_policy.sh     # 从训练服务器拉取策略模型
+    ├── scp_torch_to_remote.sh   # 推送 libtorch（历史脚本）
     └── receiver_test.py         # UDP 数据接收测试脚本
 ```
 
@@ -167,7 +172,7 @@ make -j4
 ```
 
 - 需要已安装 `gcc-aarch64-linux-gnu` / `g++-aarch64-linux-gnu`（见 §2.2）。
-- `SEND_REMOTE=ON` 时，编译完成后会通过 SSH 发送运动控制程序。部署地址和路径见 §6.2。
+- `SEND_REMOTE=ON` 时，`make` 完成后会自动执行 `scripts/sftp_to_remote.sh` 把产物推送到机器人（需先配置脚本内的 IP/账号/密码，详见 §6.2）。
 
 ### 4.3 方式二：运动主机本地编译（arm 板载）
 
@@ -298,30 +303,52 @@ sudo dpkg -r motion_master       # 卸载
 sudo dpkg -P motion_master       # 卸载并清除配置
 ```
 
-### 6.2 使用 SSH 发送编译产物
+### 6.2 方式二：手动推送（sftp 脚本）
 
-在已有 SSH 访问权限的开发机上，通过环境变量设置部署目标。可以直接执行脚本，或由 `SEND_REMOTE=ON` 的构建调用。
+`scripts/sftp_to_remote.sh`（基于 expect）实现“编译 → 推送 → setcap → 落配置”一键流程，适合开发迭代。
+
+使用前**必须修改脚本内连接参数**：
+
+```tcl
+set ip "10.21.41.1"              # 机器人 IP
+set username "user"              # 机器人用户名
+set passwd "'"                   # 机器人密码
+set port 44529                   # SSH 端口
+```
+
+脚本执行流程：
+1. `./scripts/drsec_tool open_ssh <ip>` 开启 SSH（DR 安全工具，按需配置）；
+2. 推送 `run_policy/cr1/policy/` 下的 `amp/`、`rl/` 和 `mimic/` 到 `/opt/robot/share/motion_master/policy/`；
+3. 推送编译产物到 `/opt/robot/share/motion_master/bin/`；
+4. 推送 `scripts/run.sh`；
+5. 执行 `setcap` 赋权；
+6. 推送 `conf/config.toml` 并 sudo 落位到 `/var/opt/robot/conf/motion_master/config.toml`。
 
 ```bash
-export MOTION_MASTER_SSH_TARGET=robot-ssh-alias
-export MOTION_MASTER_SSH_PATH=/tmp/motion_master
+# 方式 A：编译时自动推送（SEND_REMOTE=ON）
+cmake -S . -B build/arm -DBUILD_PLATFORM=arm -DSEND_REMOTE=ON -DROBOT=cr1
+cmake --build build/arm -j4
+
+# 方式 B：单独执行推送脚本
 ./scripts/sftp_to_remote.sh build/arm/motion_master
 ```
 
-安装或更新服务、模型和配置时，使用上一节的 deb 包。
-
 ### 6.3 部署策略模型
 
-deb 包会安装模型。手动复制时，将 `run_policy/cr1/policy/` 下的三个目录完整复制到 `/opt/robot/share/motion_master/policy/`，Mimic 的 `motion.json` 与 ONNX 放在同一子目录。
+deb 和推送脚本都会安装模型。手动复制时，将 `run_policy/cr1/policy/` 下的三个目录完整复制到 `/opt/robot/share/motion_master/policy/`，Mimic 的 `motion.json` 与 ONNX 放在同一子目录。
 
 | 状态 | 相对于机器人 `policy/` 的路径 |
 |------|--------------------------------|
-| RLControlMode | `amp/1118/nirenwalk.onnx` |
+| RLControlMode | `amp/std_amp_2.onnx` |
 | Run | `amp/1028_run/policy_run_2.onnx` |
 | Restand | `rl/RL_stand.onnx` |
 | 坐下、起立、蹲下、站起 | `mimic/` 下各动作目录 |
 
-如需更新策略，将模型放入上表对应的源代码目录后重新构建 deb 包。
+如需更新策略，可修改 `scripts/scp_server_policy.sh` 中的训练服务器路径后执行：
+
+```bash
+./scripts/scp_server_policy.sh <模型文件名>   # 从训练服务器拉取到 ../policy/
+```
 
 ### 6.4 机器人端运行环境核对清单
 
@@ -578,7 +605,7 @@ graph TD
 | `HumanWALK`（步态） | `0x21000` | 走路 |
 | `Action` 范围 | `0x3000 ~ 0x3004` | 动作指令 |
 
-> DDS 接口内置**证书权限过滤**：当前只接受 `WaitingForStand / JointDamping / RLControlMode / ZeroPos / ZeroCalibration / SuspendedStand` 这些状态，以及 `HumanWALK` 步态；动作指令仍受原有权限限制。`/STEER`、`/REAL_STEER` 速度指令仅在 RL 的 `HumanWALK` 步态生效。RLControlMode 默认加载 `/opt/robot/share/motion_master/policy/amp/1118/nirenwalk.onnx`。
+> DDS 接口内置**证书权限过滤**：当前只接受 `WaitingForStand / JointDamping / RLControlMode / Run / Restand / Stand2SitMimic / Sit2StandMimic / DunXia / ZhanLi / ZeroPos / ZeroCalibration / SuspendedStand` 这些状态，以及 `HumanWALK` 步态；动作指令仍受原有权限限制。`/STEER`、`/REAL_STEER` 速度指令在 RL 的 `HumanWALK` 步态、Run 和 Restand 中生效。RLControlMode 默认加载 `/opt/robot/share/motion_master/policy/amp/std_amp_2.onnx`。
 
 ### 9.3 DDS 话题清单
 
@@ -692,7 +719,7 @@ sudo journalctl -u motion_master.service -f
 |------|----------|
 | 启动即退出，报 `Error parsing TOML config` | 检查 `/var/opt/robot/conf/robot_hardware_info.toml` 是否存在、`hardware.model` 字段是否正确 |
 | 启动卡在初始化 / 电机使能失败 | 检查 Ecan 网卡（默认 `eth1`）、CAN 是否正常；查看 `/var/opt/robot/log/` 下 `ecan` 日志 |
-| 进入 RL 报 `ONNX model file not found` | 检查 `/opt/robot/share/motion_master/policy/amp/1118/nirenwalk.onnx`，部署路径见 §6.3 |
+| 进入 RL 报 `ONNX model file not found` | 检查 `/opt/robot/share/motion_master/policy/amp/std_amp_2.onnx`，部署路径见 §6.3 |
 | 上位机收不到 `/JOINTS_DATA` | 确认 DDS 初始化网卡 `eth0` 正确；用 `drdds` 工具/`receiver_test.py`（UDP 端口 `43897`）验证链路 |
 | 日志级别/滚动配置不生效 | `log.properties` 程序读取 `/var/opt/robot/conf/log.properties`，deb 安装在 `.../motion_master/` 子目录；复制一份到上层路径（见 §7.1） |
 | 手柄无响应 | 当前 `main.cpp` 固定 DDS 控制，手柄接口未启用（见 §9.5）；需改源码重新编译 |

@@ -20,16 +20,18 @@ namespace types{
         WaitingForStand = 0x0,  //0力矩，开机默认
         JointDamping    = 0x2,  //软急停，阻尼状态
 
-        RLControlMode   = 0x11,     // RL模式，amp/1118/nirenwalk.onnx
+        RLControlMode   = 0x11,     // RL模式，amp/std_amp_2.onnx
         Restand         = 0x1100B,  // motion 1：STD RL 站立
-        Run             = 0x1100D,  // motion 3：原 NirenWalk
+        Run             = 0x1100C,  // motion 2：原 NirenWalk
 
-        Sit2Stand       = 0x1100F,  // motion 5：坐到站
-        Stand2Sit       = 0x1100E,  // motion 4：站到坐
+        Stand2Sit       = 0x1100D,  // motion 3：站到坐
+        Sit2Stand       = 0x1100E,  // motion 4：坐到站
 
         Stand2SitMimic = Stand2Sit, // CR1STANDARD 站立到坐下
         Sit2StandMimic = Sit2Stand, // CR1STANDARD 坐下到站立
 
+        DunXia          = 0x1100F,  // motion 5：蹲下
+        ZhanLi          = 0x11010,  // motion 6：从蹲姿站立
 
         // 原 NirenWalk 的兼容名称现在等同 active Run。
         NirenWalk       = Run,
@@ -39,6 +41,7 @@ namespace types{
         Run2            = 0x11015, // motion 10：旧 1104 run_2
         Run3            = 0x11016, // motion 11：旧 1106 run_3
         Run4            = 0x11017, // motion 12：旧 1112 run_4
+        MjRun           = 0x11018,
 
         ZeroPos         = 0x20001,    //回零位
         ZeroCalibration = 0x20004,    //通过打限位校准零位
@@ -57,7 +60,7 @@ namespace types{
     }
 
     // Legacy Run1-Run4 are intentionally disabled. The new active Run is the
-    // renamed former NirenWalk state at 0x1100D.
+    // renamed former NirenWalk state at 0x1100C.
     inline bool IsDisabledRunMotionState(uint32_t motion_state) {
         return motion_state == RobotMotionState::Run1 ||
                motion_state == RobotMotionState::Run2 ||
@@ -67,8 +70,8 @@ namespace types{
 
     // Commands within RL Stand; these are not independent motion states.
     enum RobotMotionCommand {
-        StandElbowMinus04 = 0x11012, // motion 8: both elbows -0.4 rad
-        StandElbowPlus12  = 0x11013, // motion 9: both elbows +1.2 rad
+        StandElbowMinus04 = 0x11011, // motion 7: both elbows -0.4 rad
+        StandElbowPlus12  = 0x11012, // motion 8: both elbows +1.2 rad
     };
     inline bool IsStandElbowCommand(uint32_t command) {
         return command == StandElbowMinus04 || command == StandElbowPlus12;
@@ -77,6 +80,31 @@ namespace types{
                                           uint32_t safe_control_mode) {
         return state == RobotMotionState::Restand && safe_control_mode == 0 &&
                pending != RobotMotionState::JointDamping && pending != RobotMotionState::ZeroPos;
+    }
+
+    inline bool CanRequestMjRun(uint32_t state, const UserCommand& command) {
+        const bool source_allows_mjrun =
+            state == RobotMotionState::RLControlMode ||
+            state == RobotMotionState::Restand ||
+            state == RobotMotionState::Run;
+        return source_allows_mjrun && command.safe_control_mode == 0 &&
+               command.target_mode != RobotMotionState::JointDamping &&
+               command.target_mode != RobotMotionState::ZeroPos;
+    }
+
+    inline bool IsMjRunExitMotionState(uint32_t state) {
+        switch (state) {
+            case RobotMotionState::JointDamping:
+            case RobotMotionState::RLControlMode:
+            case RobotMotionState::Restand:
+            case RobotMotionState::Run:
+            case RobotMotionState::DunXia:
+            case RobotMotionState::Stand2SitMimic:
+            case RobotMotionState::ZeroPos:
+                return true;
+            default:
+                return false;
+        }
     }
 
     enum RobotGaitType{
@@ -92,7 +120,8 @@ namespace types{
         kSquatPreparation = RobotMotionState::SquatPreparation,
         kRLControl    = RobotMotionState::RLControlMode,
         kRun          = RobotMotionState::Run,
-        kNirenWalk    = kRun, // 兼容旧代码，反馈码仍为 0x1100D
+        kMjRun        = RobotMotionState::MjRun,
+        kNirenWalk    = kRun, // 兼容旧代码，反馈码为 0x1100C
         kRun1         = RobotMotionState::Run1,
         kRun2         = RobotMotionState::Run2,
         kRun3         = RobotMotionState::Run3,
@@ -100,6 +129,8 @@ namespace types{
         kRestand      = RobotMotionState::Restand,
         kStand2SitMimic = RobotMotionState::Stand2SitMimic,
         kSit2StandMimic = RobotMotionState::Sit2StandMimic,
+        kDunXia       = RobotMotionState::DunXia,
+        kZhanLi       = RobotMotionState::ZhanLi,
         kZeroPos      = RobotMotionState::ZeroPos,
         kZeroCalibration = RobotMotionState::ZeroCalibration,
     };

@@ -44,6 +44,7 @@ RLStandPolicyRunner::RLStandPolicyRunner(RobotName robot,
     if (robot != RobotName::CR1STANDARD)
         throw std::invalid_argument("restand requires CR1STANDARD / 21 DOF");
     // 参数顺序：左腿6（髋Y/X/Z、膝、踝Y/X）、右腿6、腰Z、左臂4、右臂4。
+    // 与 chiqiangwalk_policy_runner.h 一样，在构造函数中直接设置 PD 和默认角度。
     kp_ = VecXf::Zero(21);
     kd_ = VecXf::Zero(21);
     kp_ << 300, 300, 200, 300, 50, 30,   // 左腿
@@ -102,7 +103,7 @@ RobotAction RLStandPolicyRunner::GetRobotAction(const RobotBasicState& state, co
         !std::isfinite(user.forward_vel_scale))
         throw std::runtime_error("restand: invalid feedback or command");
     // STD training allows only forward/backward commands in [-0.5, 0.5].
-    const float vx = std::clamp(user.forward_vel_scale, -1.0f, 1.0f) * 0.5f;
+    const float vx = ApplyCommandDeadband(std::clamp(user.forward_vel_scale, -1.0f, 1.0f) * 0.5f);
     observation_.head(3) = state.base_omega * omega_scale_;
     observation_.segment(3, 3) = state.base_rot_mat.transpose() * Vec3f(0, 0, -1);
     observation_.segment(6, 3) = Vec3f(vx * command_scale_, 0, 0);

@@ -49,5 +49,27 @@ int main(int argc, char** argv) {
             policy.GetRobotAction(state, command);
         assert(std::fabs(policy.current_observation_(6) - expected_vx) < 1e-5f);
     }
+
+    policy.OnEnter();
+    UserCommand command{};
+    command.forward_vel_scale = -0.15f;  // -0.09 m/s
+    command.side_vel_scale = 0.16f;      //  0.096 m/s
+    command.turnning_vel_scale = -0.099f;
+    for (int step = 0; step < 12; ++step) {
+        policy.GetRobotAction(state, command);
+        assert(policy.current_observation_.segment(6, 3).isZero(0));
+    }
+
+    command.forward_vel_scale = 0.1f;
+    command.turnning_vel_scale = -0.11f;
+    for (int step = 0; step < 15; ++step)
+        policy.GetRobotAction(state, command);
+    assert(policy.current_observation_(6) == 0.1f);
+    assert(policy.current_observation_(7) == 0.0f);
+    assert(policy.current_observation_(8) == -0.11f);
+
+    command = UserCommand{};
+    policy.GetRobotAction(state, command);
+    assert(policy.current_observation_.segment(6, 3).isZero(0));
     return 0;
 }

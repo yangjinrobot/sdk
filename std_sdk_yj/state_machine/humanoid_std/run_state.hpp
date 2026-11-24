@@ -37,7 +37,10 @@ public:
         std::cout << "[run] policy started at 50 Hz" << std::endl;
     }
 
-    void OnExit() override { policy_.OnExit(); }
+    void OnExit() override {
+        arm_entry_transition_.Cancel();
+        policy_.OnExit();
+    }
 
     void Run() override {
         if (LoseControlJudge()) return;
@@ -72,6 +75,8 @@ public:
         if (LoseControlJudge()) return StateName::kJointDamping;
         switch (uc_ptr_->GetUserCommand()->target_mode) {
             case RobotMotionState::Restand: return StateName::kRestand;
+            case RobotMotionState::MjRun: return StateName::kMjRun;
+            case RobotMotionState::DunXia: return StateName::kDunXia;
             case RobotMotionState::Stand2SitMimic: return StateName::kStand2SitMimic;
             case RobotMotionState::RLControlMode: return StateName::kRLControl;
             case RobotMotionState::ZeroPos: return StateName::kZeroPos;

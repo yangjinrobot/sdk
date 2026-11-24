@@ -12,6 +12,7 @@
 #ifndef POLICY_RUNNER_BASE_HPP_
 #define POLICY_RUNNER_BASE_HPP_
 
+#include <cmath>
 #include <stdexcept>
 
 #include "common_types.h"
@@ -129,6 +130,12 @@ public:
     int run_cnt_;
     int run_cnt_record_;
     Vec3f vel_delta_const_, cmd_vel_input_;
+
+protected:
+    // Apply this to commands in physical units before encoding the observation.
+    static float ApplyCommandDeadband(float velocity) {
+        return std::abs(velocity) < 0.1f ? 0.0f : velocity;
+    }
 };
 
 

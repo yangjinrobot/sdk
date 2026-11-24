@@ -57,6 +57,7 @@ class KeyboardInterface : public UserCommandInterface {
               << "             C (RL control)  V (run)  R (joint damping)\n"
               << "  Entry:     idle/calibration -> Z (zeropos) or X (suspended stand)\n"
               << "  Transitions: zeropos/suspended stand -> C; RL -> V; run -> C\n"
+              << "  Squat: G (DunXia) from RL/run/Stand; H (ZhanLi) only after squat\n"
               << "  Sit/stand:  RL/run -> T (sit); seated -> Y (stand)\n"
               << "             after standing: C (RL) / V (run); Z or R exits\n"
               << "  Velocity:  W/S/A/D/Q/E work in RL and run\n"
@@ -131,6 +132,24 @@ class KeyboardInterface : public UserCommandInterface {
             usr_cmd_->target_mode = RobotMotionState::Run;
           if ((current_state == RobotMotionState::Stand2SitMimic ||
                current_state == RobotMotionState::Sit2StandMimic) && key == 'z')
+            usr_cmd_->target_mode = RobotMotionState::ZeroPos;
+        }
+
+        if (robot_name_ == RobotName::CR1STANDARD) {
+          if (key == 'g' && (current_state == RobotMotionState::RLControlMode ||
+                            current_state == RobotMotionState::Run ||
+                            current_state == RobotMotionState::Restand ||
+                            current_state == RobotMotionState::ZhanLi))
+            usr_cmd_->target_mode = RobotMotionState::DunXia;
+          if (key == 'h' && current_state == RobotMotionState::DunXia)
+            usr_cmd_->target_mode = RobotMotionState::ZhanLi;
+          if (current_state == RobotMotionState::ZhanLi) {
+            if (key == 'c') usr_cmd_->target_mode = RobotMotionState::RLControlMode;
+            if (key == 'v') usr_cmd_->target_mode = RobotMotionState::Run;
+            if (key == 't') usr_cmd_->target_mode = RobotMotionState::Stand2SitMimic;
+          }
+          if (key == 'z' && (current_state == RobotMotionState::DunXia ||
+                            current_state == RobotMotionState::ZhanLi))
             usr_cmd_->target_mode = RobotMotionState::ZeroPos;
         }
 

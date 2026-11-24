@@ -7,7 +7,8 @@
 #include <vector>
 
 // Dedicated runner for the AMP walk policy used by RLControlMode. Its defaults come from the
-// training articulation configuration.
+// training articulation configuration and are intentionally independent from
+// the legacy std_amp_2 ChiqiangWalk configuration.
 class AmpWalkPolicyRunner final : public PolicyRunnerBase {
 public:
     AmpWalkPolicyRunner(const std::string& name, RobotName robot_name,
