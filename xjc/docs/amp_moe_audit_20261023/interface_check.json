@@ -1,0 +1,93 @@
+{
+  "moe_policy_1022.onnx": true,
+  "env(10).yaml": true,
+  "agent(10).yaml": true,
+  "isaac_interface.json": true,
+  "defaults__max_error": 1.1920928966180355e-08,
+  "kp__max_error": 0.0,
+  "kd__max_error": 0.0,
+  "training_arm_cfg": {
+    "enable": true,
+    "stand_mode_probs": [
+      0.1,
+      0.1,
+      0.25,
+      0.25,
+      0.3
+    ],
+    "walk_mode_probs": [
+      0.3,
+      0.15,
+      0.2,
+      0.2,
+      0.15
+    ],
+    "resample_time": [
+      2.5,
+      6.0
+    ],
+    "reach_time": [
+      0.5,
+      2.0
+    ],
+    "hold_time": [
+      1.0,
+      4.0
+    ],
+    "stand_amp_scale": [
+      0.5,
+      0.9
+    ],
+    "walk_amp_scale": [
+      0.1,
+      0.3
+    ],
+    "limit_margin": 0.1,
+    "left_roll_safe_range": [
+      0.0,
+      2.5
+    ],
+    "right_roll_safe_range": [
+      -2.9,
+      0.0
+    ],
+    "left_yaw_safe_range": [
+      -1.4,
+      1.4
+    ],
+    "right_yaw_safe_range": [
+      -1.4,
+      1.4
+    ],
+    "elbow_safe_range": [
+      0.3,
+      1.6
+    ],
+    "wrist_yaw_safe_range": [
+      -0.8,
+      0.8
+    ],
+    "wrist_pitch_safe_range": [
+      -0.6,
+      0.6
+    ],
+    "wrist_roll_safe_range": [
+      -0.6,
+      0.6
+    ],
+    "wave_freq_range": [
+      0.4,
+      1.2
+    ],
+    "wave_noise_std": 0.05,
+    "enable_library": true,
+    "lib_step_duration": 1.5,
+    "swing_max_delta": 0.8,
+    "swing_reach_time": [
+      0.5,
+      1.3
+    ],
+    "fix_wrist_joints": true
+  },
+  "mapping_matches_export": true
+}

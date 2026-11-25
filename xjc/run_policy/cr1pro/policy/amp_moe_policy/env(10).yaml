@@ -1,0 +1,1504 @@
+arm_rand:
+  enable: true
+  stand_mode_probs: !!python/tuple
+  - 0.1
+  - 0.1
+  - 0.25
+  - 0.25
+  - 0.3
+  walk_mode_probs: !!python/tuple
+  - 0.3
+  - 0.15
+  - 0.2
+  - 0.2
+  - 0.15
+  resample_time: !!python/tuple
+  - 2.5
+  - 6.0
+  reach_time: !!python/tuple
+  - 0.5
+  - 2.0
+  hold_time: !!python/tuple
+  - 1.0
+  - 4.0
+  stand_amp_scale: !!python/tuple
+  - 0.5
+  - 0.9
+  walk_amp_scale: !!python/tuple
+  - 0.1
+  - 0.3
+  limit_margin: 0.1
+  left_roll_safe_range: !!python/tuple
+  - 0.0
+  - 2.5
+  right_roll_safe_range: !!python/tuple
+  - -2.9
+  - 0.0
+  left_yaw_safe_range: !!python/tuple
+  - -1.4
+  - 1.4
+  right_yaw_safe_range: !!python/tuple
+  - -1.4
+  - 1.4
+  elbow_safe_range: !!python/tuple
+  - 0.3
+  - 1.6
+  wrist_yaw_safe_range: !!python/tuple
+  - -0.8
+  - 0.8
+  wrist_pitch_safe_range: !!python/tuple
+  - -0.6
+  - 0.6
+  wrist_roll_safe_range: !!python/tuple
+  - -0.6
+  - 0.6
+  wave_freq_range: !!python/tuple
+  - 0.4
+  - 1.2
+  wave_noise_std: 0.05
+  enable_library: true
+  lib_step_duration: 1.5
+  swing_max_delta: 0.8
+  swing_reach_time: !!python/tuple
+  - 0.5
+  - 1.3
+  fix_wrist_joints: true
+device: cuda:0
+scene:
+  max_episode_length_s: 20.0
+  num_envs: 4096
+  env_spacing: 2.5
+  robot:
+    class_type: isaaclab.assets.articulation.articulation:Articulation
+    prim_path: {}
+    spawn:
+      func: isaaclab.sim.spawners.from_files.from_files:spawn_from_usd
+      visible: true
+      semantic_tags: null
+      copy_from_source: true
+      mass_props: null
+      deformable_props: null
+      rigid_props:
+        rigid_body_enabled: null
+        kinematic_enabled: null
+        disable_gravity: false
+        linear_damping: 0.0
+        angular_damping: 0.0
+        max_linear_velocity: 1000.0
+        max_angular_velocity: 1000.0
+        max_depenetration_velocity: 1.0
+        max_contact_impulse: null
+        enable_gyroscopic_forces: null
+        retain_accelerations: false
+        solver_position_iteration_count: null
+        solver_velocity_iteration_count: null
+        sleep_threshold: null
+        stabilization_threshold: null
+      collision_props: null
+      activate_contact_sensors: true
+      scale: null
+      articulation_props:
+        articulation_enabled: null
+        enabled_self_collisions: true
+        solver_position_iteration_count: 8
+        solver_velocity_iteration_count: 4
+        sleep_threshold: null
+        stabilization_threshold: null
+        fix_root_link: null
+      fixed_tendons_props: null
+      joint_drive_props: null
+      visual_material_path: material
+      visual_material: null
+      usd_path: /home/zjie/5_project/AMP/Humanoid_AMP-Lab/legged_lab/assets/b2/usd/b2_29dof.usd
+      variants: null
+    init_state:
+      pos: !!python/tuple
+      - 0.0
+      - 0.0
+      - 0.9
+      rot: !!python/tuple
+      - 1.0
+      - 0.0
+      - 0.0
+      - 0.0
+      lin_vel: !!python/tuple
+      - 0.0
+      - 0.0
+      - 0.0
+      ang_vel: !!python/tuple
+      - 0.0
+      - 0.0
+      - 0.0
+      joint_pos:
+        left_hip_pitch_joint: -0.15
+        left_hip_roll_joint: 0.0
+        left_hip_yaw_joint: 0.0
+        left_knee_pitch_joint: 0.3
+        left_ankle_pitch_joint: -0.15
+        left_ankle_roll_joint: 0.0
+        right_hip_pitch_joint: -0.15
+        right_hip_roll_joint: 0.0
+        right_hip_yaw_joint: 0.0
+        right_knee_pitch_joint: 0.3
+        right_ankle_pitch_joint: -0.15
+        right_ankle_roll_joint: 0.0
+        waist_yaw_joint: 0.0
+        waist_roll_joint: 0.0
+        waist_pitch_joint: 0.0
+        left_shoulder_pitch_joint: 0.0
+        left_shoulder_roll_joint: 0.2
+        left_shoulder_yaw_joint: 0.0
+        left_elbow_pitch_joint: 0.8
+        left_wrist_yaw_joint: 0.0
+        left_wrist_pitch_joint: 0.0
+        left_wrist_roll_joint: 0.0
+        right_shoulder_pitch_joint: 0.0
+        right_shoulder_roll_joint: -0.2
+        right_shoulder_yaw_joint: 0.0
+        right_elbow_pitch_joint: 0.8
+        right_wrist_yaw_joint: 0.0
+        right_wrist_pitch_joint: 0.0
+        right_wrist_roll_joint: 0.0
+      joint_vel:
+        .*: 0.0
+    collision_group: 0
+    debug_vis: false
+    soft_joint_pos_limit_factor: 0.9
+    actuators:
+      legs:
+        class_type: isaaclab.actuators.actuator_pd:ImplicitActuator
+        joint_names_expr:
+        - .*_hip_pitch_joint
+        - .*_hip_roll_joint
+        - .*_hip_yaw_joint
+        - .*_knee_pitch_joint
+        effort_limit: null
+        velocity_limit: null
+        effort_limit_sim:
+          .*_hip_pitch_joint: 363
+          .*_hip_roll_joint: 363
+          .*_hip_yaw_joint: 137
+          .*_knee_pitch_joint: 363
+        velocity_limit_sim:
+          .*_hip_pitch_joint: 20
+          .*_hip_roll_joint: 20
+          .*_hip_yaw_joint: 20
+          .*_knee_pitch_joint: 20
+        stiffness:
+          .*_hip_pitch_joint: 350
+          .*_hip_roll_joint: 350
+          .*_hip_yaw_joint: 200
+          .*_knee_pitch_joint: 350
+        damping:
+          .*_hip_pitch_joint: 10
+          .*_hip_roll_joint: 10
+          .*_hip_yaw_joint: 5
+          .*_knee_pitch_joint: 10
+        armature: null
+        friction: null
+      feet:
+        class_type: isaaclab.actuators.actuator_pd:ImplicitActuator
+        joint_names_expr:
+        - .*_ankle_pitch_joint
+        - .*_ankle_roll_joint
+        effort_limit: null
+        velocity_limit: null
+        effort_limit_sim:
+          .*_ankle_pitch_joint: 137
+          .*_ankle_roll_joint: 137
+        velocity_limit_sim:
+          .*_ankle_pitch_joint: 19.38
+          .*_ankle_roll_joint: 19.38
+        stiffness:
+          .*_ankle_pitch_joint: 100
+          .*_ankle_roll_joint: 100
+        damping:
+          .*_ankle_pitch_joint: 5
+          .*_ankle_roll_joint: 5
+        armature: null
+        friction: null
+      arms:
+        class_type: isaaclab.actuators.actuator_pd:ImplicitActuator
+        joint_names_expr:
+        - .*_shoulder_pitch_joint
+        - .*_shoulder_roll_joint
+        - .*_shoulder_yaw_joint
+        - .*_elbow_pitch_joint
+        - .*_wrist_yaw_joint
+        - .*_wrist_pitch_joint
+        - .*_wrist_roll_joint
+        effort_limit: null
+        velocity_limit: null
+        effort_limit_sim:
+          .*_shoulder_pitch_joint: 137
+          .*_shoulder_roll_joint: 137
+          .*_shoulder_yaw_joint: 137
+          .*_elbow_pitch_joint: 137
+          .*_wrist_yaw_joint: 137
+          .*_wrist_pitch_joint: 137
+          .*_wrist_roll_joint: 137
+        velocity_limit_sim:
+          .*_shoulder_pitch_joint: 19.38
+          .*_shoulder_roll_joint: 19.38
+          .*_shoulder_yaw_joint: 19.38
+          .*_elbow_pitch_joint: 19.38
+          .*_wrist_yaw_joint: 19.38
+          .*_wrist_pitch_joint: 19.38
+          .*_wrist_roll_joint: 19.38
+        stiffness:
+          .*_shoulder_pitch_joint: 200
+          .*_shoulder_roll_joint: 150
+          .*_shoulder_yaw_joint: 150
+          .*_elbow_pitch_joint: 200
+          .*_wrist_yaw_joint: 150
+          .*_wrist_pitch_joint: 150
+          .*_wrist_roll_joint: 150
+        damping:
+          .*_shoulder_pitch_joint: 5
+          .*_shoulder_roll_joint: 5
+          .*_shoulder_yaw_joint: 5
+          .*_elbow_pitch_joint: 5
+          .*_wrist_yaw_joint: 5
+          .*_wrist_pitch_joint: 5
+          .*_wrist_roll_joint: 5
+        armature: null
+        friction: null
+      body:
+        class_type: isaaclab.actuators.actuator_pd:ImplicitActuator
+        joint_names_expr:
+        - waist_yaw_joint
+        - waist_roll_joint
+        - waist_pitch_joint
+        effort_limit: null
+        velocity_limit: null
+        effort_limit_sim:
+          waist_yaw_joint: 137
+          waist_roll_joint: 137
+          waist_pitch_joint: 363
+        velocity_limit_sim:
+          waist_yaw_joint: 19.38
+          waist_roll_joint: 19.38
+          waist_pitch_joint: 19.38
+        stiffness:
+          waist_yaw_joint: 350
+          waist_roll_joint: 350
+          waist_pitch_joint: 350
+        damping:
+          waist_yaw_joint: 15
+          waist_roll_joint: 15
+          waist_pitch_joint: 15
+        armature: null
+        friction: null
+  terrain_type: generator
+  terrain_generator:
+    seed: null
+    curriculum: false
+    size: !!python/tuple
+    - 8.0
+    - 8.0
+    border_width: 20.0
+    border_height: 1.0
+    num_rows: 10
+    num_cols: 20
+    color_scheme: none
+    horizontal_scale: 0.1
+    vertical_scale: 0.005
+    slope_threshold: 0.75
+    sub_terrains:
+      random_rough:
+        function: isaaclab.terrains.height_field.hf_terrains:random_uniform_terrain
+        proportion: 0.2
+        size: !!python/tuple
+        - 10.0
+        - 10.0
+        flat_patch_sampling: null
+        border_width: 0.25
+        horizontal_scale: 0.1
+        vertical_scale: 0.005
+        slope_threshold: null
+        noise_range: !!python/tuple
+        - -0.02
+        - 0.04
+        noise_step: 0.02
+        downsampled_scale: null
+      pyramid_stairs_36:
+        function: isaaclab.terrains.trimesh.mesh_terrains:inverted_pyramid_stairs_terrain
+        proportion: 0.1
+        size: !!python/tuple
+        - 10.0
+        - 10.0
+        flat_patch_sampling: null
+        border_width: 1.0
+        step_height_range: !!python/tuple
+        - 0.0
+        - 0.2
+        step_width: 0.4
+        platform_width: 3.0
+        holes: false
+      slope_20deg:
+        function: legged_lab.terrains.rough_terrains:rough_pyramid_sloped_terrain
+        proportion: 0.3
+        size: !!python/tuple
+        - 10.0
+        - 10.0
+        flat_patch_sampling: null
+        border_width: 1.0
+        horizontal_scale: 0.1
+        vertical_scale: 0.005
+        slope_threshold: null
+        slope_range: !!python/tuple
+        - 0.36397023426620234
+        - 0.36397023426620234
+        platform_width: 3.0
+        inverted: false
+        noise_range: !!python/tuple
+        - -0.02
+        - 0.04
+        noise_step: 0.02
+    difficulty_range: !!python/tuple
+    - 0.0
+    - 1.0
+    use_cache: false
+    cache_dir: /tmp/isaaclab/terrains
+  max_init_terrain_level: 5
+  height_scanner:
+    enable_height_scan: false
+    prim_body_name: torso_link
+    resolution: 0.1
+    size: !!python/tuple
+    - 1.6
+    - 1.0
+    debug_vis: false
+    drift_range: !!python/tuple
+    - 0.0
+    - 0.0
+  lidar:
+    enable_lidar: false
+    prim_body_name: pelvis
+    offset: !!python/tuple
+    - 0.15
+    - 0.0
+    - 0.6
+    rotation: !!python/tuple
+    - 1.0
+    - 0.0
+    - 0.0
+    - 0.0
+    debug_vis: false
+    max_distance: 20.0
+    pattern_cfg:
+      func: isaaclab.sensors.ray_caster.patterns.patterns:lidar_pattern
+      channels: 64
+      vertical_fov_range: !!python/tuple
+      - -90
+      - 90
+      horizontal_fov_range: !!python/tuple
+      - 0
+      - 360
+      horizontal_res: 0.5
+    mesh_prim_paths:
+    - /World
+  depth_camera:
+    class_type: legged_lab.sensors.camera.tiled_camera:TiledCamera
+    prim_path: {}
+    update_period: 0.0
+    history_length: 0
+    debug_vis: false
+    offset:
+      pos: !!python/tuple
+      - 0.0
+      - 0.0
+      - 0.0
+      rot: !!python/tuple
+      - 1.0
+      - 0.0
+      - 0.0
+      - 0.0
+      convention: ros
+    spawn:
+      func: isaaclab.sim.spawners.sensors.sensors:spawn_camera
+      visible: true
+      semantic_tags: null
+      copy_from_source: true
+      projection_type: pinhole
+      clipping_range: !!python/tuple
+      - 0.01
+      - 1000000.0
+      focal_length: 24.0
+      focus_distance: 400.0
+      f_stop: 0.0
+      horizontal_aperture: 20.955
+      vertical_aperture: null
+      horizontal_aperture_offset: 0.0
+      vertical_aperture_offset: 0.0
+      lock_camera: true
+    depth_clipping_behavior: none
+    data_types:
+    - distance_to_image_plane
+    width: 480
+    height: 270
+    semantic_filter: '*:*'
+    colorize_semantic_segmentation: true
+    colorize_instance_id_segmentation: true
+    colorize_instance_segmentation: true
+    semantic_segmentation_mapping: {}
+    enable_depth_camera: false
+    prim_body_name: pelvis/depth_camera
+    max_range: 15.0
+    min_range: 0.2
+    sensor_noise:
+      enable: false
+      mode: gaussian
+      depth_std: 0.01
+      depth_std_multiplier: 0.01
+      dropout_prob: 0.01
+      dropout_value: 0.0
+    visualizer_cfg:
+      prim_path: /World/Visuals/CameraPointCloud
+      markers:
+        point:
+          func: isaaclab.sim.spawners.shapes.shapes:spawn_sphere
+          visible: true
+          semantic_tags: null
+          copy_from_source: true
+          mass_props: null
+          rigid_props: null
+          collision_props: null
+          activate_contact_sensors: false
+          visual_material_path: material
+          visual_material:
+            func: isaaclab.sim.spawners.materials.visual_materials:spawn_preview_surface
+            diffuse_color: !!python/tuple
+            - 0.2
+            - 0.8
+            - 0.2
+            emissive_color: !!python/tuple
+            - 0.0
+            - 0.0
+            - 0.0
+            roughness: 0.5
+            metallic: 0.0
+            opacity: 1.0
+          physics_material_path: material
+          physics_material: null
+          radius: 0.02
+      decimation: 10
+    far_out_of_range_value: .inf
+    near_out_of_range_value: .inf
+  seed: 42
+robot:
+  actor_obs_history_length: 5
+  critic_obs_history_length: 5
+  action_scale: 0.25
+  terminate_contacts_body_names:
+  - .*_knee_pitch_.*
+  - .*_shoulder_roll_.*
+  - .*_elbow_pitch_.*
+  - base_link
+  feet_body_names:
+  - .*_ankle_roll_.*
+normalization:
+  obs_scales:
+    lin_vel: 1.0
+    ang_vel: 1.0
+    projected_gravity: 1.0
+    commands: 1.0
+    joint_pos: 1.0
+    joint_vel: 0.05
+    actions: 1.0
+    height_scan: 1.0
+  clip_observations: 100.0
+  clip_actions: 100.0
+  height_scan_offset: 0.5
+commands:
+  resampling_time_range: !!python/tuple
+  - 4.0
+  - 6.0
+  rel_standing_envs: 0.1
+  rel_heading_envs: 1.0
+  heading_command: true
+  heading_control_stiffness: 0.5
+  debug_vis: false
+  ranges:
+    lin_vel_x: !!python/tuple
+    - -1.0
+    - 1.0
+    lin_vel_y: !!python/tuple
+    - -0.8
+    - 0.8
+    ang_vel_z: !!python/tuple
+    - -1.57
+    - 1.57
+    heading: !!python/tuple
+    - -3.141592653589793
+    - 3.141592653589793
+  grouped_sampling: true
+  mode_probabilities: !!python/tuple
+  - 0.1
+  - 0.25
+  - 0.3
+  - 0.25
+  - 0.1
+  low_speed_fraction: 0.5
+  low_speed_ranges:
+    lin_vel_x: !!python/tuple
+    - 0.1
+    - 0.2
+    lin_vel_y: !!python/tuple
+    - 0.1
+    - 0.2
+    ang_vel_z: !!python/tuple
+    - 0.1
+    - 0.2
+    heading: null
+noise:
+  add_noise: true
+  noise_scales:
+    lin_vel: 0.2
+    ang_vel: 0.2
+    projected_gravity: 0.05
+    joint_pos: 0.01
+    joint_vel: 1.5
+    height_scan: 0.1
+domain_rand:
+  events:
+    physics_material:
+      func: isaaclab.envs.mdp.events:randomize_rigid_body_material
+      params:
+        asset_cfg:
+          name: robot
+          joint_names: null
+          joint_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          fixed_tendon_names: null
+          fixed_tendon_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          body_names: .*
+          body_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          object_collection_names: null
+          object_collection_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          preserve_order: false
+        static_friction_range: !!python/tuple
+        - 0.6
+        - 1.0
+        dynamic_friction_range: !!python/tuple
+        - 0.4
+        - 0.8
+        restitution_range: !!python/tuple
+        - 0.0
+        - 0.005
+        num_buckets: 64
+      mode: startup
+      interval_range_s: null
+      is_global_time: false
+      min_step_count_between_reset: 0
+    add_base_mass:
+      func: isaaclab.envs.mdp.events:randomize_rigid_body_mass
+      params:
+        asset_cfg:
+          name: robot
+          joint_names: null
+          joint_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          fixed_tendon_names: null
+          fixed_tendon_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          body_names:
+          - base_link
+          body_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          object_collection_names: null
+          object_collection_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          preserve_order: false
+        mass_distribution_params: !!python/tuple
+        - -5.0
+        - 10.0
+        operation: add
+      mode: startup
+      interval_range_s: null
+      is_global_time: false
+      min_step_count_between_reset: 0
+    reset_base:
+      func: isaaclab.envs.mdp.events:reset_root_state_uniform
+      params:
+        pose_range:
+          x: !!python/tuple
+          - -0.5
+          - 0.5
+          y: !!python/tuple
+          - -0.5
+          - 0.5
+          yaw: !!python/tuple
+          - -3.14
+          - 3.14
+        velocity_range:
+          x: !!python/tuple
+          - -0.5
+          - 0.5
+          y: !!python/tuple
+          - -0.5
+          - 0.5
+          z: !!python/tuple
+          - -0.5
+          - 0.5
+          roll: !!python/tuple
+          - -0.5
+          - 0.5
+          pitch: !!python/tuple
+          - -0.5
+          - 0.5
+          yaw: !!python/tuple
+          - -0.5
+          - 0.5
+      mode: reset
+      interval_range_s: null
+      is_global_time: false
+      min_step_count_between_reset: 0
+    reset_robot_joints:
+      func: legged_lab.mdp.events:reset_joints_by_scale
+      params:
+        position_range: !!python/tuple
+        - 0.8
+        - 1.2
+        velocity_range: !!python/tuple
+        - 0.0
+        - 0.0
+      mode: reset
+      interval_range_s: null
+      is_global_time: false
+      min_step_count_between_reset: 0
+    push_robot:
+      func: isaaclab.envs.mdp.events:push_by_setting_velocity
+      params:
+        velocity_range:
+          x: !!python/tuple
+          - -1.0
+          - 1.0
+          y: !!python/tuple
+          - -1.0
+          - 1.0
+      mode: interval
+      interval_range_s: !!python/tuple
+      - 10.0
+      - 15.0
+      is_global_time: false
+      min_step_count_between_reset: 0
+    randomize_rigid_body_com:
+      func: legged_lab.mdp.events:randomize_rigid_body_com
+      params:
+        asset_cfg:
+          name: robot
+          joint_names: null
+          joint_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          fixed_tendon_names: null
+          fixed_tendon_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          body_names:
+          - base_link
+          - torso_link
+          body_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          object_collection_names: null
+          object_collection_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          preserve_order: false
+        com_range: !!python/tuple
+        - -0.35
+        - 0.35
+      mode: startup
+      interval_range_s: null
+      is_global_time: false
+      min_step_count_between_reset: 0
+    randomize_wrist_roll_mass:
+      func: isaaclab.envs.mdp.events:randomize_rigid_body_mass
+      params:
+        asset_cfg:
+          name: robot
+          joint_names: null
+          joint_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          fixed_tendon_names: null
+          fixed_tendon_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          body_names:
+          - left_wrist_roll_link
+          - right_wrist_roll_link
+          body_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          object_collection_names: null
+          object_collection_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          preserve_order: false
+        mass_distribution_params: !!python/tuple
+        - 0.0
+        - 5.0
+        operation: abs
+      mode: startup
+      interval_range_s: null
+      is_global_time: false
+      min_step_count_between_reset: 0
+    joint_pd_randomization:
+      func: isaaclab.envs.mdp.events:randomize_actuator_gains
+      params:
+        asset_cfg:
+          name: robot
+          joint_names: null
+          joint_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          fixed_tendon_names: null
+          fixed_tendon_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          body_names: null
+          body_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          object_collection_names: null
+          object_collection_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          preserve_order: false
+        stiffness_distribution_params: !!python/tuple
+        - 0.8
+        - 1.2
+        damping_distribution_params: !!python/tuple
+        - 0.8
+        - 1.2
+        operation: scale
+        distribution: uniform
+      mode: reset
+      interval_range_s: null
+      is_global_time: false
+      min_step_count_between_reset: 0
+    joint_parameters_randomization:
+      func: isaaclab.envs.mdp.events:randomize_joint_parameters
+      params:
+        asset_cfg:
+          name: robot
+          joint_names:
+          - .*
+          joint_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          fixed_tendon_names: null
+          fixed_tendon_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          body_names: null
+          body_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          object_collection_names: null
+          object_collection_ids: !!python/object/apply:builtins.slice
+          - null
+          - null
+          - null
+          preserve_order: false
+        friction_distribution_params: !!python/tuple
+        - 0.08
+        - 0.5
+        armature_distribution_params: !!python/tuple
+        - 0.008
+        - 0.05
+        operation: abs
+      mode: startup
+      interval_range_s: null
+      is_global_time: false
+      min_step_count_between_reset: 0
+  action_delay:
+    enable: false
+    params:
+      max_delay: 5
+      min_delay: 0
+sim:
+  dt: 0.005
+  decimation: 4
+  physx:
+    gpu_max_rigid_patch_count: 327680
+amp_motion_files_display:
+- /home/zjie/5_project/AMP/Humanoid_AMP-Lab/legged_lab/envs/b2_walk_dreamwaq_MOE_15DOF/datasets/motion_visualization/b9.txt
+- /home/zjie/5_project/AMP/Humanoid_AMP-Lab/legged_lab/envs/b2_walk_dreamwaq_MOE_15DOF/datasets/motion_visualization/b15.txt
+reward:
+  linear_velocity_tracking:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_track_linear_velocity_exp
+    params:
+      std: 0.25
+    weight: 1.2
+  angular_velocity_tracking:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_track_angular_velocity_exp
+    params:
+      std: 0.25
+    weight: 1.0
+  orientation:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_orientation_exp
+    params:
+      std: 0.25
+    weight: 0.5
+  angular_velocity_xy:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_angular_velocity_xy_exp
+    params:
+      std: 0.25
+    weight: 0.25
+  base_height:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_base_height_exp
+    params:
+      target_height: 0.9
+      std: 0.01
+      asset_cfg:
+        name: robot
+        joint_names: null
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names:
+        - base_link
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+    weight: 0.4
+  action_rate:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_action_rate_l2
+    params: {}
+    weight: -0.12
+  smoothness:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_action_smoothness_l2
+    params: {}
+    weight: -0.06
+  dof_velocity:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_dof_velocity_l2
+    params:
+      asset_cfg:
+        name: robot
+        joint_names:
+        - waist_.*_joint
+        - .*_hip_.*_joint
+        - .*_knee_.*_joint
+        - .*_ankle_.*_joint
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names: null
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+    weight: -0.96
+  dof_torque:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_dof_torque_l2
+    params:
+      asset_cfg:
+        name: robot
+        joint_names:
+        - waist_.*_joint
+        - .*_hip_.*_joint
+        - .*_knee_.*_joint
+        - .*_ankle_.*_joint
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names: null
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+    weight: -0.6
+  dof_deviation:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_dof_deviation_l1
+    params:
+      asset_cfg:
+        name: robot
+        joint_names:
+        - waist_.*_joint
+        - .*_hip_.*_joint
+        - .*_knee_.*_joint
+        - .*_ankle_.*_joint
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names: null
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+    weight: -1.8
+  dof_position_limits:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_dof_position_limits
+    params:
+      asset_cfg:
+        name: robot
+        joint_names:
+        - waist_.*_joint
+        - .*_hip_.*_joint
+        - .*_knee_.*_joint
+        - .*_ankle_.*_joint
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names: null
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+    weight: -1.5
+  dof_velocity_limits:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_dof_velocity_limits
+    params:
+      asset_cfg:
+        name: robot
+        joint_names:
+        - waist_.*_joint
+        - .*_hip_.*_joint
+        - .*_knee_.*_joint
+        - .*_ankle_.*_joint
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names: null
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+    weight: -6.0
+  dof_torque_limits:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_dof_torque_limits
+    params:
+      asset_cfg:
+        name: robot
+        joint_names:
+        - waist_.*_joint
+        - .*_hip_.*_joint
+        - .*_knee_.*_joint
+        - .*_ankle_.*_joint
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names: null
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+    weight: -6.0
+  stand_still:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_stand_still_l1
+    params:
+      command_threshold: 0.1
+      asset_cfg:
+        name: robot
+        joint_names:
+        - waist_.*_joint
+        - .*_hip_.*_joint
+        - .*_knee_.*_joint
+        - .*_ankle_.*_joint
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names: null
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+    weight: -0.12
+  single_support:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_single_support
+    params:
+      sensor_cfg:
+        name: contact_sensor
+        joint_names: null
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names:
+        - left_ankle_roll_link
+        - right_ankle_roll_link
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+      command_threshold: 0.1
+      force_threshold: 1.0
+      history_s: 0.2
+    weight: 0.2
+  impact_velocity:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_impact_velocity
+    params:
+      sensor_cfg:
+        name: contact_sensor
+        joint_names: null
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names:
+        - left_ankle_roll_link
+        - right_ankle_roll_link
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+      asset_cfg:
+        name: robot
+        joint_names: null
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names:
+        - left_ankle_roll_link
+        - right_ankle_roll_link
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+      force_threshold: 1.0
+    weight: -1.3
+  contact_slippage:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_contact_slippage
+    params:
+      sensor_cfg:
+        name: contact_sensor
+        joint_names: null
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names:
+        - left_ankle_roll_link
+        - right_ankle_roll_link
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+      asset_cfg:
+        name: robot
+        joint_names: null
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names:
+        - left_ankle_roll_link
+        - right_ankle_roll_link
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+      force_threshold: 1.0
+    weight: -0.2
+  feet_air_time:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_feet_air_time
+    params:
+      sensor_cfg:
+        name: contact_sensor
+        joint_names: null
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names:
+        - left_ankle_roll_link
+        - right_ankle_roll_link
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+      target_air_time: 0.5
+    weight: -2.0
+  feet_stumble:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_feet_stumble
+    params:
+      sensor_cfg:
+        name: contact_sensor
+        joint_names: null
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names:
+        - left_ankle_roll_link
+        - right_ankle_roll_link
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+      horizontal_to_vertical_ratio: 3.0
+    weight: -2.0
+  feet_lateral_distance:
+    func: legged_lab.mdp.rewards_no_phase:no_phase_feet_lateral_distance_exp
+    params:
+      asset_cfg:
+        name: robot
+        joint_names: null
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names:
+        - left_ankle_roll_link
+        - right_ankle_roll_link
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+      min_distance: 0.28
+      std: 0.05
+    weight: 0.08
+  joint_lock_upper_body:
+    func: legged_lab.mdp.rewards:joint_lock_default_l2
+    params:
+      asset_cfg:
+        name: robot
+        joint_names:
+        - waist_yaw_joint
+        - waist_roll_joint
+        - waist_pitch_joint
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names: null
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+      vel_weight: 0.05
+    weight: -0.5
+  undesired_contacts:
+    func: legged_lab.mdp.rewards:undesired_contacts
+    params:
+      sensor_cfg:
+        name: contact_sensor
+        joint_names: null
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names:
+        - .*_knee_.*
+        - .*_shoulder_.*
+        - .*_elbow_.*
+        - .*_wrist_.*
+        - torso_link
+        - .*_hip_.*
+        - base_link
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+      threshold: 1.0
+    weight: -1.0
+  wrist_lock: null
+  shoulder_lock: null
+  body_orientation_l2:
+    func: legged_lab.mdp.rewards:body_orientation_l2
+    params:
+      asset_cfg:
+        name: robot
+        joint_names: null
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names: torso_link
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+    weight: -2.0
+  body_ang_vel_xy_l2:
+    func: legged_lab.mdp.rewards:body_ang_vel_xy_l2
+    params:
+      asset_cfg:
+        name: robot
+        joint_names: null
+        joint_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        fixed_tendon_names: null
+        fixed_tendon_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        body_names:
+        - torso_link
+        body_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        object_collection_names: null
+        object_collection_ids: !!python/object/apply:builtins.slice
+        - null
+        - null
+        - null
+        preserve_order: false
+    weight: -1.0
+  low_speed:
+    func: legged_lab.mdp.rewards:low_speed
+    params:
+      low_ratio: 0.5
+      high_ratio: 1.5
+      cmd_threshold: 0.1
+    weight: 0.2

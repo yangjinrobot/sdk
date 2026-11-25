@@ -1,0 +1,123 @@
+{
+  "format": "b2_dreamwaq_moe_15dof_onnx_v1",
+  "checkpoint": "/home/zjie/5_project/AMP/Humanoid_AMP-Lab/logs/b2_dreamwaq_moe_15dof/2026-10-21_10-00-37_550965_moe_15dof_arm_rand/model_26300.pt",
+  "checkpoint_sha256": "d99c392974fcbf65e4738c8b7bcbfb8acbe10990d5e1290da0b755ab461a4c8c",
+  "onnx_sha256": "4aa1c8c60c4920c4f353c59cfc994b35fdef1448a8671210122bf5b594570c9f",
+  "env_cfg_sha256": "e5e946df492992fdafbb3f4bdb344c52fdd63faa4834c1967474948dedfcc2e5",
+  "agent_cfg_sha256": "a9707599ef70aedde2fa8288e52879626b9ff546d423035710b6f93632f2d496",
+  "interface_sha256": "c3f8938f3f4eb3dd4e1340f82098195ceca5af03cfcd689d0fb03c3690aa2ce8",
+  "input_dim": 576,
+  "output_dim": 15,
+  "observation_dim": 96,
+  "history_dim": 480,
+  "history_frames": 5,
+  "num_experts": 6,
+  "input_layout": "[five observations oldest->newest including current (480), current observation (96)]",
+  "observation_layout": "angular velocity(3), projected gravity(3), command(3), relative q(29), qd(29), previous raw action mapped to full joints(29), arm action slots zero",
+  "output_layout": "waist yaw/roll/pitch, left leg 6, right leg 6; raw action before action_scale",
+  "history_initialization": "repeat first observation five times",
+  "context": "deterministic velocity/latent means",
+  "joint_names": [
+    "left_hip_pitch_joint",
+    "right_hip_pitch_joint",
+    "waist_yaw_joint",
+    "left_hip_roll_joint",
+    "right_hip_roll_joint",
+    "waist_roll_joint",
+    "left_hip_yaw_joint",
+    "right_hip_yaw_joint",
+    "waist_pitch_joint",
+    "left_knee_pitch_joint",
+    "right_knee_pitch_joint",
+    "left_shoulder_pitch_joint",
+    "right_shoulder_pitch_joint",
+    "left_ankle_pitch_joint",
+    "right_ankle_pitch_joint",
+    "left_shoulder_roll_joint",
+    "right_shoulder_roll_joint",
+    "left_ankle_roll_joint",
+    "right_ankle_roll_joint",
+    "left_shoulder_yaw_joint",
+    "right_shoulder_yaw_joint",
+    "left_elbow_pitch_joint",
+    "right_elbow_pitch_joint",
+    "left_wrist_yaw_joint",
+    "right_wrist_yaw_joint",
+    "left_wrist_pitch_joint",
+    "right_wrist_pitch_joint",
+    "left_wrist_roll_joint",
+    "right_wrist_roll_joint"
+  ],
+  "control_joint_names": [
+    "waist_yaw_joint",
+    "waist_roll_joint",
+    "waist_pitch_joint",
+    "left_hip_pitch_joint",
+    "left_hip_roll_joint",
+    "left_hip_yaw_joint",
+    "left_knee_pitch_joint",
+    "left_ankle_pitch_joint",
+    "left_ankle_roll_joint",
+    "right_hip_pitch_joint",
+    "right_hip_roll_joint",
+    "right_hip_yaw_joint",
+    "right_knee_pitch_joint",
+    "right_ankle_pitch_joint",
+    "right_ankle_roll_joint"
+  ],
+  "arm_joint_names": [
+    "left_shoulder_pitch_joint",
+    "left_shoulder_roll_joint",
+    "left_shoulder_yaw_joint",
+    "left_elbow_pitch_joint",
+    "left_wrist_yaw_joint",
+    "left_wrist_pitch_joint",
+    "left_wrist_roll_joint",
+    "right_shoulder_pitch_joint",
+    "right_shoulder_roll_joint",
+    "right_shoulder_yaw_joint",
+    "right_elbow_pitch_joint",
+    "right_wrist_yaw_joint",
+    "right_wrist_pitch_joint",
+    "right_wrist_roll_joint"
+  ],
+  "control_dt": 0.02,
+  "height_scan": "privileged critic only; not part of actor input",
+  "checks": [
+    {
+      "batch": 1,
+      "input_scale": 0.2,
+      "max_abs_error": 4.76837158203125e-07
+    },
+    {
+      "batch": 1,
+      "input_scale": 1.0,
+      "max_abs_error": 5.7220458984375e-06
+    },
+    {
+      "batch": 4,
+      "input_scale": 0.2,
+      "max_abs_error": 8.344650268554688e-07
+    },
+    {
+      "batch": 4,
+      "input_scale": 1.0,
+      "max_abs_error": 5.7220458984375e-06
+    },
+    {
+      "batch": 16,
+      "input_scale": 0.2,
+      "max_abs_error": 1.430511474609375e-06
+    },
+    {
+      "batch": 16,
+      "input_scale": 1.0,
+      "max_abs_error": 1.049041748046875e-05
+    }
+  ],
+  "versions": {
+    "torch": "2.5.1+cu118",
+    "onnx": "1.16.1",
+    "onnxruntime": "1.23.2"
+  }
+}
