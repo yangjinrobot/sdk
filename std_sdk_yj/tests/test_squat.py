@@ -1,7 +1,8 @@
-"""Offline DunXia/ZhanLi migration checks. Needs numpy, PyYAML and onnxruntime.
+"""Offline MimicControl_Kneel_Mode/MimicControl_Kneel_StandUp_Mode checks. Needs numpy, PyYAML and onnxruntime.
 
 python -B tests/test_squat.py
-No robot/DDS connection; reference data is read independently from ONNX constants.
+No robot/DDS connection. The pair-specific NPZ is checked against the independently
+read ONNX constants before the C++ runner is tested.
 """
 import hashlib
 import json
@@ -16,6 +17,39 @@ from test_nirenwalk_amp_dt import TrainingLoader, joint_value
 from test_sit_stand import embedded_reference
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def npz_reference(directory, manifest, payload):
+    path = directory / manifest['motion_file']
+    assert hashlib.sha256(path.read_bytes()).hexdigest() == manifest['motion_sha256']
+    with np.load(path, allow_pickle=False) as motion:
+        expected_keys = {
+            'fps', 'joint_pos', 'joint_vel', 'body_pos_w', 'body_quat_w',
+            'body_lin_vel_w', 'body_ang_vel_w', 'joint_names', 'body_names',
+        }
+        assert set(motion.files) == expected_keys
+        assert motion['fps'].tolist() == [manifest['fps']]
+        assert motion['joint_names'].tolist() == payload['joint_names']
+        assert motion['joint_pos'].shape == (manifest['num_frames'], manifest['num_joints'])
+        assert motion['joint_vel'].shape == motion['joint_pos'].shape
+        body_index = {
+            name: index for index, name in enumerate(motion['body_names'].tolist())
+        }
+        selected_bodies = [body_index[name] for name in payload['body_names']]
+        for key in ('joint_pos', 'joint_vel'):
+            np.testing.assert_array_equal(motion[key], np.asarray(payload[key]))
+        for key in ('body_pos_w', 'body_quat_w', 'body_lin_vel_w', 'body_ang_vel_w'):
+            width = 4 if key == 'body_quat_w' else 3
+            expected = np.asarray(payload[key]).reshape(
+                manifest['num_frames'], len(payload['body_names']), width
+            )
+            np.testing.assert_array_equal(
+                motion[key][:, selected_bodies], expected
+            )
+        result = {key: motion[key] for key in motion.files}
+    print(f"NPZ: {path.name}, {len(result['joint_pos'])} frames, matched ONNX constants",
+          flush=True)
+    return result
 
 
 def yaml_training(directory, manifest):
@@ -69,17 +103,26 @@ def main():
 
     with tempfile.TemporaryDirectory(prefix='squat-check-') as temp:
         temp = Path(temp)
-        for kind, macro in [('dunxia', 'TEST_DUNXIA'), ('zhanli', 'TEST_ZHANLI')]:
+        references = {}
+        cases = [
+            ('dunxia', 'TEST_MIMIC_CONTROL_KNEEL_MODE',
+             'mimic_control_kneel_mode_policy_runner.cpp'),
+            ('zhanli', 'TEST_MIMIC_CONTROL_KNEEL_STAND_UP_MODE',
+             'mimic_control_kneel_stand_up_mode_policy_runner.cpp'),
+        ]
+        for kind, macro, runner in cases:
             directory = ROOT / 'run_policy/cr1/policy/mimic' / (kind + '_policy')
             manifest = json.loads((directory / 'motion.json').read_text())
             for filename, field in [(manifest['policy_file'], 'model_sha256'),
                                     (manifest['training_file'], 'training_sha256')]:
                 assert hashlib.sha256((directory / filename).read_bytes()).hexdigest() == manifest[field]
             payload = embedded_reference(directory / manifest['policy_file'], manifest)
+            references[kind] = npz_reference(directory, manifest, payload)
+            assert references[kind]['joint_names'].tolist() == payload['joint_names']
             payload['training'] = yaml_training(directory, manifest)
             binary = temp / kind
-            compile_test(binary, ['tests/test_sit_stand_policy.cpp',
-                                  runner_dir / f'{kind}_policy_runner.cpp'], ['-D' + macro])
+            compile_test(binary, ['tests/test_mimic_control_chair_policy.cpp',
+                                  runner_dir / runner], ['-D' + macro])
             subprocess.run([str(binary), str(directory)], input=json.dumps(payload), text=True, check=True)
             mismatch = temp / (kind + '_mismatch')
             mismatch.mkdir()
@@ -89,12 +132,16 @@ def main():
             rejected = subprocess.run([str(binary), str(mismatch)], input=json.dumps(payload),
                                       text=True, capture_output=True)
             assert rejected.returncode != 0 and 'mismatch' in rejected.stderr
+        for key in ('joint_pos', 'joint_vel', 'body_pos_w', 'body_quat_w',
+                    'body_lin_vel_w', 'body_ang_vel_w'):
+            np.testing.assert_array_equal(references['dunxia'][key][-1],
+                                          references['zhanli'][key][0])
         parameters = ['state_machine/parameters/cr1_standard_control_parameters.cpp',
                       'state_machine/parameters/cr1_pro_control_parameters.cpp']
         states = temp / 'states'
-        compile_test(states, ['tests/test_squat_states.cpp', *parameters,
-                              runner_dir / 'dunxia_policy_runner.cpp',
-                              runner_dir / 'zhanli_policy_runner.cpp'],
+        compile_test(states, ['tests/test_mimic_control_kneel_states.cpp', *parameters,
+                              runner_dir / 'mimic_control_kneel_mode_policy_runner.cpp',
+                              runner_dir / 'mimic_control_kneel_stand_up_mode_policy_runner.cpp'],
                      ['-DMOTION_MASTER_MUJOCO_LOCKSTEP'])
         subprocess.run([str(states), str(ROOT / 'run_policy/cr1/policy/mimic')], check=True)
         gamepad = temp / 'gamepad'

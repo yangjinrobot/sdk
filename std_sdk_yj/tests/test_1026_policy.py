@@ -51,8 +51,8 @@ def main():
         binary, trace = Path(tmp) / 'check', Path(tmp) / 'trace.txt'
         subprocess.run(['g++', '-O2', '-std=c++17', '-DEIGEN_DONT_ALIGN_STATICALLY',
                         str(ROOT / 'tests/test_1022_policy.cpp'),
-                        str(ROOT / 'run_policy/cr1/src/run_policy_runner.cpp'),
-                        str(ROOT / 'run_policy/cr1/src/chiqiangwalk_policy_runner.cpp'),
+                        str(ROOT / 'run_policy/cr1/src/amp_control_walk2run_mode_policy_runner.cpp'),
+                        str(ROOT / 'run_policy/cr1/src/amp_control_gun_shoot_walk_mode_policy_runner.cpp'),
                         *['-I' + str(ROOT / p) for p in includes], '-L' + str(library),
                         '-Wl,-rpath,' + str(library), '-lonnxruntime', '-pthread',
                         '-o', str(binary)], check=True)
@@ -140,11 +140,11 @@ def main():
                            'test_run2_state.cpp' if version in ('1102', '1103') else \
                            'test_run3_state.cpp' if version == '1106' else \
                            'test_run4_state.cpp' if version in ('1111', '1112') else \
-                           'test_run_entry.cpp'
+                           'test_amp_control_walk2run_mode_entry.cpp'
             subprocess.run(['g++', '-O2', '-std=c++17', '-DEIGEN_DONT_ALIGN_STATICALLY',
                             '-I' + str(ROOT / 'tests/mimic_stubs'),
                             str(ROOT / 'tests' / entry_source),
-                            str(ROOT / 'run_policy/cr1/src/run_policy_runner.cpp'),
+                            str(ROOT / 'run_policy/cr1/src/amp_control_walk2run_mode_policy_runner.cpp'),
                             str(ROOT / 'state_machine/parameters/cr1_standard_control_parameters.cpp'),
                             str(ROOT / 'state_machine/parameters/cr1_pro_control_parameters.cpp'),
                             *['-I' + str(ROOT / p) for p in includes],
@@ -159,7 +159,7 @@ def main():
                             '-I' + str(ROOT / 'tests/mimic_stubs'),
                             str(ROOT / 'tests/test_rlcontrol_1026.cpp'),
                             str(ROOT / 'run_policy/cr1/src/amp_walk_policy_runner.cpp'),
-                            str(ROOT / 'run_policy/cr1/src/chiqiangwalk_policy_runner.cpp'),
+                            str(ROOT / 'run_policy/cr1/src/amp_control_gun_shoot_walk_mode_policy_runner.cpp'),
                             str(ROOT / 'state_machine/parameters/cr1_standard_control_parameters.cpp'),
                             str(ROOT / 'state_machine/parameters/cr1_pro_control_parameters.cpp'),
                             *['-I' + str(ROOT / p) for p in includes],

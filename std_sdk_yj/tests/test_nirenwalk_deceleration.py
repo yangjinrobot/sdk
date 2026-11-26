@@ -14,8 +14,8 @@ def main():
         binary = Path(temp) / 'test'
         subprocess.run([
             'g++', '-O2', '-std=c++17', '-DEIGEN_DONT_ALIGN_STATICALLY',
-            str(ROOT / 'tests/test_nirenwalk_deceleration.cpp'),
-            str(ROOT / 'run_policy/cr1/src/run_policy_runner.cpp'),
+            str(ROOT / 'tests/test_amp_control_walk2run_mode_deceleration.cpp'),
+            str(ROOT / 'run_policy/cr1/src/amp_control_walk2run_mode_policy_runner.cpp'),
             *['-I' + str(ROOT / path) for path in includes],
             '-L' + str(library), '-Wl,-rpath,' + str(library),
             '-lonnxruntime', '-pthread', '-o', str(binary),

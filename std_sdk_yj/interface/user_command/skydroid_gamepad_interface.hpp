@@ -82,8 +82,9 @@ void SkydroidGamepadInterface::TransformSkydroidToUserCommand(){
         }
         // std::cout << "axis: " << int(sd_keys_.A) << std::endl;
         usr_cmd_->time_stamp = sd_keys_.time_stamp;
-        if (msfb_->GetCurrentState() != RobotMotionState::RLControlMode &&
-            msfb_->GetCurrentState() != RobotMotionState::Run) {
+        if (msfb_->GetCurrentState() != RobotMotionState::AmpControl_NiRenWalk_Mode &&
+            msfb_->GetCurrentState() != RobotMotionState::AmpControl_GunShootWalk_Mode &&
+            msfb_->GetCurrentState() != RobotMotionState::AmpControl_Walk2Run_Mode) {
             usr_cmd_->forward_vel_scale = usr_cmd_->side_vel_scale = usr_cmd_->turnning_vel_scale = 0.0f;
         }
         // usr_cmd_->forward_vel_scale = sd_keys_.left_axis_y;
@@ -92,12 +93,15 @@ void SkydroidGamepadInterface::TransformSkydroidToUserCommand(){
         if (!IsKeysEqual(sd_keys_, sd_keys_record_)) {
             switch (msfb_->GetCurrentState()){
 
-            case RobotMotionState::Run:
-            case RobotMotionState::RLControlMode:
+            case RobotMotionState::AmpControl_Walk2Run_Mode:
+            case RobotMotionState::AmpControl_NiRenWalk_Mode:
+            case RobotMotionState::AmpControl_GunShootWalk_Mode:
                 usr_cmd_->forward_vel_scale = sd_keys_.left_axis_y;
                 usr_cmd_->side_vel_scale = -sd_keys_.left_axis_x;
                 usr_cmd_->turnning_vel_scale = -sd_keys_.right_axis_x;
-                if (msfb_->GetCurrentState() == RobotMotionState::RLControlMode) SetTargetGait(HumanWALK);
+                if (msfb_->GetCurrentState() == RobotMotionState::AmpControl_NiRenWalk_Mode ||
+                    msfb_->GetCurrentState() == RobotMotionState::AmpControl_GunShootWalk_Mode)
+                    SetTargetGait(HumanWALK);
                 break;
 
             default:
@@ -110,14 +114,15 @@ void SkydroidGamepadInterface::TransformSkydroidToUserCommand(){
                 usr_cmd_->target_mode = RobotMotionState::SuspendedStand;
             }
             if(sd_keys_.right && !sd_keys_record_.right &&
-               msfb_->GetCurrentState() != RobotMotionState::Stand2Sit){
-                usr_cmd_->target_mode = RobotMotionState::RLControlMode;
+               msfb_->GetCurrentState() != RobotMotionState::MimicControl_ChairDown_Mode){
+                usr_cmd_->target_mode = RobotMotionState::AmpControl_NiRenWalk_Mode;
             }
             if(sd_keys_.sw1 != 0 && sd_keys_.sw4 != 0){
                 usr_cmd_->target_mode = RobotMotionState::JointDamping;
             }
-            // C sits, D rises, right returns to RL, E selects Run.
-            // Run, Run2, and Run3 are disabled; their legacy key edges are ignored.
+            // C sits, D rises, right selects AmpControl_NiRenWalk_Mode,
+            // E selects AmpControl_Walk2Run_Mode.
+            // Legacy running key edges are ignored.
             usr_cmd_->target_mode = GamepadMotionTarget(robot_name_, msfb_->GetCurrentState(), usr_cmd_->target_mode,
                 sd_keys_.C && !sd_keys_record_.C, sd_keys_.D && !sd_keys_record_.D,
                 sd_keys_.right && !sd_keys_record_.right, sd_keys_.E && !sd_keys_record_.E,

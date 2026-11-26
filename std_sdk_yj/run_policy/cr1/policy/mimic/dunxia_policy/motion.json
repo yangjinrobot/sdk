@@ -1,11 +1,13 @@
 {
-  "policy_file": "dunxia.onnx",
+  "policy_file": "shoot_down.onnx",
+  "motion_file": "shoot_down_dual_gun_groundfix_kneel.npz",
   "num_frames": 267,
   "fps": 50.0,
   "num_joints": 21,
-  "model_sha256": "142d8509c88bedad4c1ba4fe69f720efe12c7f2689ace71e86df56bbd5767fd3",
-  "training_file": "dunxia.yaml",
-  "training_sha256": "b9b051944844b5e150754c746dcf55ec21bae11cad26d95c78bfa93fb99f9c6c",
+  "model_sha256": "8d975c8aeda3f76ea274ec717db59a5e00debba122546534ab39c70c1db25454",
+  "motion_sha256": "fe36eb92970ffd42ed26610c64355a67ae93351d074971239dc5c6c9a45898ab",
+  "training_file": "dunxia_1125.yaml",
+  "training_sha256": "81a21ce6b7dabfcd7ba08268e7630ccd9edb5518d53e4c8945220fe7434178aa",
   "training": {
     "joint_names": [
       "waist_yaw_joint",

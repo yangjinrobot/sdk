@@ -3,15 +3,18 @@
 
 #include "humanoid/humanoid_state_machine.hpp"
 
-#include "chiqiangwalk_policy_runner.h"
-#include "humanoid_std/dunxia_state.hpp"
-#include "humanoid_std/mjrun_state.hpp"
-#include "humanoid_std/restand_state.hpp"
-#include "humanoid_std/run_state.hpp"
-#include "humanoid_std/sit2stand_mimic_state.hpp"
+#include "amp_control_ni_ren_walk_mode_policy_runner.h"
+#include "amp_control_gun_shoot_walk_mode_policy_runner.h"
+#include "humanoid_std/amp_control_ni_ren_walk_mode_state.hpp"
+#include "humanoid_std/amp_control_gun_shoot_walk_mode_state.hpp"
+#include "humanoid_std/mimic_control_kneel_mode_state.hpp"
+#include "humanoid_std/mjlab_control_walk2run_mode_state.hpp"
+#include "humanoid_std/rl_control_stand_mode_state.hpp"
+#include "humanoid_std/amp_control_walk2run_mode_state.hpp"
+#include "humanoid_std/mimic_control_chair_up_mode_state.hpp"
 #include "humanoid_std/squat_preparation_state.hpp"
-#include "humanoid_std/stand2sit_mimic_state.hpp"
-#include "humanoid_std/zhanli_state.hpp"
+#include "humanoid_std/mimic_control_chair_down_mode_state.hpp"
+#include "humanoid_std/mimic_control_kneel_stand_up_mode_state.hpp"
 
 namespace humanoid_std {
 
@@ -22,55 +25,79 @@ public:
 
     std::shared_ptr<StateBase> GetStateControllerPtr(StateName state_name) override {
         switch (state_name) {
+            case StateName::kAmpControlNiRenWalkMode:
+                return amp_control_ni_ren_walk_mode_controller_;
+            case StateName::kAmpControlGunShootWalkMode:
+                return amp_control_gun_shoot_walk_mode_controller_;
             case StateName::kSquatPreparation:
                 return squat_preparation_controller_;
-            case StateName::kRun:
-                return run_controller_;
-            case StateName::kMjRun:
-                return mjrun_controller_;
-            case StateName::kDunXia:
-                return dunxia_controller_;
-            case StateName::kZhanLi:
-                return zhanli_controller_;
-            case StateName::kRestand:
-                return restand_controller_;
-            case StateName::kStand2SitMimic:
-                return stand2sit_mimic_controller_;
-            case StateName::kSit2StandMimic:
-                return sit2stand_mimic_controller_;
+            case StateName::kAmpControlWalk2RunMode:
+                return amp_control_walk2run_mode_controller_;
+            case StateName::kMjlabControlWalk2RunMode:
+                return mjlab_control_walk2run_mode_controller_;
+            case StateName::kMimicControlKneelMode:
+                return mimic_control_kneel_mode_controller_;
+            case StateName::kMimicControlKneelStandUpMode:
+                return mimic_control_kneel_stand_up_mode_controller_;
+            case StateName::kRLControlStandMode:
+                return rl_control_stand_mode_controller_;
+            case StateName::kMimicControlChairDownMode:
+                return mimic_control_chair_down_mode_controller_;
+            case StateName::kMimicControlChairUpMode:
+                return mimic_control_chair_up_mode_controller_;
             default:
                 return humanoid::HumanoidStateMachine::GetStateControllerPtr(state_name);
         }
     }
 
 private:
-    std::shared_ptr<StateBase> CreateRLController(
-        const std::shared_ptr<ControllerData>& data_ptr) override {
-        auto walk_policy = std::make_shared<ChiqiangWalkPolicyRunner>(
-            "rl_control", robot_name_,
-            "/opt/robot/share/motion_master/policy/amp/std_amp_2.onnx");
-        return std::make_shared<humanoid::RLControlState>(
-            robot_name_, "rl_control", data_ptr, std::move(walk_policy),
-            RobotMotionState::RLControlMode);
-    }
-
     void CreateAdditionalControllers(const std::shared_ptr<ControllerData>& data_ptr) override {
+        auto amp_control_ni_ren_walk_policy =
+            std::make_shared<AmpControlNiRenWalkModePolicyRunner>(
+                "amp_control_ni_ren_walk_mode", robot_name_,
+                AmpControlNiRenWalkModePolicyRunner::kDefaultPolicyPath);
+        amp_control_ni_ren_walk_mode_controller_ =
+            std::make_shared<AmpControlNiRenWalkModeState>(
+                robot_name_, "amp_control_ni_ren_walk_mode", data_ptr,
+                std::move(amp_control_ni_ren_walk_policy),
+                RobotMotionState::AmpControl_NiRenWalk_Mode);
+
+        auto amp_control_gun_shoot_walk_policy =
+            std::make_shared<AmpControlGunShootWalkModePolicyRunner>(
+                "amp_control_gun_shoot_walk_mode", robot_name_,
+                AmpControlGunShootWalkModePolicyRunner::kDefaultPolicyPath);
+        amp_control_gun_shoot_walk_mode_controller_ =
+            std::make_shared<AmpControlGunShootWalkModeState>(
+                robot_name_, "amp_control_gun_shoot_walk_mode", data_ptr,
+                std::move(amp_control_gun_shoot_walk_policy),
+                RobotMotionState::AmpControl_GunShootWalk_Mode);
+
         squat_preparation_controller_ = std::make_shared<SquatPreparationState>(robot_name_, "squat_preparation", data_ptr);
-        stand2sit_mimic_controller_ = std::make_shared<Stand2SitMimicState>(robot_name_, "stand2sit_mimic", data_ptr);
-        sit2stand_mimic_controller_ = std::make_shared<Sit2StandMimicState>(robot_name_, "sit2stand_mimic", data_ptr);
-        run_controller_ = std::make_shared<RunState>(robot_name_, "run", data_ptr);
-        mjrun_controller_ = std::make_shared<MjRunState>(robot_name_, "mjrun", data_ptr);
-        restand_controller_ = std::make_shared<RestandState>(robot_name_, "restand", data_ptr);
-        dunxia_controller_ = std::make_shared<DunXiaState>(robot_name_, "dunxia", data_ptr);
-        zhanli_controller_ = std::make_shared<ZhanLiState>(robot_name_, "zhanli", data_ptr);
+        mimic_control_chair_down_mode_controller_ = std::make_shared<MimicControlChairDownModeState>(
+            robot_name_, "mimic_control_chair_down_mode", data_ptr);
+        mimic_control_chair_up_mode_controller_ = std::make_shared<MimicControlChairUpModeState>(
+            robot_name_, "mimic_control_chair_up_mode", data_ptr);
+        amp_control_walk2run_mode_controller_ = std::make_shared<AmpControlWalk2RunModeState>(
+            robot_name_, "amp_control_walk2run_mode", data_ptr);
+        mjlab_control_walk2run_mode_controller_ = std::make_shared<MjlabControlWalk2RunModeState>(
+            robot_name_, "mjlab_control_walk2run_mode", data_ptr);
+        rl_control_stand_mode_controller_ = std::make_shared<RLControlStandModeState>(
+            robot_name_, "rl_control_stand_mode", data_ptr);
+        mimic_control_kneel_mode_controller_ = std::make_shared<MimicControlKneelModeState>(
+            robot_name_, "mimic_control_kneel_mode", data_ptr);
+        mimic_control_kneel_stand_up_mode_controller_ = std::make_shared<MimicControlKneelStandUpModeState>(
+            robot_name_, "mimic_control_kneel_stand_up_mode", data_ptr);
     }
 
+    std::shared_ptr<StateBase> amp_control_ni_ren_walk_mode_controller_;
+    std::shared_ptr<StateBase> amp_control_gun_shoot_walk_mode_controller_;
     std::shared_ptr<StateBase> squat_preparation_controller_;
-    std::shared_ptr<StateBase> run_controller_;
-    std::shared_ptr<StateBase> mjrun_controller_;
-    std::shared_ptr<StateBase> restand_controller_;
-    std::shared_ptr<StateBase> dunxia_controller_, zhanli_controller_;
-    std::shared_ptr<StateBase> stand2sit_mimic_controller_, sit2stand_mimic_controller_;
+    std::shared_ptr<StateBase> amp_control_walk2run_mode_controller_;
+    std::shared_ptr<StateBase> mjlab_control_walk2run_mode_controller_;
+    std::shared_ptr<StateBase> rl_control_stand_mode_controller_;
+    std::shared_ptr<StateBase> mimic_control_kneel_mode_controller_;
+    std::shared_ptr<StateBase> mimic_control_kneel_stand_up_mode_controller_;
+    std::shared_ptr<StateBase> mimic_control_chair_down_mode_controller_, mimic_control_chair_up_mode_controller_;
 };
 
 }  // namespace humanoid_std

@@ -261,8 +261,8 @@ motion_master.v<版本号>+<git短哈希>[.dev].<架构>.<yyMMddHHmm>.deb
     │   ├── run.sh                        # 运行入口脚本
     │   └── motion_master.service         # systemd 服务单元
     └── policy/
-        ├── amp/                         # 行走和 Run 模型
-        ├── rl/                          # Restand 模型
+        ├── amp/                         # NiRenWalk、GunShootWalk、Walk2Run 和 MJLab 模型
+        ├── rl/                          # RLControl_Stand_Mode 模型
         └── mimic/                       # 坐下、起立和蹲起的模型与清单
 
 /var/opt/robot/conf/motion_master/
@@ -335,13 +335,14 @@ cmake --build build/arm -j4
 
 ### 6.3 部署策略模型
 
-deb 和推送脚本都会安装模型。手动复制时，将 `run_policy/cr1/policy/` 下的三个目录完整复制到 `/opt/robot/share/motion_master/policy/`，Mimic 的 `motion.json` 与 ONNX 放在同一子目录。
+deb 和推送脚本都会安装模型。手动复制时，将 `run_policy/cr1/policy/` 下的三个目录完整复制到 `/opt/robot/share/motion_master/policy/`，Mimic 的 `motion.json`、ONNX 和对应 NPZ 放在同一子目录；不要让旧版模型文件被覆盖。
 
 | 状态 | 相对于机器人 `policy/` 的路径 |
 |------|--------------------------------|
-| RLControlMode | `amp/std_amp_2.onnx` |
-| Run | `amp/1028_run/policy_run_2.onnx` |
-| Restand | `rl/RL_stand.onnx` |
+| AmpControl_NiRenWalk_Mode | `amp/nirenxingzou_fuzai/policy_15500.onnx` |
+| AmpControl_GunShootWalk_Mode | `amp/std_amp_2.onnx` |
+| AmpControl_Walk2Run_Mode | `amp/1028_run/policy_run_2.onnx` |
+| RLControl_Stand_Mode | `rl/RL_stand.onnx` |
 | 坐下、起立、蹲下、站起 | `mimic/` 下各动作目录 |
 
 如需更新策略，可修改 `scripts/scp_server_policy.sh` 中的训练服务器路径后执行：
@@ -598,14 +599,23 @@ graph TD
 |------|-----|------|
 | `WaitingForStand` | `0x0` | 空闲（0 力矩，开机默认） |
 | `JointDamping` | `0x2` | 软急停，阻尼 |
-| `RLControlMode` | `0x11` | RL 模式 |
+| `AmpControl_NiRenWalk_Mode` | `0x11` | 拟人行走 RL 模式 |
+| `AmpControl_GunShootWalk_Mode` | `0x1100B` | 持枪行走 RL 模式 |
+| `RLControl_Stand_Mode` | `0x1100C` | RL 站立 |
+| `AmpControl_Walk2Run_Mode` | `0x1100D` | Walk2Run |
+| `MimicControl_ChairDown_Mode` | `0x1100E` | 椅子坐下 |
+| `MimicControl_ChairUp_Mode` | `0x1100F` | 椅子起立 |
+| `MimicControl_Kneel_Mode` | `0x11010` | 跪姿 |
+| `MimicControl_Kneel_StandUp_Mode` | `0x11011` | 跪姿起立 |
+| `StandElbowMinus04` | `0x11012` | RL 站立内双肘 −0.4 rad |
+| `StandElbowPlus12` | `0x11013` | RL 站立内双肘 +1.2 rad |
 | `ZeroPos` | `0x20001` | 回零位 |
 | `ZeroCalibration` | `0x20004` | 打限位校准零位 |
 | `SuspendedStand` | `0x20006` | 悬架站立完成 |
 | `HumanWALK`（步态） | `0x21000` | 走路 |
 | `Action` 范围 | `0x3000 ~ 0x3004` | 动作指令 |
 
-> DDS 接口内置**证书权限过滤**：当前只接受 `WaitingForStand / JointDamping / RLControlMode / Run / Restand / Stand2SitMimic / Sit2StandMimic / DunXia / ZhanLi / ZeroPos / ZeroCalibration / SuspendedStand` 这些状态，以及 `HumanWALK` 步态；动作指令仍受原有权限限制。`/STEER`、`/REAL_STEER` 速度指令在 RL 的 `HumanWALK` 步态、Run 和 Restand 中生效。RLControlMode 默认加载 `/opt/robot/share/motion_master/policy/amp/std_amp_2.onnx`。
+> DDS 接口内置**证书权限过滤**：当前接受 `WaitingForStand / JointDamping / AmpControl_NiRenWalk_Mode / AmpControl_GunShootWalk_Mode / AmpControl_Walk2Run_Mode / RLControl_Stand_Mode` 及全部已注册 Mimic 动作。NiRenWalk 默认加载 `/opt/robot/share/motion_master/policy/amp/nirenxingzou_fuzai/policy_15500.onnx`。
 
 ### 9.3 DDS 话题清单
 
@@ -635,7 +645,7 @@ graph TD
 
 1. 机器人开机，motion_master 进入 **Idle**；
 2. 发布 `/MOTION_STATE` = `0x20006`（SuspendedStand）→ 起立；
-3. 起立完成后发布 `/MOTION_STATE` = `0x11`（RLControlMode）→ 进入 RL；
+3. 起立完成后发布 `/MOTION_STATE` = `0x11`（AmpControl_NiRenWalk_Mode）→ 进入 RL；
 4. 在 RL 状态下发布 `/GAIT` = `0x21000`（HumanWALK），再通过 `/STEER`（或 `/REAL_STEER`）下发 x/y/yaw 速度；
 5. 需要急停时发布 `/MOTION_STATE` = `0x2`（JointDamping）或触发硬急停。
 

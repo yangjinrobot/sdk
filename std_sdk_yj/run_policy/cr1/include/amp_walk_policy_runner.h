@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-// Dedicated runner for the AMP walk policy used by RLControlMode. Its defaults come from the
+// Dedicated runner for the AMP walk policy used by AmpControl_GunShootWalk_Mode. Its defaults come from the
 // training articulation configuration and are intentionally independent from
 // the legacy std_amp_2 ChiqiangWalk configuration.
 class AmpWalkPolicyRunner final : public PolicyRunnerBase {

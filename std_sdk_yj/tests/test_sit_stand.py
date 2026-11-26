@@ -121,9 +121,14 @@ def main():
             manifest = json.loads((assets / "motion.json").read_text())
             payload = embedded_reference(assets / manifest["policy_file"], manifest)
             binary = temp / kind
-            flags = ["-DTEST_SIT2STAND_MIMIC"] if kind == "sit2stand" else []
-            compile_test(binary, ["tests/test_sit_stand_policy.cpp",
-                                  runner_dir / f"{kind}_mimic_policy_runner.cpp"], flags)
+            flags = ["-DTEST_MIMIC_CONTROL_CHAIR_UP_MODE"] if kind == "sit2stand" else []
+            runner = (
+                "mimic_control_chair_up_mode_policy_runner.cpp"
+                if kind == "sit2stand"
+                else "mimic_control_chair_down_mode_policy_runner.cpp"
+            )
+            compile_test(binary, ["tests/test_mimic_control_chair_policy.cpp",
+                                  runner_dir / runner], flags)
             subprocess.run([str(binary), str(assets)], input=json.dumps(payload), text=True, check=True)
             mismatched = temp / (kind + "_mismatch")
             mismatched.mkdir()
@@ -135,9 +140,9 @@ def main():
             assert rejected.returncode != 0 and "model/training mismatch" in rejected.stderr
             print("PASS: mismatched training manifest rejected", flush=True)
         binary = temp / "states"
-        compile_test(binary, ["tests/test_sit_stand_states.cpp",
-                             runner_dir / "stand2sit_mimic_policy_runner.cpp",
-                             runner_dir / "sit2stand_mimic_policy_runner.cpp",
+        compile_test(binary, ["tests/test_mimic_control_chair_states.cpp",
+                             runner_dir / "mimic_control_chair_down_mode_policy_runner.cpp",
+                             runner_dir / "mimic_control_chair_up_mode_policy_runner.cpp",
                              "state_machine/parameters/cr1_standard_control_parameters.cpp",
                              "state_machine/parameters/cr1_pro_control_parameters.cpp"],
                      ["-I" + str(ROOT / "tests/mimic_stubs"), "-DMOTION_MASTER_MUJOCO_LOCKSTEP"])

@@ -1,8 +1,8 @@
-# NirenWalk 使用 amp_dt（2026-10-21）
+# AmpControl_Walk2Run_Mode 使用 amp_dt（2026-10-21）
 
 > 2026-10-22：已恢复本页描述的有步态 amp_dt 模型，取消 2 秒速度等待的修改继续保留。
 
-现有 `NirenWalk` 状态（键盘 V / DDS 0x1100C）加载：
+现有 `AmpControl_Walk2Run_Mode` 状态（键盘 V / DDS 0x1100D）加载：
 
 `/opt/robot/share/motion_master/policy/amp_dt/amp_dt.onnx`
 
@@ -11,7 +11,7 @@
 
 ## 部署参数
 
-`RunPolicyRunner` 的常量取自配套 `amp_dt.yaml`；程序不在运行时解析训练 YAML。
+`AmpControlWalk2RunModePolicyRunner` 的常量取自配套 `amp_dt.yaml`；程序不在运行时解析训练 YAML。
 修改 YAML 后需同步 C++ 参数并重新运行离线校验、编译。测试会核对默认角、PD、缩放、步态和速度范围。
 
 - 21 动作、78 维单帧观测，5 帧历史加当前帧，共 468 维；首次有效观测重复填满历史。

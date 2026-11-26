@@ -17,10 +17,10 @@
 
 class CRXModelInference : public ModelInferenceBase {
 public:
-    // Legacy base-state default. CR1 Standard overrides RLControlMode with
-    // ChiqiangWalkPolicyRunner + std_amp_2.onnx.
+    // Legacy base-state default. CR1 Standard uses dedicated policy runners for
+    // AmpControl_NiRenWalk_Mode and AmpControl_GunShootWalk_Mode.
     static constexpr const char* kPolicyOnnxPath =
-        "/opt/robot/share/motion_master/policy/amp/1118/nirenwalk.onnx";
+        "/opt/robot/share/motion_master/policy/amp/nirenxingzou_fuzai/policy_15500.onnx";
 
     std::shared_ptr<PolicyRunnerBase> inner_ptr_;
 

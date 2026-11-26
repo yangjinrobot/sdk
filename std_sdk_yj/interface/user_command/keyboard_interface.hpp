@@ -54,10 +54,11 @@ class KeyboardInterface : public UserCommandInterface {
               << "  Movement:  W/S (forward/back)  A/D (left/right), 0.1 per press\n"
               << "             Q (CCW)  E (CW), speed is retained until changed\n"
               << "  Modes:     Z (zeropos)  X (suspended stand)\n"
-              << "             C (RL control)  V (run)  R (joint damping)\n"
+              << "             C (NiRenWalk RL)  V (Walk2Run)  R (joint damping)\n"
               << "  Entry:     idle/calibration -> Z (zeropos) or X (suspended stand)\n"
               << "  Transitions: zeropos/suspended stand -> C; RL -> V; run -> C\n"
-              << "  Squat: G (DunXia) from RL/run/Stand; H (ZhanLi) only after squat\n"
+              << "  Kneel: G (MimicControl_Kneel_Mode) from AmpControl_Walk2Run_Mode/"
+                 "RLControl_Stand_Mode; H (MimicControl_Kneel_StandUp_Mode) only after kneel\n"
               << "  Sit/stand:  RL/run -> T (sit); seated -> Y (stand)\n"
               << "             after standing: C (RL) / V (run); Z or R exits\n"
               << "  Velocity:  W/S/A/D/Q/E work in RL and run\n"
@@ -120,36 +121,38 @@ class KeyboardInterface : public UserCommandInterface {
         usr_cmd_->time_stamp = current_time_ms;
 
         if (robot_name_ == RobotName::CR1STANDARD) {
-          if ((current_state == RobotMotionState::RLControlMode ||
-               current_state == RobotMotionState::Run ||
-               current_state == RobotMotionState::Sit2StandMimic) && key == 't')
-            usr_cmd_->target_mode = RobotMotionState::Stand2SitMimic;
-          if (current_state == RobotMotionState::Stand2SitMimic && key == 'y')
-            usr_cmd_->target_mode = RobotMotionState::Sit2StandMimic;
-          if (current_state == RobotMotionState::Sit2StandMimic && key == 'c')
-            usr_cmd_->target_mode = RobotMotionState::RLControlMode;
-          if (current_state == RobotMotionState::Sit2StandMimic && key == 'v')
-            usr_cmd_->target_mode = RobotMotionState::Run;
-          if ((current_state == RobotMotionState::Stand2SitMimic ||
-               current_state == RobotMotionState::Sit2StandMimic) && key == 'z')
+          if ((current_state == RobotMotionState::AmpControl_NiRenWalk_Mode ||
+               current_state == RobotMotionState::AmpControl_GunShootWalk_Mode ||
+               current_state == RobotMotionState::AmpControl_Walk2Run_Mode ||
+               current_state == RobotMotionState::MimicControl_ChairUp_Mode) && key == 't')
+            usr_cmd_->target_mode = RobotMotionState::MimicControl_ChairDown_Mode;
+          if (current_state == RobotMotionState::MimicControl_ChairDown_Mode && key == 'y')
+            usr_cmd_->target_mode = RobotMotionState::MimicControl_ChairUp_Mode;
+          if (current_state == RobotMotionState::MimicControl_ChairUp_Mode && key == 'c')
+            usr_cmd_->target_mode = RobotMotionState::AmpControl_NiRenWalk_Mode;
+          if (current_state == RobotMotionState::MimicControl_ChairUp_Mode && key == 'v')
+            usr_cmd_->target_mode = RobotMotionState::AmpControl_Walk2Run_Mode;
+          if ((current_state == RobotMotionState::MimicControl_ChairDown_Mode ||
+               current_state == RobotMotionState::MimicControl_ChairUp_Mode) && key == 'z')
             usr_cmd_->target_mode = RobotMotionState::ZeroPos;
         }
 
         if (robot_name_ == RobotName::CR1STANDARD) {
-          if (key == 'g' && (current_state == RobotMotionState::RLControlMode ||
-                            current_state == RobotMotionState::Run ||
-                            current_state == RobotMotionState::Restand ||
-                            current_state == RobotMotionState::ZhanLi))
-            usr_cmd_->target_mode = RobotMotionState::DunXia;
-          if (key == 'h' && current_state == RobotMotionState::DunXia)
-            usr_cmd_->target_mode = RobotMotionState::ZhanLi;
-          if (current_state == RobotMotionState::ZhanLi) {
-            if (key == 'c') usr_cmd_->target_mode = RobotMotionState::RLControlMode;
-            if (key == 'v') usr_cmd_->target_mode = RobotMotionState::Run;
-            if (key == 't') usr_cmd_->target_mode = RobotMotionState::Stand2SitMimic;
+          if (key == 'g' && (current_state == RobotMotionState::AmpControl_NiRenWalk_Mode ||
+                            current_state == RobotMotionState::AmpControl_GunShootWalk_Mode ||
+                            current_state == RobotMotionState::AmpControl_Walk2Run_Mode ||
+                            current_state == RobotMotionState::RLControl_Stand_Mode ||
+                            current_state == RobotMotionState::MimicControl_Kneel_StandUp_Mode))
+            usr_cmd_->target_mode = RobotMotionState::MimicControl_Kneel_Mode;
+          if (key == 'h' && current_state == RobotMotionState::MimicControl_Kneel_Mode)
+            usr_cmd_->target_mode = RobotMotionState::MimicControl_Kneel_StandUp_Mode;
+          if (current_state == RobotMotionState::MimicControl_Kneel_StandUp_Mode) {
+            if (key == 'c') usr_cmd_->target_mode = RobotMotionState::AmpControl_NiRenWalk_Mode;
+            if (key == 'v') usr_cmd_->target_mode = RobotMotionState::AmpControl_Walk2Run_Mode;
+            if (key == 't') usr_cmd_->target_mode = RobotMotionState::MimicControl_ChairDown_Mode;
           }
-          if (key == 'z' && (current_state == RobotMotionState::DunXia ||
-                            current_state == RobotMotionState::ZhanLi))
+          if (key == 'z' && (current_state == RobotMotionState::MimicControl_Kneel_Mode ||
+                            current_state == RobotMotionState::MimicControl_Kneel_StandUp_Mode))
             usr_cmd_->target_mode = RobotMotionState::ZeroPos;
         }
 
@@ -157,16 +160,18 @@ class KeyboardInterface : public UserCommandInterface {
           usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::JointDamping);
         }
 
-        if (current_state == RobotMotionState::RLControlMode && key == 'z') {
+        if ((current_state == RobotMotionState::AmpControl_NiRenWalk_Mode ||
+             current_state == RobotMotionState::AmpControl_GunShootWalk_Mode) && key == 'z') {
           usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::ZeroPos);
         }
-        if (current_state == RobotMotionState::RLControlMode && key == 'v') {
-          usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::Run);
+        if ((current_state == RobotMotionState::AmpControl_NiRenWalk_Mode ||
+             current_state == RobotMotionState::AmpControl_GunShootWalk_Mode) && key == 'v') {
+          usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::AmpControl_Walk2Run_Mode);
         }
-        if (current_state == RobotMotionState::Run && key == 'c') {
-          usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::RLControlMode);
+        if (current_state == RobotMotionState::AmpControl_Walk2Run_Mode && key == 'c') {
+          usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::AmpControl_NiRenWalk_Mode);
         }
-        if (current_state == RobotMotionState::Run && key == 'z') {
+        if (current_state == RobotMotionState::AmpControl_Walk2Run_Mode && key == 'z') {
           usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::ZeroPos);
         }
 
@@ -188,12 +193,12 @@ class KeyboardInterface : public UserCommandInterface {
               usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::SuspendedStand);
             }
             if (key == 'c') {
-              usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::RLControlMode);
+              usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::AmpControl_NiRenWalk_Mode);
             }
             break;
           case RobotMotionState::ZeroPos:
             if (key == 'c') {
-              usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::RLControlMode);
+              usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::AmpControl_NiRenWalk_Mode);
             }
             if (key == 'z') {
               usr_cmd_->target_mode = static_cast<uint32_t>(RobotMotionState::ZeroPos);
@@ -203,8 +208,9 @@ class KeyboardInterface : public UserCommandInterface {
             break;
         }
 
-        const bool velocity_control_state = current_state == RobotMotionState::RLControlMode ||
-                                            current_state == RobotMotionState::Run;
+        const bool velocity_control_state = current_state == RobotMotionState::AmpControl_NiRenWalk_Mode ||
+                                            current_state == RobotMotionState::AmpControl_GunShootWalk_Mode ||
+                                            current_state == RobotMotionState::AmpControl_Walk2Run_Mode;
         if (velocity_control_state &&
             (key == 'w' || key == 's' || key == 'a' || key == 'd' || key == 'q' || key == 'e')) {
           const double last_ms = key_last_trigger_ms.count(key) ? key_last_trigger_ms[key] : -1e9;
@@ -220,8 +226,9 @@ class KeyboardInterface : public UserCommandInterface {
         }
       }
 
-      if (current_state == RobotMotionState::RLControlMode ||
-          current_state == RobotMotionState::Run) {
+      if (current_state == RobotMotionState::AmpControl_NiRenWalk_Mode ||
+          current_state == RobotMotionState::AmpControl_GunShootWalk_Mode ||
+          current_state == RobotMotionState::AmpControl_Walk2Run_Mode) {
         ClipNumber(usr_cmd_->forward_vel_scale, -1.0f, 1.0f);
         ClipNumber(usr_cmd_->side_vel_scale, -1.0f, 1.0f);
         ClipNumber(usr_cmd_->turnning_vel_scale, -1.0f, 1.0f);

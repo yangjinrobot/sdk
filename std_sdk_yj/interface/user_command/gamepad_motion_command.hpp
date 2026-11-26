@@ -10,18 +10,20 @@ inline uint32_t GamepadMotionTarget(types::RobotName robot, uint32_t state,
     using namespace types;
     if (emergency) return RobotMotionState::JointDamping;
     if (robot != RobotName::CR1STANDARD) return pending;
-    if ((state == RobotMotionState::RLControlMode ||
-         state == RobotMotionState::Run) && sit)
-        return RobotMotionState::Stand2Sit;
-    if (state == RobotMotionState::DunXia && stand)
-        return RobotMotionState::ZhanLi;
-    if (state == RobotMotionState::Stand2Sit && stand)
-        return RobotMotionState::Sit2Stand;
-    if (state == RobotMotionState::ZhanLi || state == RobotMotionState::Restand ||
-        state == RobotMotionState::Sit2Stand || state == RobotMotionState::RLControlMode ||
-        state == RobotMotionState::Run) {
-        if (rl) return RobotMotionState::RLControlMode;
-        if (niren) return RobotMotionState::Run;
+    if ((state == RobotMotionState::AmpControl_NiRenWalk_Mode ||
+         state == RobotMotionState::AmpControl_GunShootWalk_Mode ||
+         state == RobotMotionState::AmpControl_Walk2Run_Mode) && sit)
+        return RobotMotionState::MimicControl_ChairDown_Mode;
+    if (state == RobotMotionState::MimicControl_Kneel_Mode && stand)
+        return RobotMotionState::MimicControl_Kneel_StandUp_Mode;
+    if (state == RobotMotionState::MimicControl_ChairDown_Mode && stand)
+        return RobotMotionState::MimicControl_ChairUp_Mode;
+    if (state == RobotMotionState::MimicControl_Kneel_StandUp_Mode || state == RobotMotionState::RLControl_Stand_Mode ||
+        state == RobotMotionState::MimicControl_ChairUp_Mode || state == RobotMotionState::AmpControl_GunShootWalk_Mode ||
+        state == RobotMotionState::AmpControl_NiRenWalk_Mode ||
+        state == RobotMotionState::AmpControl_Walk2Run_Mode) {
+        if (rl) return RobotMotionState::AmpControl_NiRenWalk_Mode;
+        if (niren) return RobotMotionState::AmpControl_Walk2Run_Mode;
     }
     return pending;
 }

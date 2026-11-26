@@ -122,8 +122,8 @@ public:
 
     StateName GetNextStateName() override {
         if (LoseControlJudge()) return StateName::kJointDamping;
-        return ready_ && uc_ptr_->GetUserCommand()->target_mode == RobotMotionState::Sit2StandMimic
-            ? StateName::kSit2StandMimic : StateName::kSquatPreparation;
+        return ready_ && uc_ptr_->GetUserCommand()->target_mode == RobotMotionState::MimicControl_ChairUp_Mode
+            ? StateName::kMimicControlChairUpMode : StateName::kSquatPreparation;
     }
 
 private:

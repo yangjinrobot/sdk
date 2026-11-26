@@ -1,11 +1,13 @@
 {
-  "policy_file": "qili.onnx",
+  "policy_file": "shoot_up.onnx",
+  "motion_file": "shoot_up_dual_gun_groundfix_kneel.npz",
   "num_frames": 350,
   "fps": 50.0,
   "num_joints": 21,
-  "model_sha256": "86d1eadd93cdc08cf0820bda7f3381c466639f5cb0e3899190c35baef257f197",
-  "training_file": "qili.yaml",
-  "training_sha256": "1ff8bd0def547ddfe23678ca5f9af1945535f0fbe485b437c522ae78b661d9d7",
+  "model_sha256": "0195ed127c05c05de194876d7ff44d92fac703f24e8aa94155fea18cf9530cb6",
+  "motion_sha256": "cb4a111b3fae3fd1dc74ec93a6248f79dd5d5620a842053d1476b4441b5bf5a3",
+  "training_file": "zhanli_1125.yaml",
+  "training_sha256": "81a21ce6b7dabfcd7ba08268e7630ccd9edb5518d53e4c8945220fe7434178aa",
   "training": {
     "joint_names": [
       "waist_yaw_joint",

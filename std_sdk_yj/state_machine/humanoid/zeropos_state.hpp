@@ -127,10 +127,12 @@ public:
             std::cout << "safe_control_mode:" <<std::dec<< uc_ptr_->GetUserCommand()->safe_control_mode << std::endl;
             return StateName::kJointDamping;
         }
-        if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::RLControlMode)) return StateName::kRLControl;
+        if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::AmpControl_NiRenWalk_Mode))
+            return StateName::kAmpControlNiRenWalkMode;
+        if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::AmpControl_GunShootWalk_Mode)) return StateName::kAmpControlGunShootWalkMode;
         if(robot_name_ == RobotName::CR1STANDARD &&
            uc_ptr_->GetUserCommand()->safe_control_mode == 0 &&
-           uc_ptr_->GetUserCommand()->target_mode == RobotMotionState::Restand) return StateName::kRestand;
+           uc_ptr_->GetUserCommand()->target_mode == RobotMotionState::RLControl_Stand_Mode) return StateName::kRLControlStandMode;
         if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::SuspendedStand)) return StateName::kSuspendedStand;
         return StateName::kZeroPos;
     }

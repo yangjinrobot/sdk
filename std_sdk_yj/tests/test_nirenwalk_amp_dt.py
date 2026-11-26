@@ -43,7 +43,7 @@ def main():
     library=ROOT/'third_party/onnxruntime/x86/lib'
     def compile_test(source, runner, binary):
         sources = [ROOT / source, ROOT / 'run_policy/cr1/src' / f'{runner}_policy_runner.cpp']
-        if runner == 'chiqiangwalk':
+        if runner == 'amp_control_gun_shoot_walk_mode':
             sources.append(ROOT / 'run_policy/cr1/src/common_policy_runner.cpp')
         subprocess.run(['g++','-O2','-std=c++17','-DEIGEN_DONT_ALIGN_STATICALLY',
                         *map(str, sources),
@@ -52,7 +52,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix='amp_dt_offline_') as temp:
         temp=Path(temp)
         binary=temp/'nirenwalk'; trace=temp/'trace.txt'
-        compile_test('tests/test_nirenwalk_policy.cpp', 'run', binary)
+        compile_test('tests/test_amp_control_walk2run_mode_policy.cpp', 'amp_control_walk2run_mode', binary)
         subprocess.run([str(binary),str(ASSETS/'amp_dt.onnx'),str(trace)],check=True)
         rows={};samples=[]
         for line in trace.read_text().splitlines():
@@ -94,7 +94,8 @@ def main():
                 current=np.zeros(78,np.float32)
                 current[5]=-1
                 cmd=min(np.float32(1.), cmd+np.float32(.02))
-                current[6]=cmd*np.float32(1.5)
+                forward=np.float32(cmd*np.float32(1.5))
+                current[6]=forward if abs(forward)>=np.float32(.1) else np.float32(0)
                 # Mirror measured float32 sensor precision, not a precomputed pose.
                 q=defaults+np.float32(.001)*np.float32(episode+step%5)
                 current[9:30]=q-defaults
@@ -114,7 +115,9 @@ def main():
                 np.testing.assert_allclose(actual_action,expected_action,atol=1e-4,rtol=1e-5)
                 previous=expected_action
         # Shared-runner changes must preserve the existing ordinary RL policy.
-        binary=temp/'chiqiangwalk';compile_test('tests/test_chiqiangwalk_policy.cpp', 'chiqiangwalk', binary)
+        binary=temp/'chiqiangwalk';compile_test(
+            'tests/test_amp_control_gun_shoot_walk_legacy_policy.cpp',
+            'amp_control_gun_shoot_walk_mode', binary)
         subprocess.run([str(binary), str(POLICY_ARCHIVE / 'std_amp.onnx')], check=True)
         report=dict(status='PASS',model_sha256=hashlib.sha256((ASSETS/'amp_dt.onnx').read_bytes()).hexdigest(),
                     yaml_sha256=hashlib.sha256((ASSETS/'amp_dt.yaml').read_bytes()).hexdigest(),

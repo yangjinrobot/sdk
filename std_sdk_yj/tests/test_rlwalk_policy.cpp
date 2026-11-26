@@ -1,4 +1,4 @@
-// Regression: RLControlMode 1118 deployment defaults.
+// Regression: AmpControl_GunShootWalk_Mode 1118 deployment defaults.
 #include "amp_walk_policy_runner.h"
 #include <cassert>
 

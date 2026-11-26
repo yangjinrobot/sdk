@@ -78,14 +78,17 @@ public:
         }
     }
 
-    // RL、Run 和 restand 响应 /REAL_STEER、/STEER。
+    // NiRenWalk、GunShootWalk、Walk2Run 和 RL Stand 响应 /REAL_STEER、/STEER。
     bool IsVelocityControlActive() const {
         const uint32_t state = msfb_->GetCurrentState();
-        if (state == RobotMotionState::RLControlMode) {
+        if (state == RobotMotionState::AmpControl_NiRenWalk_Mode) {
             return msfb_->GetCurrentGait() == RobotGaitType::HumanWALK;
         }
-        if (state == RobotMotionState::Run || state == RobotMotionState::MjRun) return true;
-        if (state == RobotMotionState::Restand) return true;
+        if (state == RobotMotionState::AmpControl_GunShootWalk_Mode) {
+            return msfb_->GetCurrentGait() == RobotGaitType::HumanWALK;
+        }
+        if (state == RobotMotionState::AmpControl_Walk2Run_Mode || state == RobotMotionState::MjlabControl_Walk2Run_Mode) return true;
+        if (state == RobotMotionState::RLControl_Stand_Mode) return true;
         return false;
     }
 
@@ -138,16 +141,17 @@ public:
             switch (state) {
                 case RobotMotionState::WaitingForStand:      // 0x0
                 case RobotMotionState::JointDamping:         // 0x2
-                case RobotMotionState::RLControlMode:        // 0x11
-                case RobotMotionState::Run:                  // 0x1100C
-                case RobotMotionState::MjRun:
-                case RobotMotionState::Restand:              // 0x1100B
-                case RobotMotionState::Stand2SitMimic:       // 0x1100D
-                case RobotMotionState::Sit2StandMimic:       // 0x1100E
-                case RobotMotionState::DunXia:               // 0x1100F
-                case RobotMotionState::ZhanLi:               // 0x11010
-                case RobotMotionCommand::StandElbowMinus04: // motion 7
-                case RobotMotionCommand::StandElbowPlus12:  // motion 8
+                case RobotMotionState::AmpControl_NiRenWalk_Mode:       // 0x11
+                case RobotMotionState::AmpControl_GunShootWalk_Mode:    // 0x1100B
+                case RobotMotionState::RLControl_Stand_Mode:            // 0x1100C
+                case RobotMotionState::AmpControl_Walk2Run_Mode:        // 0x1100D
+                case RobotMotionState::MjlabControl_Walk2Run_Mode:
+                case RobotMotionState::MimicControl_ChairDown_Mode:     // 0x1100E
+                case RobotMotionState::MimicControl_ChairUp_Mode:       // 0x1100F
+                case RobotMotionState::MimicControl_Kneel_Mode:         // 0x11010
+                case RobotMotionState::MimicControl_Kneel_StandUp_Mode: // 0x11011
+                case RobotMotionCommand::StandElbowMinus04:             // motion 8
+                case RobotMotionCommand::StandElbowPlus12:              // motion 9
                 case RobotMotionState::ZeroPos:              // 0x20001
                 case RobotMotionState::ZeroCalibration:      // 0x20004
                 case RobotMotionState::SuspendedStand:       // 0x20006
@@ -211,44 +215,46 @@ public:
     void HandlerState(const drdds::msg::MotionState* data) {
         uint32_t state = NormalizeMotionStateCommand(data->data().state());
         std::cout << "[DDS] /MOTION_STATE received: 0x" << std::hex << state << std::dec << std::endl;
-        if (IsDisabledRunMotionState(state)) {
-            logger_DDS_cmd.warn("State 0x%x rejected: Run/Run2/Run3/Run4 disabled", state);
-            std::cout << "[DDS] motion state rejected: Run/Run2/Run3/Run4 disabled" << std::endl;
-            return;
-        }
         if (!IsStateAllowedByCert(state)) {
             logger_DDS_cmd.warn("State 0x%x rejected by cert", state);
             std::cout << "[DDS] motion state rejected by cert: 0x" << std::hex << state << std::dec << std::endl;
             return;
         }
 
-        if (state == RobotMotionState::SquatPreparation || state == RobotMotionState::Sit2StandMimic) {
+        if (state == RobotMotionState::SquatPreparation || state == RobotMotionState::MimicControl_ChairUp_Mode) {
             const uint32_t status = msfb_->GetHandsetStatus();
             if (state == RobotMotionState::SquatPreparation &&
                 ((status & ~MotionStateFeedback::kHandsetReadyFlag) != RobotMotionState::WaitingForStand ||
-                 usr_cmd_->safe_control_mode != 0)) return;
-            // Discard a handset confirmation received before the measured squat is ready.
-            if (state == RobotMotionState::Sit2StandMimic && status == RobotMotionState::SquatPreparation)
+                 usr_cmd_->safe_control_mode != 0)) {
+                logger_DDS_cmd.warn("SquatPreparation rejected: status=0x%x safe=%u",
+                                    status, usr_cmd_->safe_control_mode);
                 return;
+            }
+            // Discard a handset confirmation received before the measured squat is ready.
+            if (state == RobotMotionState::MimicControl_ChairUp_Mode &&
+                status == RobotMotionState::SquatPreparation) {
+                logger_DDS_cmd.warn("ChairUp rejected: squat preparation is not ready");
+                return;
+            }
         }
         if (IsStandElbowCommand(state) &&
             !CanAcceptStandElbowCommand(msfb_->GetCurrentState(), usr_cmd_->target_mode,
                                        usr_cmd_->safe_control_mode)) return;
         const auto current = msfb_->GetCurrentState();
-        if (state == RobotMotionState::MjRun && !CanRequestMjRun(current, *usr_cmd_)) {
-            logger_DDS_cmd.warn("MjRun rejected: current=0x%x target=0x%x safe=%u",
+        if (state == RobotMotionState::MjlabControl_Walk2Run_Mode && !CanRequestMjlabControlWalk2Run(current, *usr_cmd_)) {
+            logger_DDS_cmd.warn("MjlabControl_Walk2Run_Mode rejected: current=0x%x target=0x%x safe=%u",
                                 current, usr_cmd_->target_mode, usr_cmd_->safe_control_mode);
             std::cout << "[DDS] mjrun rejected: current=0x" << std::hex << current
                       << " target=0x" << usr_cmd_->target_mode << std::dec
                       << " safe=" << usr_cmd_->safe_control_mode << std::endl;
             return;
         }
-        if (current == RobotMotionState::MjRun && state != RobotMotionState::JointDamping &&
-            (!IsMjRunExitMotionState(state) || usr_cmd_->safe_control_mode != 0 ||
+        if (current == RobotMotionState::MjlabControl_Walk2Run_Mode && state != RobotMotionState::JointDamping &&
+            (!IsMjlabControlWalk2RunExitMotionState(state) || usr_cmd_->safe_control_mode != 0 ||
              usr_cmd_->target_mode == RobotMotionState::JointDamping)) return;
         usr_cmd_->target_mode = state;
-        if (state == RobotMotionState::MjRun) {
-            logger_DDS_cmd.info("MjRun request accepted from 0x%x", current);
+        if (state == RobotMotionState::MjlabControl_Walk2Run_Mode) {
+            logger_DDS_cmd.info("MjlabControl_Walk2Run_Mode request accepted from 0x%x", current);
         }
         std::cout << "target_mode: " << int(usr_cmd_->target_mode) << std::endl;
         logger_DDS_cmd.info("target_mode: %u", usr_cmd_->target_mode);

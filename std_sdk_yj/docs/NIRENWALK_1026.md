@@ -1,10 +1,11 @@
-# NirenWalk 1026 run
+# AmpControl_Walk2Run_Mode 1026 run
 
-NirenWalk 默认加载 `/opt/robot/share/motion_master/policy/1026/run_2.onnx`，
+AmpControl_Walk2Run_Mode 默认加载 `/opt/robot/share/motion_master/policy/1026/run_2.onnx`，
 控制参数沿用同目录 `16500.yaml` 对应的现有设置；未提供 run_2 专属 YAML。
 `run_2.onnx` 的输入输出为 float 438 → 21，现有递归打包规则会一并安装。
-入口保持键盘 V / DDS `0x1100C`。RLControlMode（键盘 C / DDS `0x11`）
-已恢复使用 `std_amp_2.onnx` 有步态模型（78×6＝468 维）。
+入口保持键盘 V / DDS `0x1100D`。AmpControl_NiRenWalk_Mode（键盘 C / DDS `0x11`）
+使用 `nirenxingzou_fuzai/policy_15500.onnx`（78×6＝468 维）；AmpControl_GunShootWalk_Mode
+使用 `std_amp_2.onnx`，DDS `0x1100B`。
 同目录 `model_15500.onnx` 和 `15500.yaml` 保留，不再默认加载；
 离线验证仍可使用 `python -B tests/test_1026_policy.py --mode walk`。
 
@@ -22,4 +23,4 @@ NirenWalk 默认加载 `/opt/robot/share/motion_master/policy/1026/run_2.onnx`�
 离线验证：使用安装 numpy、PyYAML、onnxruntime 的 Python 执行
 `python -B tests/test_1026_policy.py`。检查 YAML 默认角/PD/速度/缩放、280 帧独立
 Python 观测与 C++ ONNX 动作对齐、历史重入、关节映射、moving_flag 边界，
-以及真实 NirenWalk 状态入场、手臂过渡和无效指令保护。离线验证不执行机器人动作。
+以及真实 AmpControl_Walk2Run_Mode 状态入场、手臂过渡和无效指令保护。离线验证不执行机器人动作。

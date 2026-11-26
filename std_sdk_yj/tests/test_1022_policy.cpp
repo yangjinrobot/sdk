@@ -1,6 +1,6 @@
 // Offline real-model observation, history, re-entry and joint mapping checks.
-#include "chiqiangwalk_policy_runner.h"
-#include "run_policy_runner.h"
+#include "amp_control_gun_shoot_walk_mode_policy_runner.h"
+#include "amp_control_walk2run_mode_policy_runner.h"
 #include <cassert>
 #include <deque>
 #include <fstream>
@@ -92,46 +92,46 @@ int main(int argc, char** argv) {
     assert(argc == 4);
     const std::string mode = argv[1];
     if (mode == "gun" || mode == "1026_walk") {
-        ChiqiangWalkPolicyRunner policy(mode == "gun" ? "1022_gun" : "1026_walk",
+        AmpControlGunShootWalkModePolicyRunner policy(mode == "gun" ? "1022_gun" : "1026_walk",
                                        RobotName::CR1STANDARD, argv[2],
                                        PolicyObservationConfig{mode == "gun" ? 72 : 73, 5, true});
         CheckPolicy(policy, mode, argv[3]);
         return 0;
     }
-    std::unique_ptr<RunPolicyRunner> policy;
+    std::unique_ptr<AmpControlWalk2RunModePolicyRunner> policy;
     if (mode == "1101")
-        policy = std::make_unique<RunPolicyRunner>(
-            "1101_run", RobotName::CR1STANDARD, argv[2], RunPolicyRunner::Variant::Run1101);
+        policy = std::make_unique<AmpControlWalk2RunModePolicyRunner>(
+            "1101_run", RobotName::CR1STANDARD, argv[2], AmpControlWalk2RunModePolicyRunner::Variant::Run1101);
     else if (mode == "1102")
-        policy = std::make_unique<RunPolicyRunner>(
-            "1102_run", RobotName::CR1STANDARD, argv[2], RunPolicyRunner::Variant::Run1102);
+        policy = std::make_unique<AmpControlWalk2RunModePolicyRunner>(
+            "1102_run", RobotName::CR1STANDARD, argv[2], AmpControlWalk2RunModePolicyRunner::Variant::Run1102);
     else if (mode == "1103")
-        policy = std::make_unique<RunPolicyRunner>(
-            "1103_run", RobotName::CR1STANDARD, argv[2], RunPolicyRunner::Variant::Run1103);
+        policy = std::make_unique<AmpControlWalk2RunModePolicyRunner>(
+            "1103_run", RobotName::CR1STANDARD, argv[2], AmpControlWalk2RunModePolicyRunner::Variant::Run1103);
     else if (mode == "1103_2")
-        policy = std::make_unique<RunPolicyRunner>(
-            "1103_2_run", RobotName::CR1STANDARD, argv[2], RunPolicyRunner::Variant::Run1103_2);
+        policy = std::make_unique<AmpControlWalk2RunModePolicyRunner>(
+            "1103_2_run", RobotName::CR1STANDARD, argv[2], AmpControlWalk2RunModePolicyRunner::Variant::Run1103_2);
     else if (mode == "1106")
-        policy = std::make_unique<RunPolicyRunner>(
-            "1106_run", RobotName::CR1STANDARD, argv[2], RunPolicyRunner::Variant::Run1106);
+        policy = std::make_unique<AmpControlWalk2RunModePolicyRunner>(
+            "1106_run", RobotName::CR1STANDARD, argv[2], AmpControlWalk2RunModePolicyRunner::Variant::Run1106);
     else if (mode == "1111")
-        policy = std::make_unique<RunPolicyRunner>(
-            "1111_run", RobotName::CR1STANDARD, argv[2], RunPolicyRunner::Variant::Run1111);
+        policy = std::make_unique<AmpControlWalk2RunModePolicyRunner>(
+            "1111_run", RobotName::CR1STANDARD, argv[2], AmpControlWalk2RunModePolicyRunner::Variant::Run1111);
     else if (mode == "1112")
-        policy = std::make_unique<RunPolicyRunner>(
-            "1112_run", RobotName::CR1STANDARD, argv[2], RunPolicyRunner::Variant::Run1112);
+        policy = std::make_unique<AmpControlWalk2RunModePolicyRunner>(
+            "1112_run", RobotName::CR1STANDARD, argv[2], AmpControlWalk2RunModePolicyRunner::Variant::Run1112);
     else if (mode == "1027")
-        policy = std::make_unique<RunPolicyRunner>(
-            "1027_run", RobotName::CR1STANDARD, argv[2], RunPolicyRunner::Variant::Run1027);
+        policy = std::make_unique<AmpControlWalk2RunModePolicyRunner>(
+            "1027_run", RobotName::CR1STANDARD, argv[2], AmpControlWalk2RunModePolicyRunner::Variant::Run1027);
     else if (mode == "1026")
-        policy = std::make_unique<RunPolicyRunner>(
-            "1026_run", RobotName::CR1STANDARD, argv[2], RunPolicyRunner::Variant::Run1026);
+        policy = std::make_unique<AmpControlWalk2RunModePolicyRunner>(
+            "1026_run", RobotName::CR1STANDARD, argv[2], AmpControlWalk2RunModePolicyRunner::Variant::Run1026);
     else if (mode == "1023")
-        policy = std::make_unique<RunPolicyRunner>(
+        policy = std::make_unique<AmpControlWalk2RunModePolicyRunner>(
             "1023_humanoid", RobotName::CR1STANDARD, argv[2],
             PolicyObservationConfig{73, 5, true});
     else
-        policy = std::make_unique<RunPolicyRunner>(
+        policy = std::make_unique<AmpControlWalk2RunModePolicyRunner>(
             "1022_humanoid", RobotName::CR1STANDARD, argv[2],
             PolicyObservationConfig{72, 5, true});
     CheckPolicy(*policy, mode, argv[3]);

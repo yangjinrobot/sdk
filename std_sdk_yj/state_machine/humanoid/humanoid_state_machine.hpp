@@ -13,7 +13,6 @@
 
 #include "humanoid/idle_state.hpp"
 #include "humanoid/joint_damping_state.hpp"
-#include "humanoid/rl_control_state.hpp"
 #include "humanoid/suspended_standup_state.hpp"
 #include "humanoid/zero_calibration_state.hpp"
 #include "humanoid/zeropos_state.hpp"
@@ -44,7 +43,6 @@ private:
     std::shared_ptr<StateBase> zeropos_controller_;
     std::shared_ptr<StateBase> joint_damping_controller_;
     std::shared_ptr<StateBase> suspended_standup_controller_;
-    std::shared_ptr<StateBase> rl_controller_;
     std::shared_ptr<StateBase> zero_calibration_controller_;
 
 public:
@@ -130,7 +128,6 @@ public:
         zeropos_controller_ = std::make_shared<ZeroPosState>(robot_name_, "zeropos_state", data_ptr);
         joint_damping_controller_ = std::make_shared<JointDampingState>(robot_name_, "joint_damping", data_ptr);
         suspended_standup_controller_ = std::make_shared<SuspendedStandUpState>(robot_name_, "suspended_standup", data_ptr);
-        rl_controller_ = CreateRLController(data_ptr);
         CreateAdditionalControllers(data_ptr);
         zero_calibration_controller_ = std::make_shared<ZeroCalibrationState>(robot_name_, "zero_calibration_state", data_ptr);
 
@@ -174,18 +171,16 @@ public:
                 return suspended_standup_controller_;
             case StateName::kJointDamping:
                 return joint_damping_controller_;
-            case StateName::kRLControl:
-                return rl_controller_;
             case StateName::kZeroPos:
                 return zeropos_controller_;
             case StateName::kZeroCalibration:
                 return zero_calibration_controller_;
-            case StateName::kRun:
-            case StateName::kDunXia:
-            case StateName::kZhanLi:
-            case StateName::kRestand:
-            case StateName::kStand2SitMimic:
-            case StateName::kSit2StandMimic:
+            case StateName::kAmpControlWalk2RunMode:
+            case StateName::kMimicControlKneelMode:
+            case StateName::kMimicControlKneelStandUpMode:
+            case StateName::kRLControlStandMode:
+            case StateName::kMimicControlChairDownMode:
+            case StateName::kMimicControlChairUpMode:
                 return joint_damping_controller_;
             default:
                 std::cerr << "error state name" << std::endl;
@@ -194,7 +189,8 @@ public:
     }
 
     bool IsStateTransitionAllowed(StateName next_state_name) const override {
-        return !IsDisabledRunMotionState(static_cast<uint32_t>(next_state_name));
+        (void)next_state_name;
+        return true;
     }
     void Stop() override {
         uc_ptr_->Stop();
@@ -203,11 +199,6 @@ public:
     }
 
 protected:
-    virtual std::shared_ptr<StateBase> CreateRLController(
-        const std::shared_ptr<ControllerData>& data_ptr) {
-        return std::make_shared<RLControlState>(robot_name_, "rl_control", data_ptr);
-    }
-
     virtual void CreateAdditionalControllers(const std::shared_ptr<ControllerData>&) {}
 };
 }  // namespace humanoid

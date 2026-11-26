@@ -74,8 +74,8 @@ def main():
     with tempfile.TemporaryDirectory(prefix='anhui_restand_') as tmp:
         binary = Path(tmp) / 'test_restand'
         subprocess.run(['g++', '-O2', '-std=c++17', '-DEIGEN_DONT_ALIGN_STATICALLY',
-                        str(ROOT / 'tests/test_restand.cpp'),
-                        str(ROOT / 'run_policy/cr1/src/rl_stand_policy_runner.cpp'),
+                        str(ROOT / 'tests/test_rl_control_stand_mode.cpp'),
+                        str(ROOT / 'run_policy/cr1/src/rl_control_stand_mode_policy_runner.cpp'),
                         str(ROOT / 'state_machine/parameters/cr1_standard_control_parameters.cpp'),
                         str(ROOT / 'state_machine/parameters/cr1_pro_control_parameters.cpp'),
                         *['-I' + str(ROOT / p) for p in includes], '-L' + str(library),

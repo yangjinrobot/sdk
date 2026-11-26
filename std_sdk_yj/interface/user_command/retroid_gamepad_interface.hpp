@@ -73,13 +73,15 @@ void RetroidGamepadInterface::TransformRetroidToUserCommand(){
         }
         usr_cmd_->time_stamp = rt_keys_.time_stamp;
         const uint32_t current_state = msfb_->GetCurrentState();
-        const bool walking = current_state == RobotMotionState::RLControlMode ||
-                             current_state == RobotMotionState::Run;
+        const bool walking = current_state == RobotMotionState::AmpControl_NiRenWalk_Mode ||
+                             current_state == RobotMotionState::AmpControl_GunShootWalk_Mode ||
+                             current_state == RobotMotionState::AmpControl_Walk2Run_Mode;
         usr_cmd_->forward_vel_scale = walking ? rt_keys_.left_axis_y : 0.0f;
         usr_cmd_->side_vel_scale = walking ? -rt_keys_.left_axis_x : 0.0f;
         usr_cmd_->turnning_vel_scale = walking ? -rt_keys_.right_axis_x : 0.0f;
-        // X sits, Y rises, A returns to RL, B selects Run (former NirenWalk).
-        // Run, Run2, and Run3 are disabled; their legacy key edges are ignored.
+        // X sits, Y rises, A selects AmpControl_NiRenWalk_Mode,
+        // B selects AmpControl_Walk2Run_Mode.
+        // Legacy running key edges are ignored.
         usr_cmd_->target_mode = GamepadMotionTarget(robot_name_, current_state, usr_cmd_->target_mode,
             rt_keys_.X && !rt_keys_record_.X, rt_keys_.Y && !rt_keys_record_.Y,
             rt_keys_.A && !rt_keys_record_.A, rt_keys_.B && !rt_keys_record_.B,
@@ -93,7 +95,7 @@ void RetroidGamepadInterface::TransformRetroidToUserCommand(){
                 break;
             case RobotMotionState::SuspendedStand:
                 if(rt_keys_.A != rt_keys_record_.A){
-                    usr_cmd_->target_mode = RobotMotionState::RLControlMode;
+                    usr_cmd_->target_mode = RobotMotionState::AmpControl_NiRenWalk_Mode;
                 }
                 break;
             

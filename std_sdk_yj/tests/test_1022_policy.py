@@ -17,8 +17,8 @@ with tempfile.TemporaryDirectory(prefix='1022-policy-') as tmp:
     binary = Path(tmp) / 'check'
     subprocess.run(['g++', '-O2', '-std=c++17', '-DEIGEN_DONT_ALIGN_STATICALLY',
                     str(ROOT / 'tests/test_1022_policy.cpp'),
-                    str(ROOT / 'run_policy/cr1/src/run_policy_runner.cpp'),
-                    str(ROOT / 'run_policy/cr1/src/chiqiangwalk_policy_runner.cpp'),
+                    str(ROOT / 'run_policy/cr1/src/amp_control_walk2run_mode_policy_runner.cpp'),
+                    str(ROOT / 'run_policy/cr1/src/amp_control_gun_shoot_walk_mode_policy_runner.cpp'),
                     *['-I' + str(ROOT / p) for p in includes], '-L' + str(library),
                     '-Wl,-rpath,' + str(library), '-lonnxruntime', '-pthread', '-o', str(binary)], check=True)
     for mode, model, config in [('gun', 'policy_18000.onnx', 'env.yaml'),

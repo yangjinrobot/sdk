@@ -1,6 +1,6 @@
 // Exercise the production RL adapter without DDS or hardware.
 #include "state_base.h"
-#include "chiqiangwalk_policy_runner.h"
+#include "amp_control_gun_shoot_walk_mode_policy_runner.h"
 #include "crx_model_inference_external.hpp"
 #include <cassert>
 #include <limits>
@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
            "/opt/robot/share/motion_master/policy/amp/1118/nirenwalk.onnx");
     // 15500 remains available through explicit runner injection; the default
     // path constructor now selects the legacy 78-D gait policy.
-    auto runner = std::make_shared<ChiqiangWalkPolicyRunner>(
+    auto runner = std::make_shared<AmpControlGunShootWalkModePolicyRunner>(
         "rl_walk_1026", RobotName::CR1STANDARD, argv[1],
         PolicyObservationConfig{73, 5, true});
     CRXModelInferenceExternal model("rl_walk_1026", RobotName::CR1STANDARD, runner);

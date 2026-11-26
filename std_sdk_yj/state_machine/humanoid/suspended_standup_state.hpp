@@ -112,11 +112,11 @@ public:
         goal_joint_pos_next_(cp_ptr_->arm_dof_num_+cp_ptr_->waist_dof_num_+3) = 1.2;
 
         if (cp_ptr_->dof_num_ == 21) {
-            // Keep the CR1 Standard elbow target aligned with ZeroPos.
+            // CR1 Standard suspended-stand initial posture uses 1.2 rad elbows.
             goal_joint_pos_ <<
                     0.0,
-                    0.0,  0.15, 0.0, -0.2,
-                    0.0, -0.15, 0.0, -0.2,
+                    0.0,  0.15, 0.0, 1.2,
+                    0.0, -0.15, 0.0, 1.2,
                    -0.2, 0.0,  0.0, 0.4, -0.2, 0.0,
                    -0.2, 0.0,  0.0, 0.4, -0.2, 0.0;
             goal_joint_pos_next_ = goal_joint_pos_;
@@ -168,10 +168,13 @@ public:
             std::cout << "safe_control_mode:" <<std::dec<< uc_ptr_->GetUserCommand()->safe_control_mode << std::endl;
             return StateName::kJointDamping;
         }
-        if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::RLControlMode) && !(uc_ptr_->GetUserCommand()->safe_control_mode&(1 << kSafePostureNormal))) return StateName::kRLControl;
+        if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::AmpControl_NiRenWalk_Mode) &&
+           !(uc_ptr_->GetUserCommand()->safe_control_mode & (1 << kSafePostureNormal)))
+            return StateName::kAmpControlNiRenWalkMode;
+        if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::AmpControl_GunShootWalk_Mode) && !(uc_ptr_->GetUserCommand()->safe_control_mode&(1 << kSafePostureNormal))) return StateName::kAmpControlGunShootWalkMode;
         if(uc_ptr_->GetUserCommand()->target_mode == (RobotMotionState::ZeroPos)) return StateName::kZeroPos;
         if(robot_name_ == RobotName::CR1STANDARD &&
-           uc_ptr_->GetUserCommand()->target_mode == RobotMotionState::Restand) return StateName::kRestand;
+           uc_ptr_->GetUserCommand()->target_mode == RobotMotionState::RLControl_Stand_Mode) return StateName::kRLControlStandMode;
         return StateName::kSuspendedStand;
     }
 };

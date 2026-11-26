@@ -1,4 +1,4 @@
-"""Offline 1023 NirenWalk observation/ONNX parity; no robot connection."""
+"""Offline 1023 AmpControl_Walk2Run_Mode observation/ONNX parity; no robot connection."""
 from collections import deque
 from pathlib import Path
 import subprocess
@@ -19,8 +19,8 @@ def main():
         binary, trace = Path(tmp) / 'check', Path(tmp) / 'trace.txt'
         subprocess.run(['g++', '-O2', '-std=c++17', '-DEIGEN_DONT_ALIGN_STATICALLY',
                         str(ROOT / 'tests/test_1022_policy.cpp'),
-                        str(ROOT / 'run_policy/cr1/src/run_policy_runner.cpp'),
-                        str(ROOT / 'run_policy/cr1/src/chiqiangwalk_policy_runner.cpp'),
+                        str(ROOT / 'run_policy/cr1/src/amp_control_walk2run_mode_policy_runner.cpp'),
+                        str(ROOT / 'run_policy/cr1/src/amp_control_gun_shoot_walk_mode_policy_runner.cpp'),
                         *['-I' + str(ROOT / p) for p in includes], '-L' + str(library),
                         '-Wl,-rpath,' + str(library), '-lonnxruntime', '-pthread',
                         '-o', str(binary)], check=True)
