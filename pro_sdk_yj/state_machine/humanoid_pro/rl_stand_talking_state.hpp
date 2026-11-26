@@ -14,7 +14,7 @@ private:
 public:
     RLStandTalkingState(const RobotName& robot_name, const std::string& state_name,
                       std::shared_ptr<ControllerData> data_ptr, std::shared_ptr<RLStandTalkingPolicyRunner> policy,
-                      RobotMotionState mode = RLStandTalkingMode)
+                      RobotMotionState mode = RLControl_StandTalking_Mode)
         : RLStandControlState(robot_name,state_name,data_ptr,policy,mode), talking_policy_(std::move(policy)), talking_mode_(mode) {}
 
     RLStandTalkingState(const RobotName& robot_name, const std::string& state_name, std::shared_ptr<ControllerData> data_ptr)

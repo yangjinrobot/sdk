@@ -10,7 +10,7 @@ public:
                              std::shared_ptr<ControllerData> data_ptr,
                              std::shared_ptr<RLStandSalutePolicyRunner> policy_ptr)
         : RLStandSaluteState(robot_name, state_name, std::move(data_ptr),
-                            std::move(policy_ptr), RLStandSaluteLeftArmMode) {}
+                            std::move(policy_ptr), RLControl_StandSaluteLeftArm_Mode) {}
 };
 }  // namespace humanoid_pro
 

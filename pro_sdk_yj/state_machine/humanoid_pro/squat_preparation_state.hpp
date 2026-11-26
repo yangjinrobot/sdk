@@ -89,7 +89,7 @@ public:
     }
     StateName GetNextStateName() override {
         if (LoseControlJudge()) return kJointDamping;
-        return ready_ && uc_ptr_->GetUserCommandSnapshot().target_mode == RLControlMimic13Mode
+        return ready_ && uc_ptr_->GetUserCommandSnapshot().target_mode == MimicControl_ChairUp_Mode
             ? kRLMimic13Control : kSquatPreparation;
     }
 };

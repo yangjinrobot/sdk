@@ -16,7 +16,7 @@ public:
     ZhanliState(RobotName robot_name, const std::string& state_name,
                 std::shared_ptr<ControllerData> data_ptr)
         : CopiedPolicyControlState(robot_name, state_name, data_ptr, MakePolicy(robot_name),
-                                   ZhanliMode, {AmpWalkingControl}) {}
+                                   MimicControl_GetUp_Mode, {AmpControl_Walk_Mode}) {}
 };
 }  // namespace humanoid_pro
 

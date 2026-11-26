@@ -14,16 +14,11 @@
 #include "humanoid_pro/rl_stand_please_state.hpp"
 #include "humanoid_pro/rl_stand_please2_state.hpp"
 #include "humanoid_pro/rl_stand_talking_state.hpp"
-#include "humanoid_pro/amp_moe_15dof_state.hpp"
-#include "humanoid_pro/amp_walking_waq_state.hpp"
 #include "humanoid_pro/rl_control_state.hpp"
 #include "humanoid_pro/rl_mimic12_control_state.hpp"
 #include "humanoid_pro/rl_mimic13_control_state.hpp"
 #include "humanoid_pro/squat_preparation_state.hpp"
-#include "humanoid_pro/rl_mimic1_control_state.hpp"
 #include "humanoid_pro/rl_mimic2_control_state.hpp"
-#include "humanoid_pro/stand2knee_mimic_state.hpp"
-#include "humanoid_pro/knee2stand_mimic_state.hpp"
 #include "humanoid_pro/tangxia_state.hpp"
 #include "humanoid_pro/zhanli_state.hpp"
 #include <array>
@@ -62,29 +57,22 @@ static const std::vector<Contract> contracts = {
     {kRLControl, Make<RLControlState>, {kRLMimic12Control, kRLStandControl, kAmpWalkingControl, kRLStandSalute, kRLStandSaluteLeftArm, kRLStandPlease, kRLStandTalking, kRLStandPlease2}, true},
     {kRLMimic12Control, Make<RLMimic12ControlState>, {kRLMimic13Control}, true},
     {kRLMimic13Control, Make<RLMimic13ControlState>, {kAmpWalkingControl}, true},
-    {kTangxia, Make<TangxiaState>, {kZhanli}, true},
-    {kZhanli, Make<ZhanliState>, {kAmpWalkingControl}, true},
-    {kRLMimic1Control, Make<RLMimic1ControlState>, {kAmpWalkingControl}, true},
     {kRLMimic2Control, Make<RLMimic2ControlState>, {kAmpWalkingControl}, true},
-    {kStand2KneeMimic, Make<Stand2KneeMimicState>, {kKnee2StandMimic}, true},
-    {kKnee2StandMimic, Make<Knee2StandMimicState>, {kAmpWalkingControl}, true},
     {kIdle, Make<IdleState>, {kZeroPos, kAmpZeroPos, kAmpWalkingZeroPos, kSquatPreparation}},
     {kSquatPreparation, Make<SquatPreparationState>, {kRLMimic13Control}},
     {kJointDamping, Make<JointDampingState>, {}},
     {kZeroPos, Make<ZeroPosState>, {kRLStandControl, kUpperBodyControl, kAmpWalkingZeroPos, kAmpZeroPos, kRLStandSalute, kRLStandSaluteLeftArm, kRLStandPlease, kRLStandTalking, kRLStandPlease2}},
-    {kRLStandControl, Make<RLStandControlState>, {kAmpWalkingControl, kAmpMoe15Dof, kAmpWalkingWAQ, kRLControl, kRLStandSalute, kRLStandSaluteLeftArm, kRLStandPlease, kRLStandTalking, kRLStandPlease2}, true},
-    {kRLStandSalute, Make<RLStandSaluteState>, {kAmpWalkingControl, kAmpMoe15Dof, kAmpWalkingWAQ, kRLControl, kRLStandSaluteLeftArm, kRLStandPlease, kRLStandTalking, kRLStandPlease2}, true},
-    {kRLStandSaluteLeftArm, MakeSaluteLeftArm, {kAmpWalkingControl, kAmpMoe15Dof, kAmpWalkingWAQ, kRLControl, kRLStandSalute, kRLStandPlease, kRLStandTalking, kRLStandPlease2}, true},
-    {kRLStandPlease, Make<RLStandPleaseState>, {kAmpWalkingControl, kAmpMoe15Dof, kAmpWalkingWAQ, kRLControl, kRLStandSalute, kRLStandSaluteLeftArm, kRLStandTalking, kRLStandPlease2}, true},
-    {kRLStandTalking, Make<RLStandTalkingState>, {kAmpWalkingControl, kAmpMoe15Dof, kAmpWalkingWAQ, kRLControl, kRLStandSalute, kRLStandSaluteLeftArm, kRLStandPlease, kRLStandPlease2}, true},
-    {kRLStandPlease2, Make<RLStandPlease2State>, {kAmpWalkingControl, kAmpMoe15Dof, kAmpWalkingWAQ, kRLControl, kRLStandSalute, kRLStandSaluteLeftArm, kRLStandPlease, kRLStandTalking}, true},
+    {kRLStandControl, Make<RLStandControlState>, {kAmpWalkingControl, kRLControl, kRLStandSalute, kRLStandSaluteLeftArm, kRLStandPlease, kRLStandTalking, kRLStandPlease2}, true},
+    {kRLStandSalute, Make<RLStandSaluteState>, {kAmpWalkingControl, kRLControl, kRLStandSaluteLeftArm, kRLStandPlease, kRLStandTalking, kRLStandPlease2}, true},
+    {kRLStandSaluteLeftArm, MakeSaluteLeftArm, {kAmpWalkingControl, kRLControl, kRLStandSalute, kRLStandPlease, kRLStandTalking, kRLStandPlease2}, true},
+    {kRLStandPlease, Make<RLStandPleaseState>, {kAmpWalkingControl, kRLControl, kRLStandSalute, kRLStandSaluteLeftArm, kRLStandTalking, kRLStandPlease2}, true},
+    {kRLStandTalking, Make<RLStandTalkingState>, {kAmpWalkingControl, kRLControl, kRLStandSalute, kRLStandSaluteLeftArm, kRLStandPlease, kRLStandPlease2}, true},
+    {kRLStandPlease2, Make<RLStandPlease2State>, {kAmpWalkingControl, kRLControl, kRLStandSalute, kRLStandSaluteLeftArm, kRLStandPlease, kRLStandTalking}, true},
     {kUpperBodyControl, Make<UpperBodyControlState>, {kZeroPos}},
-    {kAmpZeroPos, Make<AmpZeroPosState>, {kAmpWholeBodyControl, kAmpWalkingZeroPos, kAmpWalkingControl, kAmpWalkingWAQ}},
+    {kAmpZeroPos, Make<AmpZeroPosState>, {kAmpWholeBodyControl, kAmpWalkingZeroPos, kAmpWalkingControl}},
     {kAmpWholeBodyControl, Make<AmpWholeBodyControlState>, {kAmpWalkingControl, kAmpZeroPos}, true},
-    {kAmpWalkingZeroPos, Make<AmpWalkingZeroPosState>, {kAmpWalkingControl, kAmpWalkingWAQ}},
-    {kAmpWalkingControl, Make<AmpWalkingState>, {kRLStandControl, kAmpWalkingWAQ, kAmpWalkingZeroPos, kRLControl, kStand2KneeMimic, kTangxia, kRLStandSalute, kRLStandSaluteLeftArm, kRLStandPlease, kRLStandTalking, kRLStandPlease2, kRLMimic12Control, kRLMimic1Control, kRLMimic2Control}, true},
-    {kAmpMoe15Dof, Make<AmpMoe15DofState>, {kRLStandControl, kAmpWalkingControl, kAmpWalkingWAQ, kRLStandSalute, kRLStandSaluteLeftArm, kRLStandPlease, kRLStandTalking, kRLStandPlease2}, true},
-    {kAmpWalkingWAQ, Make<AmpWalkingWAQState>, {kRLStandControl, kAmpWalkingControl, kRLStandSalute, kRLStandSaluteLeftArm, kRLStandPlease, kRLStandTalking, kRLStandPlease2}, true},
+    {kAmpWalkingZeroPos, Make<AmpWalkingZeroPosState>, {kAmpWalkingControl}},
+    {kAmpWalkingControl, Make<AmpWalkingState>, {kRLStandControl, kAmpWalkingZeroPos, kRLControl, kRLStandSalute, kRLStandSaluteLeftArm, kRLStandPlease, kRLStandTalking, kRLStandPlease2, kRLMimic12Control, kRLMimic2Control}, true},
 };
 
 static StateName Next(StateBase& state) {
@@ -93,13 +81,17 @@ static StateName Next(StateBase& state) {
 static void CheckProductionRegistry() {
     ProPolicyFaults::Reset();
     auto data = std::make_shared<ControllerData>();
-    data->motion_state_store->SetState(RobotMotionState::AmpWalkingControl);
+    data->motion_state_store->SetState(RobotMotionState::AmpControl_Walk_Mode);
     const ProControllers controllers(RobotName::CR1PRO, data);
-    Require(contracts.size() == kRobotMotionStates.size(), "transition contracts do not cover the registry");
+    Require(contracts.size() + 2 == kRobotMotionStates.size(), "transition contracts do not cover the registry");
     for (const auto state : kRobotMotionStates) {
+        const bool reserved = state == MimicControl_LieDown_Mode || state == MimicControl_GetUp_Mode;
+        if (reserved) {
+            Require(!controllers.GetStateControllerPtr(static_cast<StateName>(state)), "reserved state was registered");
+        }
         Require(std::count_if(contracts.begin(), contracts.end(), [state](const Contract& contract) {
             return static_cast<uint32_t>(contract.state) == state;
-        }) == 1, "a supported state does not have exactly one transition contract");
+        }) == (reserved ? 0 : 1), "incorrect transition contract count");
     }
     for (const auto& contract : contracts) {
         const auto id = contract.state;
@@ -110,7 +102,9 @@ static void CheckProductionRegistry() {
     }
     Require(!controllers.GetStateControllerPtr(kInvalid), "invalid state was registered");
     Require(!controllers.GetStateControllerPtr(static_cast<StateName>(14)), "unknown state was registered");
-    Require(data->motion_state_store->GetState() == RobotMotionState::AmpWalkingControl,
+    for (int retired = 0x11017; retired <= 0x1101b; ++retired)
+        Require(!controllers.GetStateControllerPtr(static_cast<StateName>(retired)), "retired state was registered");
+    Require(data->motion_state_store->GetState() == RobotMotionState::AmpControl_Walk_Mode,
             "controller construction changed the previous-state store");
     bool rejected = false;
     try { ProControllers(RobotName::CR1STANDARD, data); }
@@ -130,7 +124,7 @@ static void CheckAllTransitions() {
     for (const auto& contract : contracts) {
         ProPolicyFaults::Reset();
         auto data = std::make_shared<ControllerData>();
-        if (contract.state == kRLMimic13Control) data->motion_state_store->SetState(AmpWalkingControl);
+        if (contract.state == kRLMimic13Control) data->motion_state_store->SetState(AmpControl_Walk_Mode);
         auto state = contract.make(data);
         state->OnEnter();
         Require(data->motion_state_store->GetState() == static_cast<RobotMotionState>(contract.state), "wrong state feedback");
@@ -143,14 +137,14 @@ static void CheckAllTransitions() {
             data->ri_ptr->time = 3.2;
         }
         std::vector<uint32_t> targets(kRobotMotionStates.begin(), kRobotMotionStates.end());
-        for (uint32_t retired : {9u, 10u, 11u, 12u}) targets.push_back(retired);
+        for (uint32_t retired : {9u, 10u, 11u, 12u, 0x11017u, 0x11018u, 0x11019u, 0x1101au, 0x1101bu}) targets.push_back(retired);
         targets.push_back(14); // Unknown protocol code must not add an edge.
         for (const uint32_t target : targets) {
             data->uc_ptr->Set(target);
             state->Run();
             if ((contract.state == kRLStandSalute || contract.state == kRLStandSaluteLeftArm ||
                  contract.state == kRLStandPlease || contract.state == kRLStandTalking ||
-                 contract.state == kRLStandPlease2) && target == AmpWalkingControl) {
+                 contract.state == kRLStandPlease2) && target == AmpControl_Walk_Mode) {
                 Require(Next(*state) == contract.state,"Gesture state exited before lowering completed");
                 Require(ProPolicyFaults::salute_lowering_requested,"Salute did not request arm lowering");
                 ProPolicyFaults::salute_lowering_complete = true;
@@ -190,29 +184,29 @@ static void CheckSaluteDeferredWalking() {
     auto data = std::make_shared<ControllerData>();
     RLStandSaluteState state(RobotName::CR1PRO,"salute-lowering",data);
     state.OnEnter();
-    data->uc_ptr->Set(AmpWalkingControl); state.Run();
+    data->uc_ptr->Set(AmpControl_Walk_Mode); state.Run();
     Require(Next(state) == kRLStandSalute,"Walking request bypassed salute lowering");
-    Require(data->motion_state_store->GetState() == RLStandSaluteMode,"Feedback changed before lowering");
+    Require(data->motion_state_store->GetState() == RLControl_StandSalute_Mode,"Feedback changed before lowering");
     // Once accepted, a single walking request remains pending even if a normal
     // mode packet follows. RL Control takeover and safety take precedence.
-    data->uc_ptr->Set(AmpMoe15Dof); state.Run();
+    data->uc_ptr->Set(RLControl_Stand_Mode); state.Run();
     Require(Next(state) == kRLStandSalute,"A later normal command bypassed the pending lowering");
-    data->uc_ptr->Set(RLControlMode); state.Run();
+    data->uc_ptr->Set(AmpControl_Walk2Run_Mode); state.Run();
     Require(Next(state) == kRLControl,"RL Control takeover waited for arm lowering");
-    data->uc_ptr->Set(RLControlMode,1); state.Run();
+    data->uc_ptr->Set(AmpControl_Walk2Run_Mode,1); state.Run();
     Require(Next(state) == kJointDamping,"Lowering delayed a safety fault");
     data->uc_ptr->Set(JointDamping); state.Run();
     Require(Next(state) == kJointDamping,"Lowering delayed explicit damping");
     state.OnExit();
     ProPolicyFaults::Reset();
-    data->uc_ptr->Set(RLStandSaluteMode); state.OnEnter(); state.Run();
+    data->uc_ptr->Set(RLControl_StandSalute_Mode); state.OnEnter(); state.Run();
     Require(Next(state) == kRLStandSalute,"Reentry retained a pending walking request");
-    data->uc_ptr->Set(AmpWalkingControl); state.Run();
+    data->uc_ptr->Set(AmpControl_Walk_Mode); state.Run();
     Require(Next(state) == kRLStandSalute,"Reentry skipped lowering");
-    data->uc_ptr->Set(AmpMoe15Dof); state.Run();
+    data->uc_ptr->Set(RLControl_Stand_Mode); state.Run();
     ProPolicyFaults::salute_lowering_complete = true;
     Require(Next(state) == kAmpWalkingControl,"A latched walking request was lost");
-    data->uc_ptr->Set(RLControlMode); state.Run();
+    data->uc_ptr->Set(AmpControl_Walk2Run_Mode); state.Run();
     Require(Next(state) == kRLControl,"Completed lowering overrode RL Control takeover");
     state.OnExit();
     ProPolicyFaults::Reset();
@@ -225,11 +219,11 @@ static void CheckPreparationGate() {
         RobotMotionState to;
     };
     for (const auto& entry : std::vector<Entry>{
-        {Make<ZeroPosState>, kZeroPos, RLStandControlMode},
-        {Make<ZeroPosState>, kZeroPos, RLStandSaluteMode},
-        {Make<ZeroPosState>, kZeroPos, RLStandSaluteLeftArmMode},
+        {Make<ZeroPosState>, kZeroPos, RLControl_Stand_Mode},
+        {Make<ZeroPosState>, kZeroPos, RLControl_StandSalute_Mode},
+        {Make<ZeroPosState>, kZeroPos, RLControl_StandSaluteLeftArm_Mode},
         {Make<AmpZeroPosState>, kAmpZeroPos, AmpWholeBodyControlMode},
-        {Make<AmpWalkingZeroPosState>, kAmpWalkingZeroPos, AmpWalkingControl}}) {
+        {Make<AmpWalkingZeroPosState>, kAmpWalkingZeroPos, AmpControl_Walk_Mode}}) {
         auto data = std::make_shared<ControllerData>();
         auto state = entry.make(data);
         state->OnEnter();
@@ -365,7 +359,7 @@ static void CheckImmediateEntryAndWorkerFailure() {
     for (int entry = 0; entry < 2; ++entry) {
         const int packets = data->ri_ptr->packets.load();
         if constexpr (std::is_same_v<State, RLMimic13ControlState>)
-            data->motion_state_store->SetState(RLControlMimic12Mode);
+            data->motion_state_store->SetState(MimicControl_ChairDown_Mode);
         state.OnEnter();
         Require(data->ri_ptr->packets == packets + 1, "Policy entry did not send its first action immediately");
         Require(data->ri_ptr->GetJointCommand().bottomRows(2).isZero(), "Policy entry powered virtual neck joints");
@@ -388,7 +382,7 @@ static void CheckSquatPreparationToSit2Stand() {
     auto data = std::make_shared<ControllerData>();
     IdleState idle(CR1PRO, "idle", data);
     idle.OnEnter();
-    data->uc_ptr->Set(RLControlMimic13Mode);
+    data->uc_ptr->Set(MimicControl_ChairUp_Mode);
     Require(Next(idle) == kIdle, "Sit2Stand skipped squat preparation");
     data->uc_ptr->Set(SquatPreparation, 1);
     Require(Next(idle) == kIdle, "Squat preparation bypassed idle safety");
@@ -435,17 +429,17 @@ static void CheckSquatPreparationToSit2Stand() {
     squat.Run();
     data->ri_ptr->time = 13.4;
     squat.Run();
-    data->uc_ptr->Set(RLControlMimic13Mode);
+    data->uc_ptr->Set(MimicControl_ChairUp_Mode);
     Require(Next(squat) == kRLMimic13Control, "Ready squat did not accept Sit2Stand");
     squat.OnExit();
-    data->motion_state_store->SetState(RLControlMimic12Mode);
+    data->motion_state_store->SetState(MimicControl_ChairDown_Mode);
     RLMimic13ControlState rise(CR1PRO, "squat-sit2stand", data);
     rise.OnEnter();
     Require(std::abs(data->ri_ptr->GetJointCommand()(0, 1) - .12f) < 1e-5,
             "Sit2Stand still blended its first policy command from the squat command");
     Require(data->ri_ptr->GetJointCommand()(0, 0) == 3.f,
             "Sit2Stand blended policy gains into the first command");
-    data->uc_ptr->Set(AmpWalkingControl);
+    data->uc_ptr->Set(AmpControl_Walk_Mode);
     for (int i = 0; i < 20; ++i) rise.Run();
     Require(Next(rise) == kRLMimic13Control && !data->motion_state_store->handset_ready,
             "Sit2Stand allowed an early AMP Walking request");
@@ -463,41 +457,15 @@ static void CheckSquatPreparationToSit2Stand() {
     rise.OnExit();
 
     data->motion_state_store->SetState(SquatPreparation);
-    data->uc_ptr->Set(RLControlMimic13Mode);
+    data->uc_ptr->Set(MimicControl_ChairUp_Mode);
     rise.OnEnter();
     data->uc_ptr->Set(JointDamping);
     rise.Run();
     Require(Next(rise) == kJointDamping, "Sit2Stand ramp blocked damping");
     rise.OnExit();
 }
-static void CheckWalkToRunEntryLifecycle() {
-    ProPolicyFaults::Reset();
-    auto data = std::make_shared<ControllerData>();
-    AmpWalkingWAQState state(RobotName::CR1PRO, "walk-to-run-entry", data);
-    data->uc_ptr->Set(AmpWalkingWAQ);
-    state.OnEnter();
-    state.OnEnter(); // Repeated entry must join the previous worker before resetting history.
-    Require(data->ri_ptr->packets == 2, "Walk-to-run repeated entry did not reset/send once");
-    Require(Next(state) == kAmpWalkingWAQ, "Walk-to-run changed the WAQ state ID");
-    state.OnExit();
-    Require(state.LoseControlJudge(), "Exited walk-to-run policy remained available");
-    for (const auto& request : std::array<std::pair<uint32_t, uint32_t>, 2>{{
-            {JointDamping, 0}, {AmpWalkingWAQ, 1}}}) {
-        data->uc_ptr->Set(request.first, request.second);
-        state.OnEnter();
-        Require(data->ri_ptr->packets == 2, "Walk-to-run sent an action despite a damping/safety request");
-        Require(Next(state) == kJointDamping, "Blocked walk-to-run entry did not select damping");
-        Require(data->motion_state_store->GetState() == JointDamping, "Blocked entry reported WAQ");
-    }
-    data->uc_ptr->Set(AmpWalkingWAQ);
-    state.OnEnter();
-    Require(data->ri_ptr->packets == 3 && Next(state) == kAmpWalkingWAQ,
-            "Walk-to-run did not recover after a blocked entry");
-    state.OnExit();
-    Require(!ProPolicyFaults::unsafe_exit, "Walk-to-run re-entry raced inference");
-}
 static void CheckTangxiaFullBodyEntryTransition() {
-    for (const RobotMotionState source : {AmpWalkingControl}) {
+    for (const RobotMotionState source : {AmpControl_Walk_Mode}) {
         ProPolicyFaults::Reset();
         auto data = std::make_shared<ControllerData>();
         data->motion_state_store->SetState(source);
@@ -539,7 +507,7 @@ static void CheckPolicyFailuresAndDestruction() {
         for (int fault : {0, 1, 2, 3}) {
             ProPolicyFaults::Reset();
             auto data = std::make_shared<ControllerData>();
-            if (contract.state == kRLMimic13Control) data->motion_state_store->SetState(RLControlMimic12Mode);
+            if (contract.state == kRLMimic13Control) data->motion_state_store->SetState(MimicControl_ChairDown_Mode);
             auto state = contract.make(data);
             if (fault == 0) ProPolicyFaults::ready = false;
             else ProPolicyFaults::failure = fault;
@@ -551,7 +519,7 @@ static void CheckPolicyFailuresAndDestruction() {
         ProPolicyFaults::Reset();
         {
             auto data = std::make_shared<ControllerData>();
-            if (contract.state == kRLMimic13Control) data->motion_state_store->SetState(RLControlMimic12Mode);
+            if (contract.state == kRLMimic13Control) data->motion_state_store->SetState(MimicControl_ChairDown_Mode);
             auto state = contract.make(data);
             state->OnEnter();
             ProPolicyFaults::failure = 2;
@@ -567,7 +535,7 @@ static void CheckPolicyFailuresAndDestruction() {
         }
         ProPolicyFaults::Reset();
         auto data = std::make_shared<ControllerData>();
-        if (contract.state == kRLMimic13Control) data->motion_state_store->SetState(RLControlMimic12Mode);
+        if (contract.state == kRLMimic13Control) data->motion_state_store->SetState(MimicControl_ChairDown_Mode);
         const auto started = steady_clock::now();
         {
             auto state = contract.make(data);
@@ -589,22 +557,16 @@ int main() {
         CheckIdleJointZero();
         CheckIdleDriverRecovery();
         CheckDampingTimer();
-        CheckImmediateEntryAndWorkerFailure<AmpMoe15DofState>();
-        CheckImmediateEntryAndWorkerFailure<AmpWalkingWAQState>();
-        CheckWalkToRunEntryLifecycle();
         CheckImmediateEntryAndWorkerFailure<RLControlState>();
         CheckImmediateEntryAndWorkerFailure<RLMimic12ControlState>();
         CheckImmediateEntryAndWorkerFailure<RLMimic13ControlState>();
-        CheckImmediateEntryAndWorkerFailure<Stand2KneeMimicState>();
-        CheckImmediateEntryAndWorkerFailure<Knee2StandMimicState>();
-        CheckImmediateEntryAndWorkerFailure<RLMimic1ControlState>();
         CheckImmediateEntryAndWorkerFailure<RLMimic2ControlState>();
         CheckImmediateEntryAndWorkerFailure<TangxiaState>();
         CheckImmediateEntryAndWorkerFailure<ZhanliState>();
         CheckTangxiaFullBodyEntryTransition();
         CheckSquatPreparationToSit2Stand();
         CheckPolicyFailuresAndDestruction();
-        std::cout << kRobotMotionStates.size() << " PRO state contracts, 31x5 packets, failure routing and thread lifecycle passed\n";
+        std::cout << contracts.size() << " PRO state contracts, 31x5 packets, failure routing and thread lifecycle passed\n";
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

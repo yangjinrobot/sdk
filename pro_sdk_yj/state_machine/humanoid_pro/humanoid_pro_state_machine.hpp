@@ -4,7 +4,6 @@
 
 #include "state_machine_base.hpp"
 #include "humanoid_pro/pro_controllers.hpp"
-#include "amp_moe_15dof_policy_runner.hpp"
 #include "dds_interface.hpp"
 #include "hardware/cr1pro_hardware_interface.hpp"
 #include "keyboard_interface.hpp"
@@ -146,7 +145,6 @@ private:
 
     static void SetSharedUdp(UdpNode* node) {
         RLStandPolicyRunner::SetUdpNode(node);
-        AmpMoe15DofPolicyRunner::SetUdpNode(node);
     }
 
     void ConfigureUdp() {

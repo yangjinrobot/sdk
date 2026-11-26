@@ -256,7 +256,7 @@ public:
         }
         if (user_command.target_mode == RobotMotionState::AmpZeroPos)
             return StateName::kAmpZeroPos;
-        if (user_command.target_mode == (RobotMotionState::AmpWalkingControl)) {
+        if (user_command.target_mode == (RobotMotionState::AmpControl_Walk_Mode)) {
             return StateName::kAmpWalkingControl;
         }
         return StateName::kAmpWholeBodyControl;

@@ -172,8 +172,8 @@ private:
     bool RecoveryPostureExceptionActive() const {
         if (!motion_state_store_) return false;
         const RobotMotionState state = motion_state_store_->GetState();
-        return state == RobotMotionState::TangxiaMode ||
-               state == RobotMotionState::ZhanliMode;
+        return state == RobotMotionState::MimicControl_LieDown_Mode ||
+               state == RobotMotionState::MimicControl_GetUp_Mode;
     }
 
     // 是否携带 neck（头部）关节硬件（从 config.toml [ecan_hardware] with_neck 读取，默认 true）

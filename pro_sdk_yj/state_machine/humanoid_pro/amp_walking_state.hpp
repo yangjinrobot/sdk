@@ -168,11 +168,11 @@ public:
         policy_entered_ = false;
         if (!policy_ptr_) throw std::runtime_error("Missing policy");
         UpdateRobotObservation();
-        if (motion_state_store_->GetState() == RobotMotionState::RLStandSaluteMode ||
-            motion_state_store_->GetState() == RobotMotionState::RLStandSaluteLeftArmMode ||
-            motion_state_store_->GetState() == RobotMotionState::RLStandPleaseMode ||
-            motion_state_store_->GetState() == RobotMotionState::RLStandTalkingMode ||
-            motion_state_store_->GetState() == RobotMotionState::RLStandPlease2Mode)
+        if (motion_state_store_->GetState() == RobotMotionState::RLControl_StandSalute_Mode ||
+            motion_state_store_->GetState() == RobotMotionState::RLControl_StandSaluteLeftArm_Mode ||
+            motion_state_store_->GetState() == RobotMotionState::RLControl_StandPlease_Mode ||
+            motion_state_store_->GetState() == RobotMotionState::RLControl_StandTalking_Mode ||
+            motion_state_store_->GetState() == RobotMotionState::RLControl_StandPlease2_Mode)
             common_policy_->SetArmReleaseFrom(rbs_.joint_pos.segment<7>(3), rbs_.joint_pos.segment<7>(10));
         policy_ptr_->OnEnter();
         policy_entered_ = true;
@@ -183,7 +183,7 @@ public:
             user_command = uc_ptr_->GetUserCommandSnapshot();
         }
         start_flag_ = true;
-        motion_state_store_->SetState(RobotMotionState::AmpWalkingControl);
+        motion_state_store_->SetState(RobotMotionState::AmpControl_Walk_Mode);
         run_policy_thread_ = std::thread(std::bind(&AmpWalkingState::PolicyRunner, this));
 
         } catch (const std::exception& error) {
@@ -252,33 +252,25 @@ public:
         }
         if (user_command.target_mode == RobotMotionState::AmpWalkingZeroPos)
             return StateName::kAmpWalkingZeroPos;
-        if (user_command.target_mode == (RobotMotionState::RLStandControlMode)) {
+        if (user_command.target_mode == (RobotMotionState::RLControl_Stand_Mode)) {
             return StateName::kRLStandControl;
         }
-        if (user_command.target_mode == RobotMotionState::RLStandSaluteMode)
+        if (user_command.target_mode == RobotMotionState::RLControl_StandSalute_Mode)
             return StateName::kRLStandSalute;
-        if (user_command.target_mode == RobotMotionState::RLStandSaluteLeftArmMode)
+        if (user_command.target_mode == RobotMotionState::RLControl_StandSaluteLeftArm_Mode)
             return StateName::kRLStandSaluteLeftArm;
-        if (user_command.target_mode == RobotMotionState::RLStandPleaseMode)
+        if (user_command.target_mode == RobotMotionState::RLControl_StandPlease_Mode)
             return StateName::kRLStandPlease;
-        if (user_command.target_mode == RobotMotionState::RLStandTalkingMode)
+        if (user_command.target_mode == RobotMotionState::RLControl_StandTalking_Mode)
             return StateName::kRLStandTalking;
-        if (user_command.target_mode == RobotMotionState::RLStandPlease2Mode)
+        if (user_command.target_mode == RobotMotionState::RLControl_StandPlease2_Mode)
             return StateName::kRLStandPlease2;
-        if (user_command.target_mode == RobotMotionState::RLControlMode)
+        if (user_command.target_mode == RobotMotionState::AmpControl_Walk2Run_Mode)
             return StateName::kRLControl;
-        if (user_command.target_mode == RobotMotionState::AmpWalkingWAQ)
-            return StateName::kAmpWalkingWAQ;
-        if (user_command.target_mode == RobotMotionState::Stand2KneeMimicMode)
-            return StateName::kStand2KneeMimic;
-        if (user_command.target_mode == RobotMotionState::TangxiaMode)
-            return StateName::kTangxia;
         // Dance policies are only reachable from AMP walking.
-        if (user_command.target_mode == RobotMotionState::RLControlMimic12Mode)
+        if (user_command.target_mode == RobotMotionState::MimicControl_ChairDown_Mode)
             return StateName::kRLMimic12Control;
-        if (user_command.target_mode == RobotMotionState::RLControlMimic1Mode)
-            return StateName::kRLMimic1Control;
-        if (user_command.target_mode == RobotMotionState::RLControlMimic2Mode)
+        if (user_command.target_mode == RobotMotionState::MimicControl_BoxFight_Mode)
             return StateName::kRLMimic2Control;
         return StateName::kAmpWalkingControl;
     }

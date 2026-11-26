@@ -14,7 +14,7 @@ private:
 public:
     RLStandPlease2State(const RobotName& robot_name, const std::string& state_name,
                        std::shared_ptr<ControllerData> data_ptr, std::shared_ptr<RLStandPlease2PolicyRunner> policy,
-                       RobotMotionState mode = RLStandPlease2Mode)
+                       RobotMotionState mode = RLControl_StandPlease2_Mode)
         : RLStandControlState(robot_name,state_name,data_ptr,policy,mode), please2_policy_(std::move(policy)), please2_mode_(mode) {}
 
     RLStandPlease2State(const RobotName& robot_name, const std::string& state_name, std::shared_ptr<ControllerData> data_ptr)

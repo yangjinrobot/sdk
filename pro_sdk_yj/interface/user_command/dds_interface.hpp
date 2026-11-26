@@ -9,11 +9,9 @@ class DdsInterface : public KeyboardInterface {
 
     bool CanSteer() const {
         const auto state = GetCurrentState();
-        return state == RobotMotionState::RLControlMode ||
-               state == RobotMotionState::AmpWalkingControl ||
-               state == RobotMotionState::AmpWalkingWAQ ||
-               state == RobotMotionState::RLStandControlMode ||
-               state == RobotMotionState::AmpMoe15Dof ||
+        return state == RobotMotionState::AmpControl_Walk2Run_Mode ||
+               state == RobotMotionState::AmpControl_Walk_Mode ||
+               state == RobotMotionState::RLControl_Stand_Mode ||
                state == RobotMotionState::AmpWholeBodyControlMode;
     }
 public:
@@ -50,7 +48,7 @@ public:
         }
 #endif
     }
-    static bool IsStateAllowedByCert(uint32_t state) { return IsKnownRobotMotionState(state); }
+    static bool IsStateAllowedByCert(uint32_t state) { return IsEnabledRobotMotionState(state); }
     static bool IsGaitAllowedByCert(uint32_t gait) { return gait == RobotGaitType::HumanWALK; }
     static bool IsActionAllowedByCert(int32_t) { return false; }
     bool ProcessMotionState(uint32_t state) {

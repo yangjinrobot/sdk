@@ -15,9 +15,9 @@ private:
 public:
     RLControlState(RobotName robot_name, const std::string& state_name, std::shared_ptr<ControllerData> data_ptr)
         : CopiedPolicyControlState(robot_name, state_name, data_ptr, MakePolicy(robot_name),
-                                   RLControlMode, {RLControlMimic12Mode, RLStandControlMode, AmpWalkingControl,
-                                                   RLStandSaluteMode, RLStandSaluteLeftArmMode,
-                                                   RLStandPleaseMode, RLStandTalkingMode, RLStandPlease2Mode}) {}
+                                   AmpControl_Walk2Run_Mode, {MimicControl_ChairDown_Mode, RLControl_Stand_Mode, AmpControl_Walk_Mode,
+                                                   RLControl_StandSalute_Mode, RLControl_StandSaluteLeftArm_Mode,
+                                                   RLControl_StandPlease_Mode, RLControl_StandTalking_Mode, RLControl_StandPlease2_Mode}) {}
 };
 }  // namespace humanoid_pro
 

@@ -144,19 +144,19 @@ public:
         if (run_time_ - time_stamp_record_ < 3.0f) return StateName::kZeroPos;
 
 
-        if (command_snapshot.target_mode == RobotMotionState::RLStandControlMode) {
+        if (command_snapshot.target_mode == RobotMotionState::RLControl_Stand_Mode) {
             std::cout << "go to rl stand control" << std::endl;
             return StateName::kRLStandControl;
         }
-        if (command_snapshot.target_mode == RobotMotionState::RLStandSaluteMode)
+        if (command_snapshot.target_mode == RobotMotionState::RLControl_StandSalute_Mode)
             return StateName::kRLStandSalute;
-        if (command_snapshot.target_mode == RobotMotionState::RLStandSaluteLeftArmMode)
+        if (command_snapshot.target_mode == RobotMotionState::RLControl_StandSaluteLeftArm_Mode)
             return StateName::kRLStandSaluteLeftArm;
-        if (command_snapshot.target_mode == RobotMotionState::RLStandPleaseMode)
+        if (command_snapshot.target_mode == RobotMotionState::RLControl_StandPlease_Mode)
             return StateName::kRLStandPlease;
-        if (command_snapshot.target_mode == RobotMotionState::RLStandTalkingMode)
+        if (command_snapshot.target_mode == RobotMotionState::RLControl_StandTalking_Mode)
             return StateName::kRLStandTalking;
-        if (command_snapshot.target_mode == RobotMotionState::RLStandPlease2Mode)
+        if (command_snapshot.target_mode == RobotMotionState::RLControl_StandPlease2_Mode)
             return StateName::kRLStandPlease2;
         if (command_snapshot.target_mode == RobotMotionState::UpperBodyControlMode) {
             std::cout << "go to upper body control" << std::endl;

@@ -1,6 +1,6 @@
-# RL站立敬礼与左臂动作状态（0x11013／0x11014）
+# RL站立敬礼与左臂动作状态（0x1100f／0x11010）
 
-新增 `rl_stand_salute_state`，手柄DDS的 `/MOTION_STATE` 发送32位状态码 `0x11013` 即可请求进入。
+新增 `rl_stand_salute_state`，手柄DDS的 `/MOTION_STATE` 发送32位状态码 `0x1100f` 即可请求进入。
 新增状态复用 [RLStandControlState](../state_machine/humanoid_pro/rl_stand_control_state.hpp) 的反馈读取、异步策略线程、31×5指令组装及故障处理，
 策略继承 [RLStandPolicyRunner](../run_policy/cr1pro/include/rl_stand_policy_runner.hpp)，加载同一个 `rl_policy/model_0610_rl_moveboxes.onnx`。
 观测结构、历史、腰腿15维动作和PD增益与RL Stand一致，推理周期仍为10 ms。
@@ -14,11 +14,11 @@
 - 抬臂使用C2连续五次Hermite样条，胸前和抬手点保留通过速度，整条手臂不在中间点停稳；起终点速度、加速度为零。shoulder_roll从第一段就配合屈肘明显外展，连续经过 `-40/-75` 度直至最终 `-100` 度，实际耗时还受异步策略调度影响。原有2.4秒放臂及实际到位门槛保持不变。
 - 此状态中的手臂预设和UDP目标不覆盖自动敬礼轨迹，真实手臂反馈继续进入站立策略及状态反馈。
 - 发送 `0x11` 或按手柄L2请求AMP Walking：锁定请求，先在 `rl_stand_salute_state` 内继续RL站立控制，从实际右臂角度用2.4秒五次插值放下。左臂继续保持进入时姿态。
-- 右臂放下目标为 `[0,-0.22,0,1.2,0,0,0]` rad（AMP Walking默认右臂姿态）。插值结束且各关节实测误差不超过0.15 rad，才切换到 `0x11`。未到位时继续保持放臂目标，状态反馈仍为 `0x11013`。
-- 重复 `0x11` 不会重启计时；后续普通运动请求不覆盖已锁定的返回流程。手柄发送 `0x1100e`（RLControlMode）可在抬臂、保持或放臂期间立即切换到RL Control，无需等待放臂完成。`0x2`／R或安全故障始终优先立即进入阻尼。
+- 右臂放下目标为 `[0,-0.22,0,1.2,0,0,0]` rad（AMP Walking默认右臂姿态）。插值结束且各关节实测误差不超过0.15 rad，才切换到 `0x11`。未到位时继续保持放臂目标，状态反馈仍为 `0x1100f`。
+- 重复 `0x11` 不会重启计时；后续普通运动请求不覆盖已锁定的返回流程。手柄发送 `0x1100c`（AmpControl_Walk2Run_Mode）可在抬臂、保持或放臂期间立即切换到RL Control，无需等待放臂完成。`0x2`／R或安全故障始终优先立即进入阻尼。
 - 重入重新采样当前角度；敬礼抬臂中途也可请求先放臂再行走。
 
-DDS入口沿用原RL Stand允许进入的来源：ZeroPos（完成3秒准备）、RL Stand、AMP Walking、MoE、WAQ及RLControl。
+DDS入口沿用原RL Stand允许进入的来源：ZeroPos（完成3秒准备）、RL Stand、AMP Walking及RLControl。
 本地键盘从RL Stand或AMP Walking按 `U` 进入；`M/C` 返回行走。
 
 右臂目标位于 [RLStandSalutePolicyRunner::RightArmPose](../run_policy/cr1pro/include/rl_stand_salute_policy_runner.hpp)：
@@ -55,10 +55,10 @@ DDS入口沿用原RL Stand允许进入的来源：ZeroPos（完成3秒准备）�
 
 | 请求及反馈 | 规划动作 | 另一侧手臂 |
 |---|---|---|
-| `0x11013` | 右臂从实测当前位置完成3秒敬礼规划并保持 | 左臂保持入态时实测角度 |
-| `0x11014` | 左臂从实测当前位置完成3秒目标规划并保持 | 右臂保持入态时实测角度 |
+| `0x1100f` | 右臂从实测当前位置完成3秒敬礼规划并保持 | 左臂保持入态时实测角度 |
+| `0x11010` | 左臂从实测当前位置完成3秒目标规划并保持 | 右臂保持入态时实测角度 |
 
-两者可分别从普通RL Stand、AMP Walking、MoE、WAQ、RL Control或已完成3秒准备的ZeroPos直接进入，也可相互切换。左臂动作不依赖先执行敬礼。
+两者可分别从普通RL Stand、AMP Walking、RL Control或已完成3秒准备的ZeroPos直接进入，也可相互切换。左臂动作不依赖先执行敬礼。
 
 左臂在进入时采样实测七关节角，用3秒五次插值运动到下列目标，随后保持。关节顺序与SDK一致，角度在 `RLStandSalutePolicyRunner::LeftArmPose()` 内转换为弧度：
 
@@ -76,8 +76,8 @@ DDS入口沿用原RL Stand允许进入的来源：ZeroPos（完成3秒准备）�
 
 - 重复发送当前状态码不重入状态、不重启该侧手臂计时。
 - 发送另一种手臂动作状态码时，被选侧从切换时实测位置重新规划，未选侧固定在切换时实测位置。
-- `0x11`／手柄L2／键盘M或C仍先放下右臂，再切换行走；左臂已开始的轨迹继续，进入行走后双臂从实测位置平滑交接。已锁定的行走请求不会被后续 `0x11014` 取消。
-- `0x1100e` 立即切换RL Control；`0x2`、键盘R或安全故障立即进入阻尼。
+- `0x11`／手柄L2／键盘M或C仍先放下右臂，再切换行走；左臂已开始的轨迹继续，进入行走后双臂从实测位置平滑交接。已锁定的行走请求不会被后续 `0x11010` 取消。
+- `0x1100c` 立即切换RL Control；`0x2`、键盘R或安全故障立即进入阻尼。
 
 ## 先放臂后切换行走（当前时序）
 

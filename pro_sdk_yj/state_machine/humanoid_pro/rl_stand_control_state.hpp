@@ -169,7 +169,7 @@ public:
     RLStandControlState(const RobotName& robot_name, const std::string& state_name,
                         std::shared_ptr<ControllerData> data_ptr)
         : RLStandControlState(robot_name, state_name, data_ptr,
-              std::make_shared<RLStandPolicyRunner>("rl_stand", robot_name), RLStandControlMode) {}
+              std::make_shared<RLStandPolicyRunner>("rl_stand", robot_name), RLControl_Stand_Mode) {}
 
     ~RLStandControlState() override {
         start_flag_ = false;
@@ -188,9 +188,9 @@ public:
         Vec7f initial_left_arm = rbs_.joint_pos.segment<7>(3);
         Vec7f initial_right_arm = rbs_.joint_pos.segment<7>(10);
         const MatXf last_joint_cmd = ri_ptr_->GetJointCommand();
-        if (motion_mode_ != RLStandSaluteMode && motion_mode_ != RLStandSaluteLeftArmMode &&
-            motion_mode_ != RLStandPleaseMode && motion_mode_ != RLStandTalkingMode &&
-            motion_mode_ != RLStandPlease2Mode &&
+        if (motion_mode_ != RLControl_StandSalute_Mode && motion_mode_ != RLControl_StandSaluteLeftArm_Mode &&
+            motion_mode_ != RLControl_StandPlease_Mode && motion_mode_ != RLControl_StandTalking_Mode &&
+            motion_mode_ != RLControl_StandPlease2_Mode &&
             last_joint_cmd.rows() == 31 &&
             last_joint_cmd.cols() == 5 && last_joint_cmd.allFinite()) {
             initial_left_arm = last_joint_cmd.block<7, 1>(3, 1);
@@ -275,25 +275,19 @@ public:
             return StateName::kJointDamping;
         }
 
-        if (user_command.target_mode == RobotMotionState::AmpMoe15Dof) {
-            return StateName::kAmpMoe15Dof;
-        }
-        if (user_command.target_mode == RobotMotionState::RLStandSaluteMode)
+        if (user_command.target_mode == RobotMotionState::RLControl_StandSalute_Mode)
             return StateName::kRLStandSalute;
-        if (user_command.target_mode == RobotMotionState::RLStandSaluteLeftArmMode)
+        if (user_command.target_mode == RobotMotionState::RLControl_StandSaluteLeftArm_Mode)
             return StateName::kRLStandSaluteLeftArm;
-        if (user_command.target_mode == RobotMotionState::RLStandPleaseMode)
+        if (user_command.target_mode == RobotMotionState::RLControl_StandPlease_Mode)
             return StateName::kRLStandPlease;
-        if (user_command.target_mode == RobotMotionState::RLStandTalkingMode)
+        if (user_command.target_mode == RobotMotionState::RLControl_StandTalking_Mode)
             return StateName::kRLStandTalking;
-        if (user_command.target_mode == RobotMotionState::RLStandPlease2Mode)
+        if (user_command.target_mode == RobotMotionState::RLControl_StandPlease2_Mode)
             return StateName::kRLStandPlease2;
-        if (user_command.target_mode == RobotMotionState::RLControlMode)
+        if (user_command.target_mode == RobotMotionState::AmpControl_Walk2Run_Mode)
             return StateName::kRLControl;
-        if (user_command.target_mode == RobotMotionState::AmpWalkingWAQ) {
-            return StateName::kAmpWalkingWAQ;
-        }
-        if (user_command.target_mode == (RobotMotionState::AmpWalkingControl)) {
+        if (user_command.target_mode == (RobotMotionState::AmpControl_Walk_Mode)) {
             return StateName::kAmpWalkingControl;
         }
 

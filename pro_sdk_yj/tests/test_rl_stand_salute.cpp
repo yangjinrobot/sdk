@@ -142,7 +142,7 @@ static void CheckLeftArmAndGestureHandoff() {
             }
         }
         UserCommand command{};
-        command.target_mode=tick>=100 && tick<450?RLStandSaluteLeftArmMode:RLStandSaluteMode;
+        command.target_mode=tick>=100 && tick<450?RLControl_StandSaluteLeftArm_Mode:RLControl_StandSalute_Mode;
         const auto expected=continuous.GetRobotAction(state,command);
         const auto actual=shared.GetRobotAction(state,command);
         const Vec7f right_target=tick<100?Vec7f(expected.goal_joint_pos.segment<7>(10)):

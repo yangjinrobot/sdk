@@ -1,16 +1,16 @@
 # Tangxia / Zhanli 策略接入
 
-已接入 DR02 PRO 的 `0x1101a` 躺下和 `0x1101b` 站起状态。状态图固定为：
+`0x11015` 和 `0x11016` 为 SDK 保留地址。当前版本拒绝这两个 DDS 命令，运行时未注册两个控制器。以下记录保留策略启用时的实现。
 
 ```text
-AmpWalking(0x11) -> Tangxia(0x1101a) -> Zhanli(0x1101b) -> AmpWalking(0x11)
+AmpWalking(0x11) -> Tangxia(0x11015) -> Zhanli(0x11016) -> AmpWalking(0x11)
 ```
 
-`Tangxia` 只接受来自 `AmpWalkingControl` 的请求，`Zhanli` 只接受当前处于 `Tangxia` 的请求，并只能返回 `AmpWalkingControl`。直接向其他状态发送这两个编号不会改变当前状态。显式阻尼及除姿态超限外的安全故障仍可随时中止策略。
+`Tangxia` 只接受来自 `AmpControl_Walk_Mode` 的请求，`Zhanli` 只接受当前处于 `Tangxia` 的请求，并只能返回 `AmpControl_Walk_Mode`。直接向其他状态发送这两个编号不会改变当前状态。显式阻尼及除姿态超限外的安全故障仍可随时中止策略。
 
 ## AmpWalking 到 Tangxia 的入口过渡
 
-从 `AmpWalkingControl 0x11` 进入 `TangxiaMode 0x1101a` 时，不再直接跳到 Tangxia 第一帧输出：
+从 `AmpControl_Walk_Mode 0x11` 进入 `MimicControl_LieDown_Mode 0x11015` 时，不再直接跳到 Tangxia 第一帧输出：
 
 1. 进入 Tangxia 前读取 AMP Walking 最后下发的完整 `31×5` 指令，包含 `kp/位置/kd/目标速度/前馈力矩`。
 2. Tangxia 策略从第 0 帧开始正常推理并推进帧号。
@@ -55,7 +55,7 @@ last_action[29]
 
 ## 安全处理
 
-`SafeController` 在 `TangxiaMode` 或 `ZhanliMode` 期间只屏蔽 `kSafePostureNormal` 引起的软急停。IMU NaN/超时、关节更新/位置/NaN、驱动状态、温度和通信故障仍按原逻辑进入阻尼。禁止通过全局 `report_only=true` 或把姿态阈值改成 180° 来实现此功能。
+`SafeController` 在 `MimicControl_LieDown_Mode` 或 `MimicControl_GetUp_Mode` 期间只屏蔽 `kSafePostureNormal` 引起的软急停。IMU NaN/超时、关节更新/位置/NaN、驱动状态、温度和通信故障仍按原逻辑进入阻尼。禁止通过全局 `report_only=true` 或把姿态阈值改成 180° 来实现此功能。
 
 ## 验证状态
 

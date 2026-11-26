@@ -47,7 +47,7 @@ public:
     // Keyboard, gamepad, UDP and DDS must all use this mode-request boundary.
     bool SetTargetModeRequest(uint32_t state) {
         std::lock_guard<std::recursive_mutex> lock(command_mutex_);
-        if (!IsKnownRobotMotionState(state)) return false;
+        if (!IsEnabledRobotMotionState(state)) return false;
         const bool pending = EmergencyDampingPending();
         if (pending && state != RobotMotionState::JointDamping) return false;
         usr_cmd_->target_mode = state;

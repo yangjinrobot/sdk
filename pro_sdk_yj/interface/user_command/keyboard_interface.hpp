@@ -31,12 +31,10 @@ public:
         EnableDdsInput(false);
     }
     void Start() override {
-        std::cout << "CR1PRO DDS protocol: idle=0x0, damping=0x2, AMP zero=0x20006, walking=0x11, stand=0x1100b, MoE=0x1100c, WAQ=0x1100d, AMP=0x1100e, sit=0x11016, rise=0x11017, kneel=0x11011, kneel rise=0x11012, salute=0x11013, salute left arm=0x11014, lie down=0x1101a, stand up=0x1101b\n"
+        std::cout << "CR1PRO DDS protocol: idle=0x0, damping=0x2, AMP zero=0x20006, walking=0x11, stand=0x1100b, walk-to-run=0x1100c, talking=0x1100d, welcome=0x1100e, salute=0x1100f, left-arm welcome=0x11010, invitation=0x11011, sit=0x11012, rise=0x11013, box fight=0x11014, lie down=0x11015, get up=0x11016\n"
                   << "  U: walking/RL stand -> salute; M/C/L2: salute -> AMP walking with smooth arm release\n"
-                  << "  O: AMP preparation/RL stand/AMP walking/MoE -> WAQ; V/M: WAQ -> stand/AMP walking\n"
-                  << "  Gamepad (whole-body): L1 AMP zero pos; L2 AMP walking; R1 RL stand; R2 RL stand -> AMP MoE 15 DOF\n"
-                  << "  B: stand/walking -> AMP; N: AMP -> sit; M: sit -> rise; B: rise -> AMP\n"
-                  << "  P: RL stand -> AMP MoE; V: MoE -> RL stand; M: MoE -> AMP walking\n"
+                  << "  Gamepad (whole-body): L1 AMP zero pos; L2 AMP walking; R1 RL stand\n"
+                  << "  B: stand/walking -> walk-to-run; N: walk-to-run -> sit; M: sit -> rise -> AMP walking\n"
                   << "  Gamepad (upper-body): L1 zero pos; L2 upper-body control\n"
                   << "  Z: idle/damping/zero pos -> AMP zero pos; C: AMP zero pos -> AMP walking\n"
                   << "  V: AMP walking -> RL stand; M: RL stand -> AMP walking\n"
@@ -105,7 +103,7 @@ public:
                     ClearVelocity();
                     side_active_ = turn_active_ = false;
                 }
-                const bool rl = state == RobotMotionState::RLStandControlMode ||
+                const bool rl = state == RobotMotionState::RLControl_Stand_Mode ||
                                 state == RobotMotionState::AmpWholeBodyControlMode;
                 if (key == 'a' || key == 'd') {
                     usr_cmd_->side_vel_scale = (key == 'a' ? 1.0f : -1.0f) * (rl ? 0.70f : 0.5f);
@@ -164,10 +162,10 @@ public:
             if (control_mode_ == ControlMode::kWholeBody) {
                 if (state == RobotMotionState::AmpWalkingZeroPos)
                     HandleKeyboardModeKey('l', state);
-                else if (state == RobotMotionState::RLControlMode ||
-                         state == RobotMotionState::RLStandControlMode || state == RobotMotionState::AmpMoe15Dof ||
-                         state == RobotMotionState::AmpWalkingWAQ || state == RobotMotionState::RLStandSaluteMode ||
-                         state == RobotMotionState::RLStandSaluteLeftArmMode)
+                else if (state == RobotMotionState::AmpControl_Walk2Run_Mode ||
+                         state == RobotMotionState::RLControl_Stand_Mode ||
+                         state == RobotMotionState::RLControl_StandSalute_Mode ||
+                         state == RobotMotionState::RLControl_StandSaluteLeftArm_Mode)
                     HandleKeyboardModeKey('m', state);
                 else if (state == RobotMotionState::AmpZeroPos)
                     HandleKeyboardModeKey('c', state);
@@ -180,9 +178,6 @@ public:
                 HandleKeyboardModeKey('v', state);
             break;
         case KeyCode::R2:
-            if (control_mode_ == ControlMode::kWholeBody)
-                HandleKeyboardModeKey('p', state);
-            break;
         default:
             break;
         }
@@ -260,16 +255,14 @@ private:
         if (name) std::cout << "[MODE] " << name << std::endl;
     }
   bool IsKeyboardVelocityState(RobotMotionState state) const {
-    return state == RobotMotionState::RLControlMode ||
-           state == RobotMotionState::RLStandControlMode ||
-           state == RobotMotionState::AmpMoe15Dof ||
-           state == RobotMotionState::AmpWalkingWAQ ||
+    return state == RobotMotionState::AmpControl_Walk2Run_Mode ||
+           state == RobotMotionState::RLControl_Stand_Mode ||
            state == RobotMotionState::AmpWholeBodyControlMode ||
-           state == RobotMotionState::AmpWalkingControl;
+           state == RobotMotionState::AmpControl_Walk_Mode;
   }
 
   void ClipKeyboardVelocityCommand(RobotMotionState state) {
-    if (state == RobotMotionState::AmpWalkingControl) {
+    if (state == RobotMotionState::AmpControl_Walk_Mode) {
       ClipNumber(usr_cmd_->forward_vel_scale, -0.6f, 1.5f);
       ClipNumber(usr_cmd_->side_vel_scale, -0.5f, 0.5f);
       ClipNumber(usr_cmd_->turnning_vel_scale, -1.57f, 1.57f);
@@ -283,75 +276,40 @@ private:
 
   void HandleKeyboardModeKey(char key, RobotMotionState current_state) {
     if (control_mode_ == ControlMode::kWholeBody) {
-      if (key == 'u' && (current_state == RobotMotionState::RLStandControlMode ||
-                         current_state == RobotMotionState::AmpWalkingControl)) {
+      if (key == 'u' && (current_state == RobotMotionState::RLControl_Stand_Mode ||
+                         current_state == RobotMotionState::AmpControl_Walk_Mode)) {
         ClearVelocity();
-        SetTargetMode(RobotMotionState::RLStandSaluteMode, "RL Stand Salute");
+        SetTargetMode(RobotMotionState::RLControl_StandSalute_Mode, "RL Stand Salute");
         return;
       }
-      if (key == 't' && current_state == RobotMotionState::AmpWalkingControl) {
+      if (key == 'b' && (current_state == RobotMotionState::RLControl_Stand_Mode ||
+                         current_state == RobotMotionState::AmpControl_Walk_Mode)) {
         ClearVelocity();
-        SetTargetMode(RobotMotionState::Stand2KneeMimicMode, "Stand to Knee Mimic");
+        SetTargetMode(RobotMotionState::AmpControl_Walk2Run_Mode, "AMP Walk to Run");
         return;
       }
-      if (key == 'y' && current_state == RobotMotionState::Stand2KneeMimicMode) {
+      if (key == 'n' && current_state == RobotMotionState::AmpControl_Walk2Run_Mode) {
         ClearVelocity();
-        SetTargetMode(RobotMotionState::Knee2StandMimicMode, "Knee to Stand Mimic");
+        SetTargetMode(RobotMotionState::MimicControl_ChairDown_Mode, "Mimic12 Stand to Sit");
         return;
       }
-      if (key == 'b' && (current_state == RobotMotionState::RLStandControlMode ||
-                         current_state == RobotMotionState::AmpWalkingControl)) {
+      if (key == 'm' && current_state == RobotMotionState::MimicControl_ChairDown_Mode) {
+        SetTargetMode(RobotMotionState::MimicControl_ChairUp_Mode, "Mimic13 Sit to Stand");
+        return;
+      }
+      if (key == 'm' && current_state == RobotMotionState::MimicControl_ChairUp_Mode) {
+        SetTargetMode(RobotMotionState::AmpControl_Walk_Mode, "AMP Walking Control");
+        return;
+      }
+      if (key == 'k' && (current_state == RobotMotionState::AmpControl_Walk_Mode ||
+                         current_state == RobotMotionState::MimicControl_BoxFight_Mode)) {
         ClearVelocity();
-        SetTargetMode(RobotMotionState::RLControlMode, "AMP Control");
+        const bool to_walking = current_state == RobotMotionState::MimicControl_BoxFight_Mode;
+        SetTargetMode(to_walking ? RobotMotionState::AmpControl_Walk_Mode
+                                 : RobotMotionState::MimicControl_BoxFight_Mode,
+                      to_walking ? "AMP Walking Control" : "Box Fight");
         return;
       }
-      if (key == 'n' && current_state == RobotMotionState::RLControlMode) {
-        ClearVelocity();
-        SetTargetMode(RobotMotionState::RLControlMimic12Mode, "Mimic12 Stand to Sit");
-        return;
-      }
-      if (key == 'm' && current_state == RobotMotionState::RLControlMimic12Mode) {
-        SetTargetMode(RobotMotionState::RLControlMimic13Mode, "Mimic13 Sit to Stand");
-        return;
-      }
-      if (key == 'm' && current_state == RobotMotionState::RLControlMimic13Mode) {
-        SetTargetMode(RobotMotionState::AmpWalkingControl, "AMP Walking Control");
-        return;
-      }
-      // Dance policies toggle with AMP walking only.
-      if (key == 'g' && (current_state == RobotMotionState::AmpWalkingControl ||
-                         current_state == RobotMotionState::RLControlMimic1Mode)) {
-        ClearVelocity();
-        const bool to_walking = current_state == RobotMotionState::RLControlMimic1Mode;
-        SetTargetMode(to_walking ? RobotMotionState::AmpWalkingControl
-                                 : RobotMotionState::RLControlMimic1Mode,
-                      to_walking ? "AMP Walking Control" : "Mimic1 Dance");
-        return;
-      }
-      if (key == 'k' && (current_state == RobotMotionState::AmpWalkingControl ||
-                         current_state == RobotMotionState::RLControlMimic2Mode)) {
-        ClearVelocity();
-        const bool to_walking = current_state == RobotMotionState::RLControlMimic2Mode;
-        SetTargetMode(to_walking ? RobotMotionState::AmpWalkingControl
-                                 : RobotMotionState::RLControlMimic2Mode,
-                      to_walking ? "AMP Walking Control" : "Mimic2 Dance");
-        return;
-      }
-    }
-    if (key == 'o') {
-      if (control_mode_ == ControlMode::kWholeBody &&
-          (current_state == RobotMotionState::AmpZeroPos ||
-           current_state == RobotMotionState::AmpWalkingZeroPos ||
-           current_state == RobotMotionState::RLStandControlMode ||
-           current_state == RobotMotionState::AmpWalkingControl ||
-           current_state == RobotMotionState::AmpMoe15Dof))
-        SetTargetMode(RobotMotionState::AmpWalkingWAQ, "AMP Walking WAQ");
-      return;
-    }
-    if (key == 'p') {
-      if (control_mode_ == ControlMode::kWholeBody && current_state == RobotMotionState::RLStandControlMode)
-        SetTargetMode(RobotMotionState::AmpMoe15Dof, "AMP MoE 15 DOF");
-      return;
     }
     if (key == 'r') {
       SetTargetMode(RobotMotionState::JointDamping, "Joint Damping");
@@ -370,30 +328,28 @@ private:
     if (key == 'c') {
       if (current_state == RobotMotionState::AmpZeroPos ||
           (control_mode_ == ControlMode::kWholeBody &&
-           (current_state == RobotMotionState::Knee2StandMimicMode ||
-            current_state == RobotMotionState::RLStandSaluteMode ||
-            current_state == RobotMotionState::RLStandSaluteLeftArmMode))) {
+           (current_state == RobotMotionState::RLControl_StandSalute_Mode ||
+            current_state == RobotMotionState::RLControl_StandSaluteLeftArm_Mode))) {
         ClearVelocity();
-        SetTargetMode(RobotMotionState::AmpWalkingControl, "AMP Walking Control");
+        SetTargetMode(RobotMotionState::AmpControl_Walk_Mode, "AMP Walking Control");
       }
       return;
     }
 
     if (key == 'v') {
-      if (current_state == RobotMotionState::RLControlMode || current_state == RobotMotionState::AmpWalkingControl || current_state == RobotMotionState::AmpMoe15Dof ||
-          current_state == RobotMotionState::AmpWalkingWAQ) {
-        SetTargetMode(RobotMotionState::RLStandControlMode, "RL Stand Control");
+      if (current_state == RobotMotionState::AmpControl_Walk2Run_Mode ||
+          current_state == RobotMotionState::AmpControl_Walk_Mode) {
+        SetTargetMode(RobotMotionState::RLControl_Stand_Mode, "RL Stand Control");
       }
       return;
     }
 
     if (key == 'm') {
-      if (current_state == RobotMotionState::RLControlMode || current_state == RobotMotionState::RLStandControlMode || current_state == RobotMotionState::AmpMoe15Dof ||
-          current_state == RobotMotionState::AmpWalkingWAQ ||
+      if (current_state == RobotMotionState::AmpControl_Walk2Run_Mode || current_state == RobotMotionState::RLControl_Stand_Mode ||
           (control_mode_ == ControlMode::kWholeBody &&
-           (current_state == RobotMotionState::RLStandSaluteMode || current_state == RobotMotionState::RLStandSaluteLeftArmMode))) {
-        if (current_state == RobotMotionState::RLStandSaluteMode || current_state == RobotMotionState::RLStandSaluteLeftArmMode) ClearVelocity();
-        SetTargetMode(RobotMotionState::AmpWalkingControl, "AMP Walking Control");
+           (current_state == RobotMotionState::RLControl_StandSalute_Mode || current_state == RobotMotionState::RLControl_StandSaluteLeftArm_Mode))) {
+        if (current_state == RobotMotionState::RLControl_StandSalute_Mode || current_state == RobotMotionState::RLControl_StandSaluteLeftArm_Mode) ClearVelocity();
+        SetTargetMode(RobotMotionState::AmpControl_Walk_Mode, "AMP Walking Control");
       }
       return;
     }
@@ -419,7 +375,7 @@ private:
           current_state == RobotMotionState::JointDamping ||
           current_state == RobotMotionState::ZeroPos ||
           current_state == RobotMotionState::AmpZeroPos ||
-          current_state == RobotMotionState::AmpWalkingControl) {
+          current_state == RobotMotionState::AmpControl_Walk_Mode) {
         SetTargetMode(RobotMotionState::AmpWalkingZeroPos, "AMP Walking Zero Pos");
       }
       return;
@@ -427,7 +383,7 @@ private:
 
     if (key == 'l') {
       if (current_state == RobotMotionState::AmpWalkingZeroPos) {
-        SetTargetMode(RobotMotionState::AmpWalkingControl, "AMP Walking Control");
+        SetTargetMode(RobotMotionState::AmpControl_Walk_Mode, "AMP Walking Control");
       }
       return;
     }

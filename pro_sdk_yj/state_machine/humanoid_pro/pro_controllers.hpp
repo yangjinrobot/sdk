@@ -16,18 +16,11 @@
 #include "humanoid_pro/amp_whole_body_control_state.hpp"
 #include "humanoid_pro/amp_walking_zeropos_state.hpp"
 #include "humanoid_pro/amp_walking_state.hpp"
-#include "humanoid_pro/amp_moe_15dof_state.hpp"
-#include "humanoid_pro/amp_walking_waq_state.hpp"
 #include "humanoid_pro/rl_control_state.hpp"
 #include "humanoid_pro/rl_mimic12_control_state.hpp"
 #include "humanoid_pro/rl_mimic13_control_state.hpp"
 #include "humanoid_pro/squat_preparation_state.hpp"
-#include "humanoid_pro/rl_mimic1_control_state.hpp"
 #include "humanoid_pro/rl_mimic2_control_state.hpp"
-#include "humanoid_pro/stand2knee_mimic_state.hpp"
-#include "humanoid_pro/knee2stand_mimic_state.hpp"
-#include "humanoid_pro/tangxia_state.hpp"
-#include "humanoid_pro/zhanli_state.hpp"
 #include <stdexcept>
 
 namespace humanoid_pro {
@@ -48,17 +41,10 @@ private:
     std::shared_ptr<StateBase> amp_whole_body_controller_;
     std::shared_ptr<StateBase> amp_walking_zeropos_controller_;
     std::shared_ptr<StateBase> amp_walking_controller_;
-    std::shared_ptr<StateBase> amp_moe_15dof_controller_;
-    std::shared_ptr<StateBase> amp_walking_waq_controller_;
     std::shared_ptr<StateBase> rl_controller_;
     std::shared_ptr<StateBase> rl_mimic12_controller_;
     std::shared_ptr<StateBase> rl_mimic13_controller_;
-    std::shared_ptr<StateBase> stand2knee_mimic_controller_;
-    std::shared_ptr<StateBase> knee2stand_mimic_controller_;
-    std::shared_ptr<StateBase> rl_mimic1_controller_;
     std::shared_ptr<StateBase> rl_mimic2_controller_;
-    std::shared_ptr<StateBase> tangxia_controller_;
-    std::shared_ptr<StateBase> zhanli_controller_;
 
 public:
     ProControllers(const RobotName& robot_name, const std::shared_ptr<ControllerData>& data_ptr) {
@@ -85,17 +71,10 @@ public:
         amp_whole_body_controller_ = std::make_shared<AmpWholeBodyControlState>(robot_name, "amp_whole_body_control_state", data_ptr);
         amp_walking_zeropos_controller_ = std::make_shared<AmpWalkingZeroPosState>(robot_name, "amp_walking_zeropos_state", data_ptr);
         amp_walking_controller_ = std::make_shared<AmpWalkingState>(robot_name, "amp_walking_state", data_ptr);
-        amp_moe_15dof_controller_ = std::make_shared<AmpMoe15DofState>(robot_name, "amp_moe_15dof_state", data_ptr);
-        amp_walking_waq_controller_ = std::make_shared<AmpWalkingWAQState>(robot_name, "amp_walking_waq_state", data_ptr);
         rl_controller_ = std::make_shared<RLControlState>(robot_name, "rl_control_state", data_ptr);
         rl_mimic12_controller_ = std::make_shared<RLMimic12ControlState>(robot_name, "rl_mimic12_control_state", data_ptr);
         rl_mimic13_controller_ = std::make_shared<RLMimic13ControlState>(robot_name, "rl_mimic13_control_state", data_ptr);
-        stand2knee_mimic_controller_ = std::make_shared<Stand2KneeMimicState>(robot_name, "stand2knee_mimic_state", data_ptr);
-        knee2stand_mimic_controller_ = std::make_shared<Knee2StandMimicState>(robot_name, "knee2stand_mimic_state", data_ptr);
-        rl_mimic1_controller_ = std::make_shared<RLMimic1ControlState>(robot_name, "rl_mimic1_control_state", data_ptr);
         rl_mimic2_controller_ = std::make_shared<RLMimic2ControlState>(robot_name, "rl_mimic2_control_state", data_ptr);
-        tangxia_controller_ = std::make_shared<TangxiaState>(robot_name, "tangxia_state", data_ptr);
-        zhanli_controller_ = std::make_shared<ZhanliState>(robot_name, "zhanli_state", data_ptr);
     }
 
     std::shared_ptr<StateBase> GetStateControllerPtr(StateName state_name) const {
@@ -130,28 +109,14 @@ public:
                 return amp_walking_zeropos_controller_;
             case StateName::kAmpWalkingControl:
                 return amp_walking_controller_;
-            case StateName::kAmpMoe15Dof:
-                return amp_moe_15dof_controller_;
-            case StateName::kAmpWalkingWAQ:
-                return amp_walking_waq_controller_;
             case StateName::kRLControl:
                 return rl_controller_;
             case StateName::kRLMimic12Control:
                 return rl_mimic12_controller_;
             case StateName::kRLMimic13Control:
                 return rl_mimic13_controller_;
-            case StateName::kStand2KneeMimic:
-                return stand2knee_mimic_controller_;
-            case StateName::kKnee2StandMimic:
-                return knee2stand_mimic_controller_;
-            case StateName::kRLMimic1Control:
-                return rl_mimic1_controller_;
             case StateName::kRLMimic2Control:
                 return rl_mimic2_controller_;
-            case StateName::kTangxia:
-                return tangxia_controller_;
-            case StateName::kZhanli:
-                return zhanli_controller_;
             case StateName::kInvalid:
             default:
                 return nullptr;

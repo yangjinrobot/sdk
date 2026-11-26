@@ -15,7 +15,7 @@ private:
 public:
     RLMimic12ControlState(RobotName robot_name, const std::string& state_name, std::shared_ptr<ControllerData> data_ptr)
         : CopiedPolicyControlState(robot_name, state_name, data_ptr, MakePolicy(robot_name),
-                                   RLControlMimic12Mode, {RLControlMimic13Mode}) {}
+                                   MimicControl_ChairDown_Mode, {MimicControl_ChairUp_Mode}) {}
 };
 }  // namespace humanoid_pro
 

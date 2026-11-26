@@ -17,7 +17,7 @@ public:
     TangxiaState(RobotName robot_name, const std::string& state_name,
                  std::shared_ptr<ControllerData> data_ptr)
         : CopiedPolicyControlState(robot_name, state_name, data_ptr, MakePolicy(robot_name),
-                                   TangxiaMode, {ZhanliMode}, RobotMotionState::AmpWalkingControl) {}
+                                   MimicControl_LieDown_Mode, {MimicControl_GetUp_Mode}, RobotMotionState::AmpControl_Walk_Mode) {}
 };
 }  // namespace humanoid_pro
 

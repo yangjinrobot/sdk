@@ -1,5 +1,7 @@
 # AMP Walking WAQ / Walk-to-run
 
+> 历史记录。WAQ 状态机已移除。原 WAQ 地址 `0x1100d` 现用于讲解手势。 当前映射见 [使用说明](USAGE.md#状态编号与切换)。
+
 状态 `AmpWalkingWAQ = 0x1100d`，对应 `kAmpWalkingWAQ`、`AmpWalkingWAQState` 和 `AmpWalkingWAQPolicyRunner`。
 2026-10-30 更换为 walk-to-run 策略，保留原状态编号及键盘、手柄、DDS 入口。
 

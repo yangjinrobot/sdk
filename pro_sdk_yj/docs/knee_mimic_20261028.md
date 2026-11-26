@@ -1,5 +1,7 @@
 # Stand2Knee / Knee2Stand 接入（2026-10-28）
 
+> 历史记录。跪下和跪姿起立状态机已移除。原地址 `0x11011`、`0x11012` 现分别用于欢迎2和椅子坐姿。 当前映射见 [使用说明](USAGE.md#状态编号与切换)。
+
 WholeBody 键盘操作流程：
 
 | 当前状态 | 按键 | 目标状态 | 状态编号 |
@@ -27,6 +29,4 @@ WholeBody 键盘操作流程：
 - 每次进入从参考帧0和零历史动作开始。Stand2Knee共384帧，7.66秒到末帧；Knee2Stand共313帧，6.24秒到末帧。之后继续推理和执行物理，参考帧保持不变。
 - 复用现有 `CopiedPolicyControlState` 线程生命周期及 `BoundedPolicyCommand`，输出31×5指令后继续经过关节保护。
 
-实现位于 [公共runner](../run_policy/cr1pro/src/knee_mimic_policy_runner.cpp)、
-[跪下状态](../state_machine/humanoid_pro/stand2knee_mimic_state.hpp)、
-[起立状态](../state_machine/humanoid_pro/knee2stand_mimic_state.hpp)。
+实现位于 [公共 runner](../run_policy/cr1pro/src/knee_mimic_policy_runner.cpp)。

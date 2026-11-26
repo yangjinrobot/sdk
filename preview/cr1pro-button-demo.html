@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' file: data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+  <title>CR1PRO 手柄预览</title>
+  <style>
+  :root { color-scheme: light dark; background: light-dark(#fff, #181818); }
+  #cr1-button-flow {
+    color-scheme: light dark;
+    --preview-ink: light-dark(#17202d, #f1f5fb);
+    --preview-muted: light-dark(#526477, #afbed0);
+    --preview-edge: light-dark(#d5dde8, #445269);
+    max-width: 1180px; margin: 0 auto; padding: 10px 0; container-type: inline-size;
+    color: var(--preview-ink);
+    font: 14px/1.5 system-ui, sans-serif;
+  }
+  #cr1-button-flow * { box-sizing: border-box; }
+  #cr1-button-flow [hidden] { display: none !important; }
+  #cr1-button-flow .cr1-preview-header, #cr1-button-flow .cr1-feedback {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px 16px;
+    flex-wrap: wrap;
+  }
+  #cr1-button-flow .cr1-preview-header { margin-bottom: 10px; }
+  #cr1-button-flow h2 { margin: 0; font-size: 19px; font-weight: 650; }
+  #cr1-button-flow .cr1-caption { color: var(--preview-muted); font-size: 12px; }
+  #cr1-button-flow .cr1-feedback { justify-content: flex-start; padding-top: 9px; }
+  #cr1-button-flow .cr1-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  #cr1-button-flow button { font: inherit; }
+  #cr1-button-flow button:not(:disabled) { cursor: pointer; }
+  #cr1-button-flow .cr1-device {
+    display: flex; flex-direction: column; width: 100%; min-height: max(450px, 56.25cqw);
+    color-scheme: dark; color: #fff;
+    background: #191a1d var(--cr1-background, none) center / 100% 100% no-repeat;
+  }
+  #cr1-button-flow .cr1-header, #cr1-button-flow .cr1-mode, #cr1-button-flow .cr1-top-right {
+    display: flex; align-items: center;
+  }
+  #cr1-button-flow .cr1-header {
+    justify-content: space-between; min-height: 41px; background: #000c;
+  }
+  #cr1-button-flow .cr1-mode { gap: 7px; padding-left: 16px; font-size: 17px; }
+  #cr1-button-flow .cr1-top-right { gap: 15px; }
+  #cr1-button-flow .cr1-back, #cr1-button-flow .cr1-settings {
+    display: inline-block; width: 24px; height: 24px;
+    background: var(--cr1-back, none) center / contain no-repeat;
+  }
+  #cr1-button-flow .cr1-settings { background-image: var(--cr1-settings, none); }
+  #cr1-button-flow .cr1-mode-arrow, #cr1-button-flow .cr1-battery { color: #ddd; font-size: 12px; }
+  #cr1-button-flow .cr1-stop {
+    width: 85px; min-height: 41px; border: 0; color: #fff;
+    background: #c33 var(--cr1-stop, none) center / 100% 100% no-repeat;
+    font-size: 24px; font-weight: 800; font-style: italic;
+  }
+  #cr1-button-flow .cr1-body {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 14px; padding: 15px 19px 19px;
+  }
+  #cr1-button-flow .cr1-left { width: min(520px, 100%); min-width: 0; display: grid; gap: 13px; }
+  #cr1-button-flow .cr1-primary-row { gap: 13px; }
+  #cr1-button-flow .cr1-primary-row button { min-width: 110px; }
+  #cr1-button-flow .cr1-pad {
+    width: 100%; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 13px 8px;
+  }
+  #cr1-button-flow .cr1-pad > button { order: -1; }
+  #cr1-button-flow .cr1-pad button { min-width: 0; }
+  #cr1-button-flow .cr1-action-options {
+    grid-column: 1 / -1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px;
+  }
+  @media (max-width: 460px) {
+    #cr1-button-flow .cr1-pad, #cr1-button-flow .cr1-action-options {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  #cr1-button-flow .cr1-left button, #cr1-button-flow .cr1-speed {
+    min-height: 41px; padding: 5px 7px; border: 1px solid #ffffff24;
+    border-radius: 999px; color: #fff; background: #000c;
+  }
+  #cr1-button-flow .cr1-left button:enabled:hover,
+  #cr1-button-flow .cr1-left [aria-current="true"] {
+    background: #266efd;
+  }
+  #cr1-button-flow .cr1-left button:disabled:not([aria-current="true"]) { color: #fff8; }
+  #cr1-button-flow .cr1-speed {
+    display: grid; align-items: center; text-align: center;
+    width: 41px; border-radius: 50%; font-size: 11px;
+  }
+  #cr1-button-flow .cr1-tools { display: grid; gap: 12px; text-align: center; font-size: 11px; }
+  #cr1-button-flow .cr1-tools span { display: grid; gap: 2px; justify-items: center; white-space: nowrap; }
+  #cr1-button-flow .cr1-tools span::before {
+    content: ""; display: block; width: 41px; height: 41px; border-radius: 50%;
+    background: #000b var(--cr1-tool, none) center / 22px no-repeat;
+  }
+  #cr1-button-flow [data-tool="video"] { --cr1-tool: var(--cr1-video); }
+  #cr1-button-flow [data-tool="record"] { --cr1-tool: var(--cr1-record); }
+  #cr1-button-flow [data-tool="camera"] { --cr1-tool: var(--cr1-camera); }
+  #cr1-button-flow [data-tool="joints"] { --cr1-tool: var(--cr1-joints); }
+  #cr1-button-flow [data-tool="motion"] { --cr1-tool: var(--cr1-motion); }
+  @media (max-width: 570px) {
+    #cr1-button-flow .cr1-device { min-height: 405px; background-size: cover; background-position: 56% center; }
+    #cr1-button-flow .cr1-body { gap: 8px; padding: 12px 8px; }
+    #cr1-button-flow .cr1-pad { gap: 8px; }
+    #cr1-button-flow .cr1-primary-row { gap: 7px; }
+    #cr1-button-flow .cr1-primary-row button { min-width: 85px; }
+    #cr1-button-flow .cr1-left button { min-height: 44px; font-size: 12px; }
+    #cr1-button-flow .cr1-mode { padding-left: 8px; }
+    #cr1-button-flow .cr1-top-right { gap: 8px; }
+    #cr1-button-flow .cr1-stop { width: 68px; }
+    #cr1-button-flow .cr1-tools { gap: 8px; }
+    #cr1-button-flow .cr1-tools span::before { width: 32px; height: 32px; background-size: 18px; }
+  }
+
+#cr1-button-flow {
+  --cr1-background: url("cr1-controller-background.jpg");
+  --cr1-back: url("data:image/png;base64,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");
+  --cr1-settings: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAABJZJREFUeF7tmk1oHGUYx3/P7IfZSSQ7tbSCB1PaQwse4qkeI1RqoUJFhQhCI1YaqGDFih5aDJiD0ooVFS1WjCBYsGKhARULzbHeIiL1UEmEHkwp2VnMblOy2UdnP3Qbm8y7M/uR7M6c/8/M+/+/z9f7vCN0+SNdzp9IgMgDulyBKAS63AGiJBiFQBQCXa5AFAJd7gDtqwLZRd1bXOYRbwOsGFf6e+SHdmxGy0Mgm9fdy3BaKJP/91GmUUacPvm5lUK0TIB8Xh+4rYwjjPgQ/DKR4lifyFwrhGi6ADMz2tO/hVcFjiGkTUgpLFowlpnj/W3bZNHEJiimqQK4eX1K4W1gR8AFznrCpW35JqC9r1lTBJj/Sx+SGB8AQ74rMANMUeRoM/JDQwXIZDRNkpOVOI+bcTNGFVQ4m+xhrJH5oSECXL6s8cHdHEEZM41zY9orgcpNhHF3jjONyA+hBcjc0gdV+V5gZ2BSQQy9smlxwEnJH0HMqzahBPAyfHorV4GBMIsIaqvwW3aOh8N4QigB3Jy+4MVlUAINsRNGnJR8EfRdoQTI5PRThEN1frwgcB5lqqD87tnGhe0q7FHYL9BT1/uEs05KXqzLpgYcVoDPDTq72nZ3cqnAK1v65drdFnxjQe9PWHwMHDAmpEw4vfK8MX4FsHUCKONOr5wwWWgmp28hHDfBskEEuODY8mSVkLfTSYuDRWVIhALKdMLmw9r6nsnpRYT9viKsdwG8vj6ZYqBKLruge4vCuf/1C4prKcP9feVj8Y2s7kgkShVm7YZqvQsAnHdseaZEyotx4eqqzZLiJmx2VsWaz+tXAsNresF6F0CU0XSvnPFImMS2wBtpW97x8G5OD6vwyYYWYLnIY5v75JJHYj6nF8Unrr2uclOv7PPwNxd0T8zix04S4DsRHvdJbJOOLU90jABiMZruKYeAm9fXK/OB1TUQxp1UuVx2RAgonNtky7NBkmAmr18DT2/oEAAKS0vsqnZ/lWnw3ctgjOHqdNirGHGLGd/WeL1XgdLuKZNObzmuazzhCDCoELeEqXiKiRWN0LeIQUu8IQQoi9DVrXB565ULCZvR1UZa7qJu12VOG7XAVXdqswfUfRz2WmOBSVEu1R6Hi8KQlBNefbPEth6Hb+lB7zTme2BpIkCEQ+mUfBb0E6GOw5WR2C8h5v5B1121m3Xn2NW2kVipv8/oAEm8jD0Ylk099t48UG6zz3Fkth67ldhQHlB9WcUTDqMcR9gcZkG+tor7z5322HSKjx4VKfjifQANEaC2vidjvKlamhPWl8z8mRQQJljkNccR1x9uhmioADVCDCYs3mvk1Vg8xkv33iO/mtEyRzVFgOrnK5ejp0LcG1yrzAc21uVorf5efnC28nIRxnz7+v+aG1ctTmX/5N0wGd7ED5rqAbULqIy8TwLPrbkwZaIonLjPlusmBMJiWibAHflB8O4T7iibCldicLTflp/CkqrHvuUCVBdXOhZr5Scp6aKfpOrZnVZg2+YBrSBn8o1IABOVOhkTeUAn764Jt8gDTFTqZEzkAZ28uybcIg8wUamTMV3vAX8D23vKUAqq334AAAAASUVORK5CYII=");
+  --cr1-stop: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAABoCAYAAADPYH28AAADmUlEQVR4AezV7Y3TUBQE0GhrgFq2TspKLRQBIvkTKVrj9cfzm3sP0kYoG9tvzmTg4/fn5x8/DHwHMr8DHzd/CBCIFTDg2OocnMDtZsC+BQSCBToPOLg2RyfwFDDgp4NXApECBhxZm0MTeAoY8NPBK4FIAQOOrG33od2giIABFylSjJ4CBtyzd6mLCBhwkSLF6ClgwD1775y6VHYDLlWnMN0EDLhb4/KWEjDgUnUK003AgLs1Lm8pgW8OuFR2YQjECxhwfIUCdBYw4M7tyx4vYMDxFQrQWcCAV7fvgwTmEzDg+TpxIgKrBQx4NZUPEphPwIDn68SJCKwWMODVVJ0/KPusAgY8azPORWCFgAGvQPIRArMKGPCszTgXgRUCBrwCyUc6C8yd3YDn7sfpCCwKGPAij18SmFvAgOfux+kILAoY8CKPXxKYW+DcAc+d3ekIxAsYcHyFAnQWMODO7cseL2DA8RUK0FnAgM9q330JDBAw4AHIHkHgLAEDPkvWfQkMEDDgAcgeQeAsAQM+S7bzfWUfJmDAw6g9iMDxAgZ8vKk7EhgmYMDDqD2IwPECBny8qTt2Fhic3YAHg3scgSMFDPhITfciMFjAgAeDexyBIwUM+EhN9yIwWGCqAQ/O7nEE4gUMOL5CAToLGHDn9mWPFzDg+AoF6CxgwJO07xgEtggY8BY11xCYRMCAJynCMQhsETDgLWquITCJgAFPUkTnY8i+XcCAt9u5ksDlAgZ8eQUOQGC7gAFvt3MlgcsFDPjyChygs8De7Aa8V9D1BC4UMOAL8T2awF4BA94r6HoCFwoY8IX4Hk1gr0DygPdmdz2BeAEDjq9QgM4CBty5fdnjBQw4vkIBOgsYcGb7Tk3gIWDADwYvBDIFDDizN6cm8BAw4AeDFwKZAgac2VvnU8v+ImDALxj+SiBNwIDTGnNeAi8CBvyC4a8E0gQMOK0x5+0s8JbdgN9IvEEgR8CAc7pyUgJvAgb8RuINAjkCBpzTlZMSeBNoNOC37N4gEC9gwPEVCtBZwIA7ty97vIABx1coQGcBA27RvpBVBQy4arNytRAw4BY1C1lVwICrNitXCwEDblFz55C1sxtw7X6lKy5gwMULFq+2wMePX/ebHwZdvwM/7/fb0s//XJau/fe7s6/3P3Dtf6ClKy6wPODi4cUjkC5gwOkNOn9rAQNuXb/w6QIGnN6g87cWMOCv6vc+gQABAw4oyREJfCXwFwAA///DWqBBAAAABklEQVQDANDEj/buVT/GAAAAAElFTkSuQmCC");
+  --cr1-video: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAADaElEQVR4AeyYTYhOURzG75ipEcVaiBohSqipsZAsTCY2FjZIJsWCmprXwviOYsNkQRkfNTENWUhJI5KEskBRZiFDEooVpUzR6/fcuUf33vfSe+65XvfVnf7P/Z/zP1/Pcz7umfeO8+r8rxDwrxewWIFiBRxnoNhCjhPo3LxiBcrlcgvoByPgXU7wAh7nQEtccURAUGGISivAeJAXmwiRlWAo4EhyzCICCO0CqozLpYnb3jCzuIClocKOhoaGqXkAnDqAsTBHLy5ACv2KEH/mJ3LwiHGJbO24gBzQtaNQCLCbr+xrFysQnlPe0ZPAWqBL5xH+DRgGD0AfUNmEcBvXdCYrALFGsA0yD8FxoEtnCr4JTAYzwWqgMgnroX4zeWdzFgARXe83YaJLUGRJeo95bAQLA2zBPwcy1dlO4i5tl+CdzEkABFYxusjPxRu7TGIN7+7b4FOA68R0GQ3ijU0ncYk+tuJTm4WA6BgMrC1zmmj4YtEs7yTWRHk30CzPIu8h5AdeZa/xxrTF9lGv2wRsfSoBwYDaMvHxBiE6SrAHlIDIv8X7RplEnPUz0Ucp6DMarSJnLYCBdDhFLqn7p0FwXeDltBLNtJumDPjdvygSMY9yK7MWUGXvjaF6OrCvyB8FmZu1ALbBB1gcA0lmDvOVhEIdZIXn6JGAU/Q9nBD/Y8hagHpjoF58kohOtopmfw/lZ8B78BLsp82FoKyTfNxOUH4oHqwmn0qAOmZAiThI+jswNp9EibJRcAC0gmXAHFydHdWhmm9qu5vyI34uxSO1AI3FwH349eAjMNbFTA+AxUA3tNBKeoAKXcCYVkb3Rb8JpPFOAjQgIu7j28F58A3IlvO4BnR4haukFcN5n3lo+7XT9glpJ3MWoNEhohtX7/428ofBHaBV0UVF0tNZuEFiB2ijfi/QfUHWzTIRYChASkJO4jeARUC/qWfgdRY24y+CL6Z+Fj5TAVkQsu2jEGA7Y1nX/+9WwLwGPd7bC7KerbT9xbh8DfcTX4F7oUJ9h8zFx1046Xstzrcwx4ovc/p/JKLQb5Kfh7jpnvnFKLICvKNHKNFPP106qkw2F6atfQsm+l4rjiTHLCJAIYkAunRm43UR5QEtcNkEIuTFt0KAgvWEvyOghjNQCKjhZCcOVaxA4rTUMFj3K/ATAAD//7CKwKYAAAAGSURBVAMA8tYQf5lxgjwAAAAASUVORK5CYII=");
+  --cr1-record: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAADOUlEQVR4AeyXO2gVQRSGb4yVgsFCIYgQbSxEBImSaGEjGN+NBBGstJE0RkR8FD6wEIPGNELUSLQRTMBHIZhCfEFAEEQ7UUzhAwwIWogB5fr9lzvL5u7sfexk1g3s5Xx3zs7OnDn/zs7u7JzCLP/lAv73BOYzkM+A4xXIbyHHC+jcPZ8B50voGMA6A8VisRtewGePvCP2eZjnoiEigID7CNgPy8CnzSe4xrrJmM34iSwigCg9kKatZ7A1kMhsApaWI/2mXN7U1LTEB8S+D8bajGMrNUOwyHbOJsC0myLxKXPgoawZm6TboI+x38Jr/DFoxQ+smoCgUdoOSXbCFcZ9CnuhBWQr+TsMgWVGAAk3wzYYIbtR2AVzodI6wxVZEbCJpJ7BVdCipgjsOd4hMDZNVFYEbCe78EL+w/Ed2MA63EP5CIwtMI7KxAKY6lbog7ug57niufKDABehncR7YQK/qiUWQNRzoAW2jlJv1IcI0SLjsGH7SI+T0EHSl2ASvy5rQEAkXmWyq2khERKzEL8RGyDpYfjZSCe1dRGg/pVogel2esxsdFee9HE80wJMjotx+hExROnVfAkwSXchIvx0MfUzVvoWoP3U95hsw/e7edPGNI2v9ingG8PuT7Iw6Ve3+RCgl9AtMthI8k8ovZqLACVamdwrKnaQ+HEI3yJURyz8EaOPm0iDeipcBAyHBtAb9AhJ74Q3ofpqbjjpoyz2IVhbrYPtXGIBJHqdgLvhIOgNepvSxbrofA8RIzBtx0l9rCUWoIiIGIcHUOt2UfN60W50FBHaY22u1clJQK3gDZy/TFvtPvXYxS2Z9lg3EDLGUayQrAiYYBZ7SbQDrkFYiPZcEkh11LIioJQZIibhNAc2IVSX7H3pv/yXKQHlnAqIiBOibbdmyjQt2ASY53sL918PHPABGawAY3+NEy5DQlZR3w56OX6gDMwmYDw4WyicwD/jCX0/ELqg+/2lnDgQ8gu+QkSoTcAxAn2BtOwCiX1KOlhEAMH0HbqVgGdBLytfDBB/C+MNUia2iABFIqgW0SDlKY/oyte77VBaVqwCrC0zWulHQIpicwEpXmzrUPkMWC9LipWzfgb+AQAA//+9QgE7AAAABklEQVQDAKwOoXBcWBxNAAAAAElFTkSuQmCC");
+  --cr1-camera: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAEK0lEQVR4AeyY72tPURzH71D+A6Uo4pkQZaFpVqSMkVgKSRMPlta2rKwo1BgxltHkgV/xYKUhxUrkRxpRHqw8WPFAKR5RZEXzet/Oybn73q/de89d27Rvn/f5fM45n3PO533O+Z577p0UjPPfBIHRXsCJFdAKDA4OzgW1oCEh9uI3T2194b0CBFJLEA9BM2hMiEP49Zi2mNnFiwABaBYV+JSMITTRx+KMbcNmXgTo4SSw8gbjVEK8xE8i4gdlZEVmAsxcFYMuBJKfJPtKSkpOJwG+9UBtUEEpfW2SkQWZCDDgVAY7DKxcI/APNjOcNr6XHL9m06dTlMwsIEBHk0E1uA664kDXPWAakHwmOQbSSgcN1BYVTCfRnzp2PGK4DHaAyfhFpIAAtRdAG6gAy4tgLuVWTjCjAzaTVNPmG75HgRX1WWy81TgdB+dBRCIEYLiS2kqQRH7h1EogN9GZhLa3aNgC7P8B85+yjhiXuR4RAlTYPyVmcJtkcxFspHw+AbSjvYQ+tJUW0Yn6LDaeYsEllNIwNclQAu4e66fzF0XwinJtAdONn1JfQH3Gjkfv/cCKG2MwlIB1Gjd6RAiwT2eALaAO6H6kU23GSMxKrgQIdgnoItBecAY0Ad2PdKr1UncXLKEsN8mNAIE1EFU30FGIihXde7qNb6xD2sJcCBCQnWk7vo7Y+2TOGjxCu0dlI21EmGI/8SZAIDqX65wwnmKXc6rUAD3khO2ULQUiggpFJMpCyyNJQaDoKO6dSAFuI/CCexFlX+hhJ5APKhRdxUMja+JFgNlfwMB6J0AF2iL1BPpbmTiYOt1Ev5r6haYPk02vvAgwnLYPKpQ7BKhZDjPFEuPzwKlf4dipTV8CuoDZQd9aI4F2fWcm8C/q4kvA7TjNjfSH01DvFk42nelLwN0y7moMF8Ucx+GTY6c2fQm4W2ENf8jIRSsuGuOzwal77dipTV8CjxnRniizsXeD4WQXDnbfq+0z8pnFiwAnivZ9pzO63m2rnXzEZPZV536F6DB9RPzSZLwImIHOoe020GeSNgK9AqrALDAHVAJd8nSpkw9NAn1acV/sVZYa3gSYQT24ahj5HbCyCkPv1s/RT8BF4F7y5LuHtlpBqrKLNwENTSA6jdZiXwV6IqNiRZe8G9SsN20w/SQXAgqBgAbAAexyoC90utS9x9broOxWbF3y9uPnPgcozi65EbAhENxHoC90W9FlQEHLbscuuOTZdll17gSyBpK13QSBrDOXV7v/bgXcc7mCh48+iYw6WC19p0WF8j1MTTJ0Be5RrrMaFegLgj6JjAUoFsWk2CJ3pwgBc8zpY6sc1WAsQTG1EGOfG1SEgCpw0OVMT9Uj5PVASo8gyLuNJlXPE8VGWH+lgICqINEHOoEeSGMBurXGPgRjCYjEeMEEgdFeqXG/An8AAAD//2KuaT8AAAAGSURBVAMAH1E4fwRDuHYAAAAASUVORK5CYII=");
+  --cr1-joints: url("data:image/png;base64,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");
+  --cr1-motion: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAEZ0lEQVR4AeyZW4hNURjHz6B4IooSiiiiyDXXXBIaodwekDCTB/MwjIxcptCQDM3DIJemyOXBRIlcpoaZGkYeiDI1RRRRXuTNFI3ff89Z0zr77L3P7DlrBjnT9z/ft7717bW+/16XvfeaXol//C9H4E8PYG4Ewkagra1tOHgCXoJZYXHZ+rtzBCpJbiQYAiog0RftXLqFAMmuJ9PZwMgojFLgXJwTIPnBZLkP+KWQurF+Z7Zl5wRI6DDQtEGlSB9Kmkq90c7EKQHusBbrqojsplK3FTgTZwRIXotUCzdTciXEDs0U1Nl6ZwTocCUYATLJAAIKgRNxSeBTjIzex4iNDHVGIC8vr4me1oKdSTxGG3mOYfwbib1K2Yk4I6BsSKwJ1AiU3wEjH+RLot44XWinBFwkFLeNHIG4d8x1fG4EXN/RuO39TyMQ9970THxuBHrmPof3khuB8HvTMzXdOQIDLQr9Ldup6ZwAHysTQQ1ZrgFGluGrBRONw5V2RoDkBoMKErsD7BMJip5M4Pc+MWfB3/NFRjJ9QRHJNYANQB/vKE+e8vsA2KJv5kauKQX6DLXrYtuRI0AHOl3T0KvDKf7WqV+O7xHYD/SpiPJEX1zbeP9fBwrwbAZvgJF+GMXgGW2sRqcIvtGgAdQBHY6l1NuFSAIE6jBKQ6+DqUoa845E0BOA5vkFYuwOvlM+BuaT+EO0J9h1GCvAAfAVGNHxSxVt6SapH+OvwhgDxoFyECqhBGhUDdoLUQ0W49c8v0eL9jz/Sfk6mEOyZ8Av7BTB1wou4VwELoIfwIj6Egmtjy04JwEjC+lTxzWmnKJDCRBVAvyyG0fQPF9CcnvAN+ojRTHgEEH5IGh9HMXvl6BcvJhAAjCeTu0yECX2PG+JCgyqg0QLCFofQeGzyWlpUEUgAQKD7gLuDrmClTLPKXdJIGHWx+kMDZRBwluDdlwaAYLEVHPSjvPbo+k4bZ77gzpbpq1WYrXGUKGijSRtx0ojwOWa56hI0ZCGLqzIKwMqkzct05TVldp6pTsQRGB4R220sdiuJolyoF1EkL3Ars9gz8hQb6oHGcPoIAI7qNSpmp6ievi8pfwRaP/WPo+Z+MLPDWCLTp31lBVkX4OQntB2TJh9mwq1qa1VfXymrE1C/b/CVi7KaTt2iqQRYD7Wg01AT1Ftj1qsMylPBuPBMDAN+HeeI7Ss48O9aHWOSqQc4ooQqBZUaUBbr4Ha1NpSH9MpzwXqPx+tXJRTo7nG6DQCpiKuppPzQMeKOvc8kbxeT9qk6Sm9jmiuC54j25+sCXA3vbdQtN5dmtHNiUTipJ0YviJQjU8EUImEyoJXyOInawL0fRzo6az/jb3A1im1f3opcd11e0RUFrik6+KCgNmNdjGFNE/1dD3X9ZTiXemCgF7k1Os8poTeUkWoTA4DiBWAYZQ73n1UFvBlJS4I3EpmoK2zFvsyMKQwu1dcEDhIinrPv4m+C7SN6t3/FLaAahfuuDcSaI1GuzPL398AAAD//2IzvgcAAAAGSURBVAMA+WRoOx79WTQAAAAASUVORK5CYII=");
+}
+
+    body { margin: 0; padding: 1rem; }
+    #cr1-button-flow button:focus-visible, #cr1-button-flow summary:focus-visible {
+      outline: 2px solid #76aafa; outline-offset: 3px;
+    }
+    #cr1-button-flow .cr1-command-table { margin-top: 0.75rem; }
+    #cr1-button-flow .cr1-command-table summary { cursor: pointer; }
+    #cr1-button-flow table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+    #cr1-button-flow th, #cr1-button-flow td {
+      padding: 0.4rem 0.5rem; text-align: left; border-bottom: 1px solid var(--preview-edge);
+    }
+    #cr1-button-flow dialog {
+      width: min(440px, calc(100% - 2rem)); border: 1px solid #ffffff40; border-radius: 8px;
+      background: #191a1d; color: #fff; padding: 18px;
+    }
+    #cr1-button-flow dialog::backdrop { background: #000b; }
+    #cr1-button-flow dialog h2 { margin: 0; }
+    #cr1-button-flow dialog p { margin: 10px 0 15px; }
+    #cr1-button-flow dialog form { display: flex; justify-content: flex-end; gap: 8px; }
+    #cr1-button-flow dialog button {
+      border: 1px solid #ffffff40; border-radius: 6px; padding: 6px 12px; background: #222; color: #fff;
+    }
+    #cr1-button-flow #dialog-accept { border-color: #266efd; background: #266efd; }
+    #cr1-button-flow .cr1-speed-control { position: relative; }
+    #cr1-button-flow .cr1-primary-row .cr1-speed { min-width: 0; }
+    #cr1-button-flow .cr1-speed-panel {
+      position: absolute; z-index: 1; top: calc(100% + 7px); padding: 8px;
+      border: 1px solid #ffffff40; border-radius: 6px; background: #191a1d;
+    }
+    #cr1-button-flow .cr1-speed-panel input { accent-color: #266efd; width: 120px; }
+    @media (max-width: 570px) {
+      body { padding: 0.5rem; }
+    }
+    @media (orientation: landscape) and (max-height: 880px) {
+      body { padding: 6px 8px; }
+      #cr1-button-flow {
+        display: flex; flex-direction: column; min-height: calc(100svh - 12px); padding: 0;
+      }
+      #cr1-button-flow .cr1-preview-header { gap: 4px 10px; margin-bottom: 4px; }
+      #cr1-button-flow .cr1-preview-header h2 { font-size: 16px; }
+      #cr1-button-flow .cr1-preview-header .cr1-caption { display: none; }
+      #cr1-button-flow .cr1-device { flex: 1; min-height: 0; background-size: cover; }
+      #cr1-button-flow .cr1-header, #cr1-button-flow .cr1-stop { min-height: 36px; }
+      #cr1-button-flow .cr1-body { gap: 10px; padding: 7px 10px; }
+      #cr1-button-flow .cr1-left { gap: 6px; }
+      #cr1-button-flow .cr1-primary-row, #cr1-button-flow .cr1-pad { gap: 6px 8px; }
+      #cr1-button-flow .cr1-left button {
+        min-height: clamp(36px, 10svh, 44px); padding: 3px 5px;
+      }
+      #cr1-button-flow .cr1-action-options { gap: 6px 8px; }
+      #cr1-button-flow .cr1-tools { gap: 4px; }
+      #cr1-button-flow .cr1-tools span::before { width: 30px; height: 30px; background-size: 17px; }
+      #cr1-button-flow .cr1-feedback { gap: 2px 10px; padding-top: 4px; }
+      #cr1-button-flow .cr1-command-table { margin-top: 3px; }
+    }
+    @media (orientation: landscape) and (max-height: 420px) {
+      #cr1-button-flow .cr1-tools span { display: flex; align-items: center; gap: 4px; }
+      #cr1-button-flow .cr1-tools span::before { width: 24px; height: 24px; background-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <main id="cr1-button-flow">
+    <header class="cr1-preview-header">
+      <div>
+        <h2>CR1PRO 手柄预览</h2>
+        <span class="cr1-caption">离线模拟 · PRO SDK</span>
+      </div>
+    </header>
+    <section class="cr1-device" aria-label="常规模式手柄界面">
+      <header class="cr1-header">
+        <div class="cr1-mode">
+          <span class="cr1-back" aria-hidden="true"></span>
+          <strong>常规模式</strong>
+          <span class="cr1-mode-arrow" aria-hidden="true">▾</span>
+        </div>
+        <div class="cr1-top-right">
+          <span class="cr1-settings" aria-hidden="true"></span>
+          <span class="cr1-battery" aria-label="电量不可用">--%</span>
+          <button type="button" class="cr1-stop" id="stop" aria-label="STOP（仅模拟）">STOP</button>
+        </div>
+      </header>
+      <div class="cr1-body">
+        <div class="cr1-left">
+          <div class="cr1-row cr1-primary-row" role="group" aria-label="运动模式">
+            <button type="button" id="hang" hidden>悬吊起立</button>
+            <button type="button" id="squat" hidden>蹲姿起立</button>
+            <button type="button" id="walk">开始运动</button>
+            <button type="button" id="damping">阻尼模式</button>
+            <div id="speed-control" class="cr1-speed-control" hidden>
+              <button type="button" id="speed" class="cr1-speed" aria-controls="speed-panel" aria-expanded="false">速率</button>
+              <div id="speed-panel" class="cr1-speed-panel" hidden>
+                <input id="speed-range" type="range" min="0" max="100" value="50" aria-label="模拟速率">
+                <output id="speed-value" for="speed-range">50%</output>
+              </div>
+            </div>
+          </div>
+          <div id="motions" class="cr1-pad" role="group" aria-label="RL 动作" hidden></div>
+        </div>
+        <aside class="cr1-tools" aria-label="原手柄右侧工具（离线占位）">
+          <span data-tool="video">图传</span>
+          <span data-tool="record">录像</span>
+          <span data-tool="camera">拍照</span>
+          <span data-tool="joints">关节参数</span>
+          <span data-tool="motion">运动参数</span>
+        </aside>
+      </div>
+    </section>
+
+    <footer class="cr1-feedback" aria-live="polite" aria-atomic="true">
+      <span class="cr1-caption">模拟反馈</span>
+      <strong id="status">准备站姿</strong>
+      <code id="state-code">0x20006</code>
+      <span id="hint" class="cr1-caption">可点「开始运动」。</span>
+    </footer>
+
+    <details class="cr1-command-table">
+      <summary>DDS 口令表</summary>
+      <table>
+        <thead><tr><th scope="col">手柄按钮</th><th scope="col">名称</th><th scope="col">DDS 口令</th></tr></thead>
+        <tbody id="command-rows"></tbody>
+      </table>
+    </details>
+
+    <dialog id="confirmation" aria-labelledby="dialog-title" aria-describedby="dialog-content">
+      <h2 id="dialog-title"></h2>
+      <p id="dialog-content"></p>
+      <form method="dialog">
+        <button type="submit" value="cancel">取消</button>
+        <button type="submit" value="accept" id="dialog-accept">确定</button>
+      </form>
+    </dialog>
+  </main>
+  <script>
+    const motionData = [
+      [1, "站立", "0x1100B"],
+      [2, "跑步", "0x1100C"],
+      [3, "讲解", "0x1100D"],
+      [4, "欢迎手势", "0x1100E"],
+      [5, "敬礼", "0x1100F"],
+      [6, "欢迎1", "0x11010"],
+      [7, "欢迎2", "0x11011"],
+      [8, "椅子坐姿", "0x11012"],
+      [9, "坐姿起立", "0x11013"],
+      [10, "拳击", "0x11014"],
+      [11, "躺姿（SDK 保留，禁用）", "0x11015", false],
+      [12, "躺姿起立（SDK 保留，禁用）", "0x11016", false],
+    ];
+    const actions = new Map(motionData.filter(([, , , visible]) => visible !== false)
+      .map(([number, label, code]) => [number, { label, code }]));
+    const modes = {
+      idle: { label: "空闲", code: "0x0" },
+      ready: { label: "准备站姿", code: "0x20006" },
+      squat: { label: "蹲姿准备", code: "0x20010" },
+      walking: { label: "RL模式", code: "0x11" },
+      damping: { label: "关节阻尼", code: "0x2" },
+    };
+    const gestures = [3, 4, 5, 6, 7];
+    const exits = new Map([
+      ["idle", ["ready", "squat"]],
+      ["ready", ["walking"]],
+      ["squat", [9]],
+      ["walking", [1, 2, ...gestures, 8, 10]],
+      [1, ["walking", 2, ...gestures]],
+      [2, ["walking", 1, ...gestures, 8]],
+      ...gestures.map(number => [number, ["walking", 2, ...gestures.filter(gesture => gesture !== number)]]),
+      [8, [9]],
+      [9, ["walking"]],
+      [10, ["walking"]],
+    ]);
+    // Preview timers model the successful feedback path of the handset and SDK.
+    const standPreparationMs = 3000;
+    const squatPreparationMs = 3300;
+    const chairRiseMs = 360 * 20;
+    const armLoweringMs = 2400;
+    const dampingMs = 10000;
+
+    const element = id => document.getElementById(id);
+    const pad = element("motions");
+    const hang = element("hang");
+    const squat = element("squat");
+    const walk = element("walk");
+    const stop = element("stop");
+    const damping = element("damping");
+    const speedControl = element("speed-control");
+    const speed = element("speed");
+    const speedPanel = element("speed-panel");
+    const dialog = element("confirmation");
+    const actionButtons = new Map();
+    const groups = [];
+    let current = "ready";
+    let waiting = "";
+    let hint = "";
+    let lastCommand = "";
+    let timer;
+    let confirmAction;
+
+    for (const [number, { label, code }] of actions) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.motion = String(number);
+      button.title = "DDS " + code;
+      button.textContent = label;
+      button.addEventListener("click", () => request(number));
+      actionButtons.set(number, button);
+    }
+
+    function appendGroup(title, numbers, id) {
+      const toggle = document.createElement("button");
+      toggle.type = "button";
+      toggle.setAttribute("aria-controls", id);
+      const options = document.createElement("div");
+      options.id = id;
+      options.className = "cr1-action-options";
+      options.setAttribute("role", "group");
+      options.setAttribute("aria-label", title);
+      options.append(...numbers.map(number => actionButtons.get(number)));
+      const group = { title, toggle, options, expanded: false };
+      groups.push(group);
+      toggle.addEventListener("click", () => {
+        group.expanded = !group.expanded;
+        render();
+      });
+      pad.append(toggle, options);
+    }
+
+    pad.append(actionButtons.get(1), actionButtons.get(2));
+    appendGroup("上肢手势", gestures, "cr1-preview-gestures");
+    appendGroup("椅子动作", [8, 9], "cr1-preview-chair");
+    pad.append(actionButtons.get(10));
+
+    function canRequest(target) {
+      if (waiting === "lowering") return target === 2;
+      return !waiting && exits.get(current)?.includes(target) === true;
+    }
+
+    function setSpeedPanel(open) {
+      speedPanel.hidden = !open;
+      speed.setAttribute("aria-expanded", String(open));
+    }
+
+    function render() {
+      const mode = modes[current] ?? actions.get(current);
+      const inRlMenu = current === "walking" || actions.has(current);
+      pad.hidden = !inRlMenu;
+      for (const { title, toggle, options, expanded } of groups) {
+        toggle.textContent = title + (expanded ? " ▴" : " ▾");
+        toggle.setAttribute("aria-expanded", String(expanded));
+        options.hidden = !expanded;
+      }
+      for (const [number, button] of actionButtons) {
+        button.disabled = !canRequest(number);
+        if (current === number) button.setAttribute("aria-current", "true");
+        else button.removeAttribute("aria-current");
+      }
+
+      hang.hidden = current !== "idle";
+      hang.title = "DDS " + modes.ready.code;
+      hang.disabled = !canRequest("ready");
+      squat.hidden = current !== "idle" && current !== "squat";
+      squat.textContent = current === "idle" ? "蹲姿起立" :
+        (waiting ? "等待蹲姿稳定…" : "开始站立");
+      squat.title = "DDS " + (current === "squat" ? actions.get(9).code : modes.squat.code);
+      squat.disabled = !canRequest(current === "squat" ? 9 : "squat");
+      walk.hidden = !inRlMenu && current !== "ready";
+      walk.textContent = inRlMenu ? "RL模式" : "开始运动";
+      walk.title = "DDS " + modes.walking.code;
+      walk.disabled = !canRequest("walking");
+      if (current === "walking") walk.setAttribute("aria-current", "true");
+      else walk.removeAttribute("aria-current");
+      damping.hidden = current !== "ready";
+      damping.title = "DDS 0x2000F";
+      stop.title = "DDS " + modes.damping.code;
+      stop.disabled = current === "idle" || current === "damping";
+      speedControl.hidden = !["walking", 2].includes(current);
+      if (speedControl.hidden) setSpeedPanel(false);
+
+      element("status").textContent = mode.label;
+      element("state-code").textContent = mode.code;
+      const instructions = hint || ({
+        idle: "可选择「悬吊起立」或「蹲姿起立」。",
+        ready: "可点「开始运动」。",
+        squat: "可点「开始站立」。",
+        8: "坐稳后可点「坐姿起立」。",
+        9: "可点「RL模式」。",
+      }[current] ?? "");
+      element("hint").textContent = [lastCommand && "模拟指令 " + lastCommand, instructions]
+        .filter(Boolean).join(" · ");
+    }
+
+    function enter(next) {
+      clearTimeout(timer);
+      current = next;
+      waiting = "";
+      hint = "";
+      if (!actions.has(current) && current !== "walking") {
+        for (const group of groups) group.expanded = false;
+      }
+    }
+
+    function hold(reason, message, duration, finish = () => {}) {
+      waiting = reason;
+      hint = message;
+      timer = setTimeout(() => {
+        waiting = "";
+        hint = "";
+        finish();
+        render();
+      }, duration);
+    }
+
+    function request(target) {
+      if (!canRequest(target)) return;
+      lastCommand = (modes[target] ?? actions.get(target)).code;
+      if (target === "walking" && gestures.includes(current)) {
+        hold("lowering", "收臂到位后进入行走。", armLoweringMs, () => enter("walking"));
+      } else {
+        const previous = current;
+        enter(target);
+        if (target === "ready") hold("ready", "等待站立完成。", standPreparationMs);
+        if (target === "squat") hold("squat", "等待蹲姿稳定。", squatPreparationMs);
+        if (target === 9 && previous === 8) hold("rising", "等待坐姿起立完成。", chairRiseMs);
+      }
+      render();
+    }
+
+    function confirm(title, message, accept, callback) {
+      element("dialog-title").textContent = title;
+      element("dialog-content").textContent = message;
+      element("dialog-accept").textContent = accept;
+      confirmAction = callback;
+      dialog.showModal();
+    }
+
+    dialog.querySelector("form").addEventListener("submit", event => {
+      event.preventDefault();
+      const callback = confirmAction;
+      confirmAction = undefined;
+      dialog.close();
+      if (event.submitter?.value === "accept") callback?.();
+    });
+    dialog.addEventListener("cancel", () => { confirmAction = undefined; });
+    hang.addEventListener("click", () => confirm("悬吊起立", "请确认机器人处于悬吊状态且双脚离地。",
+      "确定，下一步", () => request("ready")));
+    walk.addEventListener("click", () => {
+      if (current === "ready") {
+        confirm("悬吊起立", "请确认机器人的双脚完全接触地面。", "确定，开始运动", () => request("walking"));
+      } else {
+        request("walking");
+      }
+    });
+    squat.addEventListener("click", () => {
+      if (current === "squat") {
+        confirm("开始站立", "请确认机器人已稳定保持蹲姿。", "确定", () => request(9));
+      } else {
+        confirm("蹲姿起立", "请确认机器人周围无人员及障碍物。", "确定", () => request("squat"));
+      }
+    });
+    damping.addEventListener("click", () => confirm("阻尼模式", "请确认机器人已有可靠支撑。",
+      "确定", () => {
+        lastCommand = "0x2000F";
+        hint = "当前 SDK 拒绝这条口令；顶部 STOP 使用 0x2。";
+        render();
+      }));
+    speed.addEventListener("click", () => setSpeedPanel(speedPanel.hidden));
+    element("speed-range").addEventListener("input", event => {
+      element("speed-value").value = event.target.value + "%";
+    });
+    stop.addEventListener("click", () => {
+      if (stop.disabled) return;
+      enter("damping");
+      lastCommand = modes.damping.code;
+      hold("damping", "约 10 秒后自动回到空闲。", dampingMs, () => enter("idle"));
+      render();
+    });
+
+    const commandRows = [
+      ["悬吊起立", "准备站姿", modes.ready.code],
+      ["蹲姿起立", "蹲姿准备", modes.squat.code],
+      ["开始运动 / RL模式", "拟人行走", modes.walking.code],
+      ...motionData.map(([number, label, code]) => [
+        number === 9 ? "motion_9 / 开始站立" : "motion_" + number, label, code,
+      ]),
+      ["顶部 STOP", "关节阻尼", modes.damping.code],
+      ["阻尼模式", "当前 SDK 拒绝", "0x2000F"],
+    ];
+    for (const fields of commandRows) {
+      const row = element("command-rows").insertRow();
+      for (const field of fields) row.insertCell().textContent = field;
+    }
+    render();
+  </script>
+</body>
+</html>

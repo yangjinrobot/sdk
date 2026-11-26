@@ -163,13 +163,11 @@ public:
         if (run_time_ - time_stamp_record_ < 3.0f) return StateName::kAmpWalkingZeroPos;
 
 
-        if (command_snapshot.target_mode == RobotMotionState::AmpWalkingControl) {
+        if (command_snapshot.target_mode == RobotMotionState::AmpControl_Walk_Mode) {
             std::cout << "go to amp control" << std::endl;
             return StateName::kAmpWalkingControl;
         }
 
-        if (command_snapshot.target_mode == RobotMotionState::AmpWalkingWAQ)
-            return StateName::kAmpWalkingWAQ;
         return StateName::kAmpWalkingZeroPos;
     }
 };
